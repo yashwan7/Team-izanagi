@@ -1,7 +1,16 @@
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-.vscode/
+
+# Temporary office lock files
+~$*
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Build artifacts & IDEs
 build/
 bin/
-.DS_Store
+.vscode/
