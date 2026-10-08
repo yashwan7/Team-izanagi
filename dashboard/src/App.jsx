@@ -5,7 +5,10 @@ import TriageMap from './components/TriageMap';
 import SyncConflictTimeline from './components/SyncConflictTimeline';
 import EyeGazeAlertModal from './components/EyeGazeAlertModal';
 import PatientDetailModal from './components/PatientDetailModal';
-import { Sparkles, Play, ShieldAlert, HeartPulse, RefreshCw } from 'lucide-react';
+import { 
+  HeartPulse, ShieldAlert, RefreshCw, 
+  Stethoscope, Activity, ClipboardCheck, Sparkles 
+} from 'lucide-react';
 
 const API_BASE = '/api';
 
@@ -20,7 +23,6 @@ export default function App() {
   const [wsConnected, setWsConnected] = useState(false);
   const wsRef = useRef(null);
 
-  // Fetch initial data
   const fetchAllData = async () => {
     try {
       const [resNet, resPat, resTime] = await Promise.all([
@@ -40,7 +42,6 @@ export default function App() {
     }
   };
 
-  // Fetch patient detail & evaluation
   const fetchPatientDetail = async (patientId) => {
     try {
       const res = await fetch(`${API_BASE}/patients/${patientId}`);
@@ -106,7 +107,6 @@ export default function App() {
     };
   }, []);
 
-  // Handlers
   const handleSelectPatient = (id) => {
     setSelectedPatientId(id);
     fetchPatientDetail(id);
@@ -144,7 +144,6 @@ export default function App() {
   };
 
   const handleTriggerOfflineSync = async () => {
-    // Send duplicate medication batch
     const duplicateCapsule = {
       patient_id: "PT-101",
       patient_name: "Sgt. Marcus Vance",
@@ -172,21 +171,22 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070a10] text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-black">
+    <div className="min-h-screen bg-[#080d1a] text-slate-100 flex flex-col font-sans selection:bg-sky-500 selection:text-white">
       
-      {/* Network & Header Bar */}
+      {/* Hospital Command Center Header */}
       <NetworkBar 
         networkStatus={networkStatus} 
         onSimulateNetwork={handleSimulateNetwork} 
         isOnline={wsConnected}
       />
 
-      {/* Demo Quick-Trigger Bar */}
-      <div className="bg-slate-900/80 border-b border-slate-800/80 px-4 py-2 text-xs font-mono">
+      {/* Hospital Clinical Test & Simulator Bar */}
+      <div className="bg-[#0b1328] border-b border-[#1b284a] px-4 md:px-6 py-2 text-xs">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 flex-wrap">
-          <div className="flex items-center gap-2 text-slate-400">
-            <Sparkles className="w-4 h-4 text-cyan-400" />
-            <span className="font-semibold text-slate-200">INTERACTIVE DEMO SANDBOX:</span>
+          <div className="flex items-center gap-2 text-slate-300">
+            <Stethoscope className="w-4 h-4 text-sky-400" />
+            <span className="font-semibold text-white">CLINICAL TRIAGE SANDBOX:</span>
+            <span className="text-slate-500 hidden sm:inline">&bull; Real-time EOG Biopotential & Hardware HMAC Emulation</span>
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
@@ -198,10 +198,10 @@ export default function App() {
                 blink_count: 2,
                 tampered: false
               })}
-              className="px-2.5 py-1 rounded bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 flex items-center gap-1.5 transition-all"
+              className="px-2.5 py-1 rounded-md bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 flex items-center gap-1.5 transition-all font-medium"
             >
               <HeartPulse className="w-3.5 h-3.5 text-rose-400" />
-              <span>Simulate CALL_NURSE (Verified)</span>
+              <span>Simulate Nurse Call (Verified)</span>
             </button>
 
             <button
@@ -212,7 +212,7 @@ export default function App() {
                 blink_count: 1,
                 tampered: true
               })}
-              className="px-2.5 py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 flex items-center gap-1.5 transition-all"
+              className="px-2.5 py-1 rounded-md bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 flex items-center gap-1.5 transition-all font-medium"
             >
               <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
               <span>Simulate Tampered HMAC Capsule</span>
@@ -220,19 +220,19 @@ export default function App() {
 
             <button
               onClick={handleTriggerOfflineSync}
-              className="px-2.5 py-1 rounded bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 flex items-center gap-1.5 transition-all"
+              className="px-2.5 py-1 rounded-md bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 flex items-center gap-1.5 transition-all font-medium"
             >
-              <RefreshCw className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Simulate Duplicate Med Sync</span>
+              <RefreshCw className="w-3.5 h-3.5 text-sky-400" />
+              <span>Reconcile Duplicate Meds</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Main Dashboard Grid */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-12 gap-4">
+      {/* Main Clinical Operations Grid */}
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-5 grid grid-cols-1 lg:grid-cols-12 gap-4">
         
-        {/* Left Column: Harm-Ranked Queue (5 Columns) */}
+        {/* Left Column: Hospital Emergency Triage Board (5 Columns) */}
         <section className="lg:col-span-5 h-[calc(100vh-140px)] min-h-[580px]">
           <HarmRankedQueue 
             patients={patients} 
@@ -241,10 +241,10 @@ export default function App() {
           />
         </section>
 
-        {/* Right Column: Tactical Map & Sync Timeline (7 Columns) */}
+        {/* Right Column: Dispatch Map & EMR Audit Timeline (7 Columns) */}
         <section className="lg:col-span-7 h-[calc(100vh-140px)] min-h-[580px] flex flex-col gap-4">
           
-          {/* Tactical Leaflet Map (Top Half) */}
+          {/* Dispatch Map (Top Half) */}
           <div className="flex-1 min-h-[290px]">
             <TriageMap 
               patients={patients} 
@@ -253,7 +253,7 @@ export default function App() {
             />
           </div>
 
-          {/* Offline Sync & Conflict Resolution Timeline (Bottom Half) */}
+          {/* EMR Audit & Conflict Resolution Timeline (Bottom Half) */}
           <div className="flex-1 min-h-[270px]">
             <SyncConflictTimeline 
               timeline={incidentTimeline} 
@@ -266,18 +266,18 @@ export default function App() {
         </section>
       </main>
 
-      {/* Real-Time Eye Gaze Alert Modal */}
+      {/* Real-Time Nurse Call / EOG Alert Modal */}
       {activeGazeAlert && (
         <EyeGazeAlertModal 
           alert={activeGazeAlert} 
           onClose={() => setActiveGazeAlert(null)}
           onDispatch={(alert) => {
-            console.log('Dispatched action for:', alert);
+            console.log('Hospital response dispatched for:', alert);
           }}
         />
       )}
 
-      {/* Patient Clinical Deep Dive Modal */}
+      {/* Patient EMR Clinical Chart Modal */}
       {isDetailOpen && selectedPatientDetail && (
         <PatientDetailModal 
           patient={selectedPatientDetail}

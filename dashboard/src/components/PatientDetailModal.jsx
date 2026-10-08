@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { 
   X, Activity, Heart, Wind, Clock, ShieldCheck, ShieldAlert, 
-  BrainCircuit, AlertTriangle, CheckSquare, Pill, Eye, Compass, Send
+  BrainCircuit, AlertTriangle, CheckSquare, Pill, Eye, Compass, Send, 
+  FileText, User, Thermometer, Stethoscope 
 } from 'lucide-react';
 
 export default function PatientDetailModal({ 
@@ -39,40 +40,40 @@ export default function PatientDetailModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-150">
-      <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-2xl border border-[#1b284a] bg-[#091024] shadow-2xl overflow-hidden">
         
-        {/* Modal Header */}
-        <div className="px-6 py-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
+        {/* Hospital Patient Chart Header */}
+        <div className="px-6 py-4 bg-[#0d1733] border-b border-[#1b284a] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center">
-              <Activity className="w-5 h-5 text-cyan-400" />
+            <div className="w-10 h-10 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400">
+              <Stethoscope className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-bold text-white m-0 font-mono">{p.patient_id}</h2>
-                <span className="text-slate-400 text-sm">&bull; {p.patient_name || 'Operative'}</span>
-                <span className={`px-2 py-0.5 rounded font-mono text-xs font-bold border ${
-                  patient.triage_badge === 'RED' ? 'bg-rose-500/20 text-rose-300 border-rose-500/40' :
-                  patient.triage_badge === 'YELLOW' ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' :
-                  'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                <h2 className="text-base md:text-lg font-bold text-white m-0 font-mono">{p.patient_id}</h2>
+                <span className="text-slate-300 text-sm font-semibold">&bull; {p.patient_name || 'Patient'}</span>
+                <span className={`px-2 py-0.5 rounded text-xs font-bold font-mono border ${
+                  patient.triage_badge === 'RED' ? 'bg-rose-950/60 text-rose-300 border-rose-500/50' :
+                  patient.triage_badge === 'YELLOW' ? 'bg-amber-950/60 text-amber-300 border-amber-500/50' :
+                  'bg-emerald-950/60 text-emerald-300 border-emerald-500/50'
                 }`}>
                   PRIORITY: {patient.priority_score?.toFixed(1)}
                 </span>
               </div>
-              <p className="text-xs text-slate-400 font-mono mt-0.5">
-                Sector GPS: {p.gps?.lat.toFixed(4)}, {p.gps?.lng.toFixed(4)} &bull; Alt: {p.gps?.altitude || 210}m
+              <p className="text-xs text-slate-400 mt-0.5">
+                Hospital EMR Record &bull; Sector GPS: {p.gps?.lat.toFixed(4)}, {p.gps?.lng.toFixed(4)} &bull; Alt: {p.gps?.altitude || 210}m
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             {isTampered ? (
-              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-rose-500/20 text-rose-300 border border-rose-500/50 radar-alert">
+              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-bold font-mono bg-rose-500/20 text-rose-300 border border-rose-500/50 emergency-beacon-alert">
                 <ShieldAlert className="w-4 h-4 text-rose-400" />
                 TAMPERED
               </span>
             ) : (
-              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/30">
+              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium font-mono text-emerald-400 bg-emerald-950/40 border border-emerald-500/30">
                 <ShieldCheck className="w-4 h-4 text-emerald-400" />
                 HMAC VERIFIED
               </span>
@@ -89,91 +90,96 @@ export default function PatientDetailModal({
         {/* Modal Scroll Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
 
-          {/* Vitals Summary Strip */}
+          {/* ICU Telemetry Vitals Grid */}
           <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
-            <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 flex flex-col font-mono">
+            <div className="bg-[#0b1428] p-3 rounded-xl border border-[#1b284a] flex flex-col">
               <span className="text-slate-400 text-xs flex items-center gap-1">
                 <Heart className="w-3 h-3 text-rose-400" /> Heart Rate
               </span>
-              <span className="text-xl font-bold text-white mt-1">
+              <span className="text-xl font-bold font-mono text-white mt-1">
                 {p.vitals?.heart_rate || '--'} <span className="text-xs text-slate-400 font-normal">bpm</span>
               </span>
+              <span className="text-[10px] text-slate-500 mt-0.5">Norm: 60-100</span>
             </div>
 
-            <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 flex flex-col font-mono">
+            <div className="bg-[#0b1428] p-3 rounded-xl border border-[#1b284a] flex flex-col">
               <span className="text-slate-400 text-xs flex items-center gap-1">
-                <Wind className="w-3 h-3 text-cyan-400" /> SpO2
+                <Wind className="w-3 h-3 text-cyan-400" /> SpO2 O2
               </span>
-              <span className={`text-xl font-bold mt-1 ${p.vitals?.spo2 < 90 ? 'text-rose-400' : 'text-white'}`}>
+              <span className={`text-xl font-bold font-mono mt-1 ${p.vitals?.spo2 < 90 ? 'text-rose-400' : 'text-white'}`}>
                 {p.vitals?.spo2 || '--'}%
               </span>
+              <span className="text-[10px] text-slate-500 mt-0.5">Norm: &gt;95%</span>
             </div>
 
-            <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 flex flex-col font-mono">
+            <div className="bg-[#0b1428] p-3 rounded-xl border border-[#1b284a] flex flex-col">
               <span className="text-slate-400 text-xs">Blood Pressure</span>
-              <span className="text-xl font-bold text-white mt-1">
+              <span className="text-xl font-bold font-mono text-white mt-1">
                 {p.vitals?.systolic_bp || '--'}/{p.vitals?.diastolic_bp || '--'}
               </span>
+              <span className="text-[10px] text-slate-500 mt-0.5">mmHg</span>
             </div>
 
-            <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 flex flex-col font-mono">
-              <span className="text-slate-400 text-xs">Respiratory Rate</span>
-              <span className="text-xl font-bold text-white mt-1">
+            <div className="bg-[#0b1428] p-3 rounded-xl border border-[#1b284a] flex flex-col">
+              <span className="text-slate-400 text-xs">Resp. Rate</span>
+              <span className="text-xl font-bold font-mono text-white mt-1">
                 {p.vitals?.respiratory_rate || '--'} <span className="text-xs text-slate-400 font-normal">/min</span>
               </span>
+              <span className="text-[10px] text-slate-500 mt-0.5">Norm: 12-20</span>
             </div>
 
-            <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 flex flex-col font-mono">
+            <div className="bg-[#0b1428] p-3 rounded-xl border border-[#1b284a] flex flex-col">
               <span className="text-slate-400 text-xs flex items-center gap-1">
-                <Clock className="w-3 h-3 text-amber-400" /> Time To Help
+                <Clock className="w-3 h-3 text-amber-400" /> Evac ETA
               </span>
-              <span className="text-xl font-bold text-amber-300 mt-1">
+              <span className="text-xl font-bold font-mono text-amber-300 mt-1">
                 {p.time_to_help < 1 ? `${Math.round(p.time_to_help * 60)}m` : `${p.time_to_help}h`}
               </span>
+              <span className="text-[10px] text-slate-500 mt-0.5">Definitive Care</span>
             </div>
 
-            <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 flex flex-col font-mono">
-              <span className="text-slate-400 text-xs">Fall Status</span>
-              <span className={`text-sm font-bold mt-2 ${p.vitals?.fall_detected ? 'text-rose-400' : 'text-emerald-400'}`}>
-                {p.vitals?.fall_detected ? 'FALL DETECTED' : 'STABLE'}
+            <div className="bg-[#0b1428] p-3 rounded-xl border border-[#1b284a] flex flex-col">
+              <span className="text-slate-400 text-xs">Trauma Fall</span>
+              <span className={`text-sm font-bold font-mono mt-2 ${p.vitals?.fall_detected ? 'text-rose-400' : 'text-emerald-400'}`}>
+                {p.vitals?.fall_detected ? 'FALL DETECTED' : 'NORMAL'}
               </span>
             </div>
           </div>
 
-          {/* Delay-Aware Clinical Triage Engine Output */}
-          <div className="bg-gradient-to-br from-slate-900 to-slate-950 p-5 rounded-2xl border border-cyan-500/30 shadow-xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          {/* Clinical Decision Support (CDSS) - Ollama Llama 3.2 */}
+          <div className="bg-[#0c1630] p-5 rounded-2xl border border-sky-500/30 shadow-xl space-y-4">
+            <div className="flex items-center justify-between border-b border-[#1b284a] pb-3">
               <div className="flex items-center gap-2">
-                <BrainCircuit className="w-5 h-5 text-cyan-400" />
-                <h3 className="text-sm font-bold text-slate-100 uppercase tracking-wider m-0">
-                  Delay-Aware Clinical Triage Decision (Ollama Llama 3.2:3b)
+                <BrainCircuit className="w-5 h-5 text-sky-400" />
+                <h3 className="text-xs md:text-sm font-bold text-white uppercase tracking-wider m-0">
+                  Clinical Decision Support (Ollama Llama 3.2 Triage Service)
                 </h3>
               </div>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-sky-500/20 text-sky-300 border border-sky-500/30">
                 PROTOCOL: {evaluation?.protocol_mode || (isAcute ? 'ACUTE_STABILIZATION' : isPFC ? 'PROLONGED_FIELD_CARE' : 'TACTICAL_STANDARD')}
               </span>
             </div>
 
             {/* Clinical Summary */}
-            <div className="p-3.5 bg-slate-950/70 rounded-xl border border-slate-800/80">
-              <div className="text-[11px] font-mono text-cyan-400 uppercase tracking-wider mb-1">
-                Clinical Diagnosis & Urgency Justification:
+            <div className="p-3.5 bg-[#080e1e] rounded-xl border border-[#1b284a]">
+              <div className="text-[11px] font-mono text-sky-400 uppercase tracking-wider mb-1 font-semibold">
+                Clinical Diagnosis & Triage Assessment:
               </div>
-              <p className="text-sm text-slate-200 leading-relaxed m-0">
+              <p className="text-xs md:text-sm text-slate-200 leading-relaxed m-0">
                 {evaluation?.clinical_summary || 'Evaluating patient physiological status...'}
               </p>
             </div>
 
-            {/* Action Steps */}
+            {/* Clinical Action Steps */}
             <div>
-              <div className="text-xs font-mono font-semibold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <div className="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                 <CheckSquare className="w-4 h-4 text-emerald-400" />
-                Action Steps:
+                Prescribed Clinical Action Plan:
               </div>
               <div className="space-y-2">
                 {evaluation?.action_steps?.map((step, idx) => (
-                  <div key={idx} className="flex items-start gap-2.5 p-2.5 bg-slate-950/60 rounded-lg border border-slate-800 text-xs text-slate-200">
-                    <span className="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-[10px] font-bold font-mono shrink-0 mt-0.5">
+                  <div key={idx} className="flex items-start gap-2.5 p-2.5 bg-[#080e1e] rounded-lg border border-[#1b284a] text-xs text-slate-200">
+                    <span className="w-5 h-5 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center text-[10px] font-bold font-mono shrink-0 mt-0.5">
                       {idx + 1}
                     </span>
                     <span>{step}</span>
@@ -182,12 +188,12 @@ export default function PatientDetailModal({
               </div>
             </div>
 
-            {/* Prolonged Field Care Specifics (if >=24h) */}
+            {/* Prolonged Field Care Specifics */}
             {(isPFC || (evaluation?.rationing_guidelines && evaluation.rationing_guidelines.length > 0)) && (
               <div className="p-3.5 bg-purple-950/30 rounded-xl border border-purple-500/30 space-y-2">
-                <div className="text-xs font-mono font-bold text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
+                <div className="text-xs font-bold text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-purple-400" />
-                  Austere Supply Rationing & Prolonged Field Care Guidelines (Help ETA: {p.time_to_help}h):
+                  Prolonged Field Care (PFC) & Resource Rationing Guidelines (Help Delay: {p.time_to_help}h):
                 </div>
                 <ul className="text-xs text-purple-200 space-y-1 pl-4 list-disc">
                   {evaluation?.rationing_guidelines?.map((item, i) => (
@@ -200,9 +206,9 @@ export default function PatientDetailModal({
             {/* Red Flag Escalation Triggers */}
             {evaluation?.red_flag_triggers && evaluation.red_flag_triggers.length > 0 && (
               <div className="p-3.5 bg-rose-950/30 rounded-xl border border-rose-500/30 space-y-2">
-                <div className="text-xs font-mono font-bold text-rose-300 uppercase tracking-wider flex items-center gap-1.5">
+                <div className="text-xs font-bold text-rose-300 uppercase tracking-wider flex items-center gap-1.5">
                   <AlertTriangle className="w-4 h-4 text-rose-400" />
-                  Red-Flag Escalation Triggers:
+                  Red-Flag Clinical Escalation Triggers:
                 </div>
                 <ul className="text-xs text-rose-200 space-y-1 pl-4 list-disc">
                   {evaluation.red_flag_triggers.map((item, i) => (
@@ -213,17 +219,17 @@ export default function PatientDetailModal({
             )}
           </div>
 
-          {/* Interactive Simulation Sandbox for Presentations */}
-          <div className="p-4 bg-slate-900 rounded-xl border border-slate-800 space-y-3">
+          {/* Interactive Medical Sensor Simulator Sandbox */}
+          <div className="p-4 bg-[#0a1226] rounded-xl border border-[#1b284a] space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Eye className="w-4 h-4 text-cyan-400" />
+                <Eye className="w-4 h-4 text-sky-400" />
                 <h4 className="text-xs font-bold text-slate-200 uppercase font-mono m-0">
-                  Live Hardware Simulation (Developer 2 EOG & RFID HMAC Stream)
+                  Biometric Sensor Simulator (Developer 2 EOG & RFID HMAC Stream)
                 </h4>
               </div>
-              <span className="text-[10px] text-slate-400 font-mono">
-                Emit simulated DSP biopotential command to this patient
+              <span className="text-[10px] text-slate-400">
+                Emit simulated biopotential trigger to this patient chart
               </span>
             </div>
 
@@ -231,7 +237,7 @@ export default function PatientDetailModal({
               <select
                 value={gazeCmd}
                 onChange={(e) => setGazeCmd(e.target.value)}
-                className="bg-slate-950 border border-slate-700 text-xs font-mono text-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-cyan-500"
+                className="bg-[#080d1a] border border-[#1b284a] text-xs text-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-sky-500"
               >
                 <option value="CALL_NURSE">CALL_NURSE (2 Blinks)</option>
                 <option value="PAIN">PAIN (3 Blinks)</option>
@@ -239,12 +245,12 @@ export default function PatientDetailModal({
                 <option value="BATHROOM">BATHROOM (Look Right + 1 Blink)</option>
               </select>
 
-              <label className="flex items-center gap-2 text-xs font-mono text-slate-300 cursor-pointer">
+              <label className="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={tamperCheckbox}
                   onChange={(e) => setTamperCheckbox(e.target.checked)}
-                  className="rounded bg-slate-950 border-slate-700 text-rose-500 focus:ring-0"
+                  className="rounded bg-[#080d1a] border-slate-700 text-rose-500 focus:ring-0"
                 />
                 <span className={tamperCheckbox ? 'text-rose-400 font-bold' : ''}>
                   Simulate Cryptographic Tampering (Bad HMAC)
@@ -254,10 +260,10 @@ export default function PatientDetailModal({
               <button
                 onClick={handleTriggerGaze}
                 disabled={triggeringGaze}
-                className="px-3.5 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-mono font-bold flex items-center gap-1.5 shadow-lg shadow-cyan-600/20 transition-all ml-auto"
+                className="px-3.5 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-sky-600/20 transition-all ml-auto"
               >
                 <Send className="w-3.5 h-3.5" />
-                <span>{triggeringGaze ? 'Emitting...' : 'Dispatch Gaze Event'}</span>
+                <span>{triggeringGaze ? 'Emitting...' : 'Dispatch Signal'}</span>
               </button>
             </div>
           </div>
