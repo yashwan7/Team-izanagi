@@ -79,3 +79,34 @@ Because 4 developers are prompting and pushing simultaneously:
    git push origin main
    ```
 2. Keep system files (`.DS_Store`, `node_modules/`, `venv/`) out of version control.
+
+## Nirantara FRDM-MCXN236 ML deployment
+
+The fixed Nirantara network-state model and its NXP FRDM-MCXN236 deployment are
+under `ml/nirantara_network/` and `firmware/nxp_mcxn236/`. The model is a fully
+INT8 TensorFlow Lite model with input shape `[1, 22]`, output shape `[1, 3]`,
+and classes `CRITICAL`, `DEGRADING`, and `HEALTHY`. Its graph contains four
+`FULLY_CONNECTED` operators followed by `SOFTMAX`; the firmware registers only
+those operators. The original INT8 model is preserved byte-for-byte and has
+SHA-256 `e4875d1643ebb1ac08284e64e41f5307b068eca018527a4291cb14f7787aae9d`.
+
+The reported test results are approximately 97.70% FP32 accuracy and 97.6417%
+INT8 accuracy, a 0.000583 drop. These are model evaluation results, not the
+hardware benchmark. Training/conversion scripts, scaler assets, metadata, and
+the evaluation report are in the ML directory. The 120,000-row dataset is not
+included because its licensing has not been established and it is not required
+for deployment.
+
+The embedded model is linked as read-only data in internal Flash. TFLM runtime
+storage is in SRAM with a 32,768-byte tensor arena; the verified used portion
+is 13,572 bytes. The 633,756-byte raw application uses a single 1 MiB internal
+Flash application area because the original dual 512 KiB MCUboot slots provide
+only 523,264 bytes per application. The MCUboot partition and linker changes,
+signing instructions, and SDK build instructions are documented with the
+firmware.
+
+On the physical FRDM-MCXN236, a normal reset produced successful MCUboot ECDSA
+signature validation and chain-load, followed by UART prediction `DEGRADING`.
+The recorded inference measurement was 1,545,556 cycles or 10.303 ms, with
+13,572 bytes of tensor arena usage. These are verified hardware measurements;
+they are distinct from the host TFLite evaluation results.
