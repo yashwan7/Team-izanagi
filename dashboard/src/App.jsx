@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Sidebar from './components/Sidebar';
 import NetworkBar from './components/NetworkBar';
+import ClinicalOverview from './components/ClinicalOverview';
 import HarmRankedQueue from './components/HarmRankedQueue';
 import TriageMap from './components/TriageMap';
 import SyncConflictTimeline from './components/SyncConflictTimeline';
@@ -7,7 +9,7 @@ import EyeGazeAlertModal from './components/EyeGazeAlertModal';
 import PatientDetailModal from './components/PatientDetailModal';
 import { 
   HeartPulse, ShieldAlert, RefreshCw, 
-  Stethoscope, Activity, ClipboardCheck, Sparkles 
+  Sparkles, Stethoscope, Activity, FileText 
 } from 'lucide-react';
 
 const API_BASE = '/api';
@@ -21,6 +23,7 @@ export default function App() {
   const [incidentTimeline, setIncidentTimeline] = useState([]);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [wsConnected, setWsConnected] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'patients' | 'triage' | 'map' | 'timeline' | 'reports' | 'settings'
   const wsRef = useRef(null);
 
   const fetchAllData = async () => {
@@ -171,113 +174,133 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080d1a] text-slate-100 flex flex-col font-sans selection:bg-sky-500 selection:text-white">
+    <div className="min-h-screen bg-[#eef2f7] flex font-sans selection:bg-blue-500 selection:text-white">
       
-      {/* Hospital Command Center Header */}
-      <NetworkBar 
-        networkStatus={networkStatus} 
-        onSimulateNetwork={handleSimulateNetwork} 
-        isOnline={wsConnected}
-      />
+      {/* ================= LEFT TABLET SIDEBAR ================= */}
+      <Sidebar activeTab={activeTab} onSelectTab={setActiveTab} />
 
-      {/* Hospital Clinical Test & Simulator Bar */}
-      <div className="bg-[#0b1328] border-b border-[#1b284a] px-4 md:px-6 py-2 text-xs">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 flex-wrap">
-          <div className="flex items-center gap-2 text-slate-300">
-            <Stethoscope className="w-4 h-4 text-sky-400" />
-            <span className="font-semibold text-white">CLINICAL TRIAGE SANDBOX:</span>
-            <span className="text-slate-500 hidden sm:inline">&bull; Real-time EOG Biopotential & Hardware HMAC Emulation</span>
+      {/* ================= MAIN TABLET CONTENT AREA ================= */}
+      <div className="flex-1 flex flex-col min-w-0 p-5 md:p-8 max-h-screen overflow-y-auto">
+        
+        {/* Top Header & Search Bar */}
+        <NetworkBar 
+          networkStatus={networkStatus} 
+          onSimulateNetwork={handleSimulateNetwork} 
+          isOnline={wsConnected}
+        />
+
+        {/* Demo Quick Simulator Pills */}
+        <div className="mb-6 flex items-center justify-between gap-3 flex-wrap bg-white/70 backdrop-blur-md p-2.5 px-4 rounded-2xl border border-slate-200/60 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-600">
+            <Sparkles className="w-4 h-4 text-blue-600" />
+            <span>Interactive Simulator:</span>
+            <span className="text-slate-400 font-normal hidden sm:inline">&bull; Test EOG & HMAC streams</span>
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={() => handleSimulateGaze({
-                patient_id: 'PT-101',
+                patient_id: selectedPatientId || 'PT-101',
                 command: 'CALL_NURSE',
                 direction: 'CENTER',
                 blink_count: 2,
                 tampered: false
               })}
-              className="px-2.5 py-1 rounded-md bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 flex items-center gap-1.5 transition-all font-medium"
+              className="px-3 py-1 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-semibold flex items-center gap-1.5 transition-all"
             >
-              <HeartPulse className="w-3.5 h-3.5 text-rose-400" />
+              <HeartPulse className="w-3.5 h-3.5" />
               <span>Simulate Nurse Call (Verified)</span>
             </button>
 
             <button
               onClick={() => handleSimulateGaze({
-                patient_id: 'PT-309',
+                patient_id: selectedPatientId || 'PT-309',
                 command: 'WATER',
                 direction: 'LEFT',
                 blink_count: 1,
                 tampered: true
               })}
-              className="px-2.5 py-1 rounded-md bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 flex items-center gap-1.5 transition-all font-medium"
+              className="px-3 py-1 rounded-full bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 text-xs font-semibold flex items-center gap-1.5 transition-all"
             >
-              <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
-              <span>Simulate Tampered HMAC Capsule</span>
+              <ShieldAlert className="w-3.5 h-3.5" />
+              <span>Simulate Tampered HMAC</span>
             </button>
 
             <button
               onClick={handleTriggerOfflineSync}
-              className="px-2.5 py-1 rounded-md bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 flex items-center gap-1.5 transition-all font-medium"
+              className="px-3 py-1 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 text-xs font-semibold flex items-center gap-1.5 transition-all"
             >
-              <RefreshCw className="w-3.5 h-3.5 text-sky-400" />
-              <span>Reconcile Duplicate Meds</span>
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Duplicate Med Sync</span>
             </button>
           </div>
         </div>
-      </div>
 
-      {/* Main Clinical Operations Grid */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-5 grid grid-cols-1 lg:grid-cols-12 gap-4">
-        
-        {/* Left Column: Hospital Emergency Triage Board (5 Columns) */}
-        <section className="lg:col-span-5 h-[calc(100vh-140px)] min-h-[580px]">
-          <HarmRankedQueue 
-            patients={patients} 
-            selectedPatientId={selectedPatientId} 
+        {/* Tab Views */}
+        {activeTab === 'overview' && (
+          <ClinicalOverview 
+            patients={patients}
+            selectedPatientId={selectedPatientId}
             onSelectPatient={handleSelectPatient}
+            networkStatus={networkStatus}
           />
-        </section>
+        )}
 
-        {/* Right Column: Dispatch Map & EMR Audit Timeline (7 Columns) */}
-        <section className="lg:col-span-7 h-[calc(100vh-140px)] min-h-[580px] flex flex-col gap-4">
-          
-          {/* Dispatch Map (Top Half) */}
-          <div className="flex-1 min-h-[290px]">
-            <TriageMap 
-              patients={patients} 
-              selectedPatientId={selectedPatientId} 
+        {(activeTab === 'patients' || activeTab === 'triage') && (
+          <div className="h-[calc(100vh-180px)]">
+            <HarmRankedQueue 
+              patients={patients}
+              selectedPatientId={selectedPatientId}
               onSelectPatient={handleSelectPatient}
             />
           </div>
+        )}
 
-          {/* EMR Audit & Conflict Resolution Timeline (Bottom Half) */}
-          <div className="flex-1 min-h-[270px]">
+        {activeTab === 'map' && (
+          <div className="h-[calc(100vh-180px)] rounded-3xl overflow-hidden border border-slate-200 shadow-lg">
+            <TriageMap 
+              patients={patients}
+              selectedPatientId={selectedPatientId}
+              onSelectPatient={handleSelectPatient}
+            />
+          </div>
+        )}
+
+        {activeTab === 'timeline' && (
+          <div className="h-[calc(100vh-180px)]">
             <SyncConflictTimeline 
-              timeline={incidentTimeline} 
+              timeline={incidentTimeline}
               onTriggerOfflineSync={handleTriggerOfflineSync}
               selectedPatientId={selectedPatientId}
               onFetchTimelineNarrative={handleFetchTimelineNarrative}
             />
           </div>
+        )}
 
-        </section>
-      </main>
+        {(activeTab === 'reports' || activeTab === 'settings') && (
+          <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm text-center py-20">
+            <FileText className="w-12 h-12 text-blue-500 mx-auto mb-3" />
+            <h3 className="text-lg font-bold text-slate-800">Ollama Clinical Decision Support (Llama 3.2:3b)</h3>
+            <p className="text-xs text-slate-500 max-w-md mx-auto mt-1">
+              Active model endpoint connected. All patient admissions are evaluated continuously for delay-aware acute stabilization and prolonged field care protocols.
+            </p>
+          </div>
+        )}
 
-      {/* Real-Time Nurse Call / EOG Alert Modal */}
+      </div>
+
+      {/* ================= REAL-TIME NURSE CALL MODAL ================= */}
       {activeGazeAlert && (
         <EyeGazeAlertModal 
           alert={activeGazeAlert} 
           onClose={() => setActiveGazeAlert(null)}
           onDispatch={(alert) => {
-            console.log('Hospital response dispatched for:', alert);
+            console.log('Dispatched action for:', alert);
           }}
         />
       )}
 
-      {/* Patient EMR Clinical Chart Modal */}
+      {/* ================= PATIENT DETAIL CLINICAL CHART MODAL ================= */}
       {isDetailOpen && selectedPatientDetail && (
         <PatientDetailModal 
           patient={selectedPatientDetail}

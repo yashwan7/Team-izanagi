@@ -3,81 +3,67 @@
 
 @layer base {
   :root {
-    --bg-hospital: #080d1a;
-    --surface-hospital: #0f182e;
-    --surface-card: #14203d;
-    --border-medical: #1e294b;
-    --medical-blue: #0284c7;
-    --medical-teal: #0d9488;
-    --medical-red: #ef4444;
-    --medical-amber: #f59e0b;
-    --medical-green: #10b981;
+    --bg-main: #f0f4f9;
+    --sidebar-grad-start: #162f58;
+    --sidebar-grad-end: #1f4b82;
+    --card-bg: #ffffff;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
   }
   
   body {
-    background-color: #080d1a;
-    color: #f8fafc;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #eef2f7;
+    color: #1e293b;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     margin: 0;
     padding: 0;
     overflow-x: hidden;
   }
 }
 
-/* Hospital EKG / Vital Pulse keyframe */
-@keyframes hospital-pulse {
+/* Pulsing radar animations */
+@keyframes soft-pulse {
   0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.08); opacity: 0.85; }
+  50% { transform: scale(1.06); opacity: 0.85; }
   100% { transform: scale(1); opacity: 1; }
 }
 
 .clinical-pulse {
-  animation: hospital-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: soft-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* Hospital Emergency Beacon */
-@keyframes emergency-beacon {
-  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
-  70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-}
-
-.emergency-beacon-alert {
-  animation: emergency-beacon 1.8s infinite;
-}
-
-/* Leaflet medical map styling */
+/* Leaflet clean light medical map styling */
 .leaflet-container {
-  background-color: #0b1329 !important;
+  background-color: #f1f5f9 !important;
   font-family: inherit !important;
-  border-radius: 0.75rem;
+  border-radius: 1.5rem;
   z-index: 10;
 }
 
 .leaflet-popup-content-wrapper {
-  background: #0f182e !important;
-  color: #f8fafc !important;
-  border: 1px solid #1e294b !important;
-  border-radius: 10px !important;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6) !important;
+  background: #ffffff !important;
+  color: #1e293b !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.1) !important;
 }
 
 .leaflet-popup-tip {
-  background: #0f182e !important;
+  background: #ffffff !important;
 }
 
-/* Medical clean scrollbars */
+/* Custom scrollbars */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #080d1a;
+  background: #f1f5f9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e294b;
+  background: #cbd5e1;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #2e3d6b;
+  background: #94a3b8;
 }
