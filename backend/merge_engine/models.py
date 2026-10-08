@@ -55,7 +55,7 @@ class TriageEvaluationResponse(BaseModel):
     action_steps: List[str]
     red_flag_triggers: List[str] = Field(default_factory=list)
     rationing_guidelines: List[str] = Field(default_factory=list)
-    evaluation_source: str = Field(default="ollama:llama3.2:3b")
+    evaluation_source: str = Field(default="nirantara:clinical-3b")
 
 class NetworkTelemetry(BaseModel):
     port_name: str

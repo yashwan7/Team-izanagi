@@ -61,7 +61,7 @@ export default function ClinicalOverview({
             <div className="text-xs font-semibold text-slate-500 mb-1">Pending Sync & Merges</div>
             <div className="text-3xl font-extrabold text-slate-800 tracking-tight">18</div>
             <div className="text-[11px] font-medium text-emerald-600 mt-1 flex items-center gap-1">
-              <span className="font-bold">100%</span> verified by Ollama
+              <span className="font-bold">100%</span> verified by Nirantara
             </div>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shadow-sm">

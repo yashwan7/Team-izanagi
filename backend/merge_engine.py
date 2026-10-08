@@ -96,7 +96,7 @@ class SyncAndMergeEngine:
                                 f"{incoming_med.administered_by} matches record by {prev_med.administered_by} at {prev_med.administered_at}."
                             ),
                             conflict_detected=True,
-                            resolution="Ollama Conflict Resolution: Merged duplicate log into single administration dose to prevent double-counting."
+                            resolution="Nirantara Conflict Resolution: Merged duplicate log into single administration dose to prevent double-counting."
                         )
                         new_incidents.append(incident)
                         self.incident_timeline.append(incident)

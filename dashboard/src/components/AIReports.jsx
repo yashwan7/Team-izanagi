@@ -57,7 +57,7 @@ export default function AIReports({
             </h2>
           </div>
           <p className="text-xs text-slate-500 mt-1 m-0">
-            Powered by Ollama Llama 3.2:3b &bull; Delay-Aware Triage & Incident Timeline Synthesis
+            Powered by Nirantara Local LLM &bull; Delay-Aware Triage & Incident Timeline Synthesis
           </p>
         </div>
 
@@ -97,7 +97,7 @@ export default function AIReports({
             className="px-4 py-2 rounded-full bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all"
           >
             <Sparkles className={`w-3.5 h-3.5 ${generating ? 'animate-spin' : ''}`} />
-            <span>{generating ? 'Querying Ollama...' : 'Synthesize Timeline'}</span>
+            <span>{generating ? 'Querying Nirantara...' : 'Synthesize Timeline'}</span>
           </button>
         </div>
       </div>
@@ -193,9 +193,9 @@ export default function AIReports({
             <div className="flex items-center justify-between mb-3 border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-purple-600" />
-                <h3 className="text-sm font-bold text-slate-800 m-0">Ollama Chronological Narrative</h3>
+                <h3 className="text-sm font-bold text-slate-800 m-0">Nirantara Chronological Narrative</h3>
               </div>
-              <span className="text-[10px] font-mono text-slate-400">Model: llama3.2:3b</span>
+              <span className="text-[10px] font-mono text-slate-400">Model: Nirantara-Clinical-3B</span>
             </div>
 
             {narrativeSummary ? (

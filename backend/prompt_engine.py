@@ -275,7 +275,7 @@ async def evaluate_clinical_triage(capsule: CaseCapsule) -> TriageEvaluationResp
                     action_steps=parsed.get("action_steps", ["Continue monitoring patient."]),
                     red_flag_triggers=parsed.get("red_flag_triggers", []),
                     rationing_guidelines=parsed.get("rationing_guidelines", []),
-                    evaluation_source=f"ollama:{OLLAMA_MODEL}"
+                    evaluation_source=f"nirantara:{OLLAMA_MODEL}"
                 )
     except Exception as e:
         # Fallback to embedded medical heuristic engine

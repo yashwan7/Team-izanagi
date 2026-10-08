@@ -146,13 +146,13 @@ export default function PatientDetailModal({
             </div>
           </div>
 
-          {/* Clinical Decision Support (CDSS) - Ollama Llama 3.2 */}
+          {/* Clinical Decision Support (CDSS) - Nirantara Edge LLM */}
           <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <BrainCircuit className="w-5 h-5 text-purple-600" />
                 <h3 className="text-xs md:text-sm font-bold text-slate-800 uppercase tracking-wider m-0">
-                  Clinical Decision Support (Ollama Llama 3.2:3b Triage Service)
+                  Clinical Decision Support (Nirantara Edge LLM Triage Service)
                 </h3>
               </div>
               <span className="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-blue-50 text-blue-700 border border-blue-200">

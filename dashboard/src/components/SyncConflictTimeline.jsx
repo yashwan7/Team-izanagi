@@ -117,7 +117,7 @@ export default function SyncConflictTimeline({
         <div className="mx-6 mt-4 p-4 bg-purple-50/70 border border-purple-200 rounded-2xl text-xs text-purple-950 shadow-xs">
           <div className="flex items-center gap-1.5 font-bold mb-1 text-purple-800">
             <Sparkles className="w-3.5 h-3.5 text-purple-600" />
-            <span>Ollama Chronological Synthesis ({selectedPatientId}):</span>
+            <span>Nirantara Chronological Synthesis ({selectedPatientId}):</span>
           </div>
           <p className="m-0 leading-relaxed whitespace-pre-line text-[11px]">
             {narrative}

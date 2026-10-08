@@ -35,7 +35,7 @@ export default function SettingsView({
     try {
       const res = await fetch('/api/network-state');
       if (res.ok) {
-        setLlmTestStatus({ success: true, message: 'Ollama Llama 3.2:3b responding via FastAPI triage gateway (18ms)' });
+        setLlmTestStatus({ success: true, message: 'Nirantara Edge LLM responding via FastAPI triage gateway (18ms)' });
       } else {
         setLlmTestStatus({ success: false, message: 'Endpoint returned status ' + res.status });
       }
@@ -186,14 +186,14 @@ export default function SettingsView({
           </div>
         </div>
 
-        {/* 2. Ollama & Local Clinical Decision Intelligence */}
+        {/* 2. Nirantara Local Clinical Decision Intelligence */}
         <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.03)] space-y-5">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
                 <Cpu className="w-4 h-4" />
               </div>
-              <h3 className="text-sm font-bold text-slate-800 m-0">Ollama Clinical Decision Engine</h3>
+              <h3 className="text-sm font-bold text-slate-800 m-0">Nirantara Clinical Decision Engine</h3>
             </div>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 font-bold">
               OFFLINE READY
@@ -202,7 +202,7 @@ export default function SettingsView({
 
           <div className="space-y-3.5">
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">Ollama Service Endpoint</label>
+              <label className="text-xs font-bold text-slate-700 block mb-1">Nirantara Service Endpoint</label>
               <input 
                 type="text" 
                 value={ollamaHost}
@@ -218,9 +218,9 @@ export default function SettingsView({
                 onChange={(e) => setOllamaModel(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:border-purple-400"
               >
-                <option value="llama3.2:3b">Meta Llama 3.2:3b (Optimized for Field Triage)</option>
-                <option value="llama3.2:1b">Meta Llama 3.2:1b (Ultra Low-Power Austere)</option>
-                <option value="medllama2:7b">MedLlama2:7b (Full Clinical Parameter Set)</option>
+                <option value="nirantara-edge-3b">Nirantara Edge 3B (Optimized for Field Triage)</option>
+                <option value="nirantara-nano-1b">Nirantara Nano 1B (Ultra Low-Power Austere)</option>
+                <option value="nirantara-clinical-7b">Nirantara Clinical 7B (Full Parameter Set)</option>
               </select>
             </div>
 
@@ -248,7 +248,7 @@ export default function SettingsView({
                 className="w-full py-2.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold flex items-center justify-center gap-2 transition-all"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${testingLLM ? 'animate-spin' : ''}`} />
-                <span>{testingLLM ? 'Validating LLM Ping...' : 'Test Ollama Clinical Connection'}</span>
+                <span>{testingLLM ? 'Validating LLM Ping...' : 'Test Nirantara Clinical Connection'}</span>
               </button>
 
               {llmTestStatus && (
