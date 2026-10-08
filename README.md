@@ -40,7 +40,7 @@ The system is developed collaboratively across 4 specialized modules:
 
 ## Quickstart
 
-### 1. Backend Service
+### 1. Backend Sync & Merge Service (`backend/merge_engine/`)
 ```bash
 # Set up Python virtual environment
 python3 -m venv venv
@@ -48,15 +48,15 @@ source venv/bin/activate
 pip install -r backend/requirements.txt
 
 # Run Unit Tests
-pytest backend/test_triage.py -v
+pytest backend/merge_engine/test_merge_engine.py -v
 
-# Start FastAPI Backend Server (Port 8000)
-uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload
+# Start FastAPI Merge Engine Service (Port 8000)
+uvicorn backend.merge_engine.service:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-### 2. Frontend React Dashboard
+### 2. React Triage Dashboard (`dashboard/`)
 ```bash
-cd frontend
+cd dashboard
 npm install
 npm run dev
 # Dashboard available at http://localhost:5173

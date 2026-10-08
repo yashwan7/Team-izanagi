@@ -1,8 +1,3 @@
-"""
-Kshitij Backend Main Entrypoint
-Forwards directly to backend.merge_engine.service
-"""
-
 import uvicorn
 from backend.merge_engine.service import app
 
