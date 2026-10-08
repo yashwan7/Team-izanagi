@@ -57,18 +57,18 @@ export default function Sidebar({ activeTab, onSelectTab }) {
         </nav>
       </div>
 
-      {/* Bottom Physician Profile Card */}
+      {/* Bottom Profile Card */}
       <div className="p-3 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 flex items-center justify-between cursor-pointer hover:bg-white/15 transition-all">
         <div className="flex items-center gap-2.5">
           <div className="relative">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-400 to-rose-400 flex items-center justify-center text-xs font-bold text-white shadow-sm">
-              DA
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-400 to-blue-500 flex items-center justify-center text-xs font-bold text-white shadow-sm">
+              MO
             </div>
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 border border-[#18365f] absolute -bottom-0.5 -right-0.5" />
           </div>
           <div>
-            <div className="text-xs font-bold text-white leading-tight">Dr. Anderson</div>
-            <div className="text-[10px] text-blue-200/75 leading-tight">Trauma & Cardiologist</div>
+            <div className="text-xs font-bold text-white leading-tight">Medical Officer</div>
+            <div className="text-[10px] text-blue-200/75 leading-tight">Field Command</div>
           </div>
         </div>
         <ChevronRight className="w-4 h-4 text-blue-200/60" />

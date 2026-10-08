@@ -59,13 +59,13 @@ export default function NetworkBar({ networkStatus, onSimulateNetwork, isOnline 
   return (
     <div className="w-full flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
       
-      {/* Greeting Title */}
+      {/* Header Title */}
       <div>
         <h2 className="text-xl md:text-2xl font-bold text-slate-800 tracking-tight flex items-center gap-2 m-0">
-          Good Morning, Dr. Anderson <span className="text-xl">☀️</span>
+          Emergency Trauma Telemetry
         </h2>
         <p className="text-xs text-slate-500 mt-0.5 m-0">
-          Emergency Trauma Telemetry &bull; Kshitij Clinical Command
+          Kshitij Clinical Command
         </p>
       </div>
 
