@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
-import { MapPin, Navigation, Radio, Layers, CheckCircle2 } from 'lucide-react';
+import { MapPin, Navigation, Radio, Layers } from 'lucide-react';
 
 export default function TriageMap({ patients = [], selectedPatientId, onSelectPatient }) {
   const mapContainerRef = useRef(null);
@@ -145,13 +145,8 @@ export default function TriageMap({ patients = [], selectedPatientId, onSelectPa
         <span className="text-slate-400 font-mono">{patients.length} Field Nodes Tracked</span>
       </div>
 
-      {/* Layer Switcher & Google Maps Indicator */}
+      {/* Layer Switcher */}
       <div className="absolute top-3 right-3 z-[400] flex items-center gap-2">
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#080d1c]/90 border border-emerald-500/30 backdrop-blur-md text-[11px] text-emerald-400 font-mono shadow-md">
-          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-          <span>Google Maps API</span>
-        </div>
-
         <div className="flex bg-[#080d1c]/90 border border-[#1b284a] rounded-lg p-0.5 backdrop-blur-md text-xs shadow-md">
           <button
             onClick={() => setMapType('google-hybrid')}
