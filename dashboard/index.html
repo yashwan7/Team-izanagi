@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kshitij | EOG DSP & Case Capsule Security Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="top-nav">
+      <div class="brand-section">
+        <div class="logo-orb">
+          <div class="orb-inner"></div>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">KSHITIJ <span class="badge-capsule">BIO-CAPSULE OS</span></div>
+          <div class="brand-sub">Team Izanagi // Round 2 Open Innovation Track</div>
+        </div>
+      </div>
+
+      <div class="system-status-pills">
+        <div class="status-pill active">
+          <span class="pulse-dot green"></span>
+          <span>DSP ENGINE: <strong>100 Hz IIR</strong></span>
+        </div>
+        <div class="status-pill active" id="crypto-status-pill">
+          <span class="pulse-dot green" id="crypto-dot"></span>
+          <span id="crypto-pill-text">AUTH: <strong>HMAC-SHA256</strong></span>
+        </div>
+        <div class="status-pill delta">
+          <span class="pill-icon">⚡</span>
+          <span>DELTA ENCODER: <strong id="header-reduction-stat">~85% SAVED</strong></span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Grid Dashboard -->
+    <main class="dashboard-grid">
+      
+      <!-- Left Column: EOG DSP Oscilloscope & Gaze/Blink Classifier -->
+      <section class="dash-card eog-card">
+        <div class="card-header">
+          <div class="header-left">
+            <span class="card-icon">👁️</span>
+            <div>
+              <h2>EOG Biopotential DSP & Eye-Gaze Classifier</h2>
+              <p class="card-subtitle">4th-Order Butterworth Filter (0.1–10.0 Hz) • 100 Hz Dual Channel</p>
+            </div>
+          </div>
+          <div class="card-controls">
+            <button class="btn-ctrl active" id="btn-stream-toggle">⏸ Pause Stream</button>
+            <button class="btn-ctrl" id="btn-clear-traces">🧹 Clear</button>
+          </div>
+        </div>
+
+        <!-- Oscilloscope Canvas Area -->
+        <div class="oscilloscope-container">
+          <div class="channel-labels">
+            <span class="ch-label ch-v-raw">vEOG Raw (Noise + Drift)</span>
+            <span class="ch-label ch-v-filt">vEOG Filtered (Blinks)</span>
+            <span class="ch-label ch-h-filt">hEOG Filtered (Gaze Step)</span>
+          </div>
+          <canvas id="eog-canvas" width="900" height="260"></canvas>
+          <div class="scope-grid-overlay"></div>
+        </div>
+
+        <!-- Interactive Eye Display & Classified Commands -->
+        <div class="gaze-interactive-row">
+          <!-- Animated Eye Widget -->
+          <div class="eye-tracker-box">
+            <div class="eye-socket" id="eye-socket">
+              <div class="eyelid-top" id="eyelid-top"></div>
+              <div class="pupil" id="eye-pupil">
+                <div class="iris-glow"></div>
+              </div>
+              <div class="eyelid-bottom" id="eyelid-bottom"></div>
+            </div>
+            <div class="gaze-label" id="gaze-display-label">GAZE: <strong>CENTER</strong></div>
+          </div>
+
+          <!-- Command Trigger Panel -->
+          <div class="command-trigger-display">
+            <div class="cmd-badge-large" id="active-cmd-badge">
+              <div class="cmd-icon-ring" id="cmd-ring">⚡</div>
+              <div class="cmd-info">
+                <div class="cmd-label-sub">ACTIVE EOG COMMAND</div>
+                <div class="cmd-name-main" id="active-cmd-name">IDLE / MONITORING</div>
+                <div class="cmd-details" id="active-cmd-details">Waiting for blink/gaze gesture...</div>
+              </div>
+            </div>
+
+            <!-- Preset Scenario Triggers -->
+            <div class="scenario-buttons-row">
+              <button class="btn-scenario" data-scenario="nurse">
+                <span class="btn-icon">🩺</span>
+                <span>2 Blinks (1.5s)<br><strong>CALL_NURSE</strong></span>
+              </button>
+              <button class="btn-scenario" data-scenario="pain">
+                <span class="btn-icon">🚨</span>
+                <span>3 Blinks<br><strong>PAIN</strong></span>
+              </button>
+              <button class="btn-scenario" data-scenario="water">
+                <span class="btn-icon">💧</span>
+                <span>Left + Blink<br><strong>WATER</strong></span>
+              </button>
+              <button class="btn-scenario" data-scenario="bathroom">
+                <span class="btn-icon">🚻</span>
+                <span>Right + Blink<br><strong>BATHROOM</strong></span>
+              </button>
+              <button class="btn-scenario" data-scenario="artifacts">
+                <span class="btn-icon">🛡️</span>
+                <span>Reject Noise<br><strong>ARTIFACTS</strong></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Case Capsule Delta Encoding & Cryptographic Security -->
+      <section class="dash-card security-card">
+        <div class="card-header">
+          <div class="header-left">
+            <span class="card-icon">🔐</span>
+            <div>
+              <h2>Patient Case Capsule & HMAC-SHA256 Security</h2>
+              <p class="card-subtitle">Delta Compression Engine • Cryptographic Integrity Verifier</p>
+            </div>
+          </div>
+          <div class="tamper-action-box">
+            <button class="btn-tamper" id="btn-toggle-tamper">⚠️ Inject MitM Tamper Attack</button>
+          </div>
+        </div>
+
+        <!-- Vitals & Triage Status Overview -->
+        <div class="vitals-row">
+          <div class="vital-card">
+            <div class="vital-icon">❤️</div>
+            <div class="vital-meta">
+              <div class="vital-name">HEART RATE</div>
+              <div class="vital-val"><span id="val-hr">75</span> <small>BPM</small></div>
+            </div>
+          </div>
+          <div class="vital-card">
+            <div class="vital-icon">🫁</div>
+            <div class="vital-meta">
+              <div class="vital-name">SpO2</div>
+              <div class="vital-val"><span id="val-spo2">98</span> <small>%</small></div>
+            </div>
+          </div>
+          <div class="vital-card">
+            <div class="vital-icon">🩸</div>
+            <div class="vital-meta">
+              <div class="vital-name">BLOOD PRESSURE</div>
+              <div class="vital-val"><span id="val-bp">120/80</span> <small>mmHg</small></div>
+            </div>
+          </div>
+          <div class="vital-card" id="card-triage">
+            <div class="vital-icon">🏷️</div>
+            <div class="vital-meta">
+              <div class="vital-name">TRIAGE STATUS</div>
+              <div class="triage-badge green" id="val-triage">GREEN</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fall Alert Banner (Dynamic) -->
+        <div class="fall-alert-banner" id="fall-alert-banner" style="display: none;">
+          <span class="alert-icon">⚠️</span>
+          <div>
+            <strong>ACUTE FALL DETECTED!</strong> Emergency triage escalated to <strong>RED</strong>.
+          </div>
+        </div>
+
+        <!-- Compression Metrics Bar -->
+        <div class="compression-stats-bar">
+          <div class="stat-col">
+            <div class="stat-label">FULL CAPSULE SIZE</div>
+            <div class="stat-value" id="stat-full-bytes">381 <small>bytes</small></div>
+          </div>
+          <div class="stat-divider">➜</div>
+          <div class="stat-col">
+            <div class="stat-label">DELTA COMPRESSED</div>
+            <div class="stat-value highlight" id="stat-delta-bytes">58 <small>bytes</small></div>
+          </div>
+          <div class="stat-divider">=</div>
+          <div class="stat-col">
+            <div class="stat-label">BANDWIDTH SAVING</div>
+            <div class="stat-value green" id="stat-saved-pct">84.8%</div>
+          </div>
+          <div class="stat-col">
+            <div class="stat-label">AUTH INTEGRITY</div>
+            <div class="auth-status-badge verified" id="auth-status-badge">
+              <span id="auth-status-text">✓ VERIFIED</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Code/JSON Viewers (Side-by-Side Live Feed) -->
+        <div class="json-comparators">
+          <div class="json-panel">
+            <div class="json-title">
+              <span>Full Patient State (Baseline)</span>
+              <span class="json-tag">Baseline Dict</span>
+            </div>
+            <pre class="json-body" id="full-json-viewer">Loading...</pre>
+          </div>
+
+          <div class="json-panel delta-panel">
+            <div class="json-title">
+              <span>Signed Minimal Delta Capsule (Transmitted)</span>
+              <span class="json-tag highlight">Transmitted Payload</span>
+            </div>
+            <pre class="json-body" id="delta-json-viewer">Loading...</pre>
+          </div>
+        </div>
+
+        <!-- Signature Envelope Bar -->
+        <div class="signature-bar">
+          <span class="sig-label">HMAC-SHA256 SIGNATURE:</span>
+          <code class="sig-code" id="sig-hash-display">3c987fa0081bf489f64858b76c8c4a96deff0e9803212fb9a79c9ee0e6c5bbbc</code>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <div class="footer-left">
+        <span>Kshitij Capsule OS v2.4</span> • <span>Biopotential EOG DSP (Butterworth 0.1-10Hz)</span> • <span>HMAC-SHA256 Auth</span>
+      </div>
+      <div class="footer-right">
+        <span>Repository: <a href="https://github.com/hackering-2-0/HR2-OI-41CD6D4B" target="_blank" rel="noopener">HR2-OI-41CD6D4B</a></span> • <span>Team Izanagi</span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
