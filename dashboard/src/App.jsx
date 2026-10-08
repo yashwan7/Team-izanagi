@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Sidebar from './components/Sidebar';
 import NetworkBar from './components/NetworkBar';
 import ClinicalOverview from './components/ClinicalOverview';
+import PatientsRegistry from './components/PatientsRegistry';
 import HarmRankedQueue from './components/HarmRankedQueue';
 import TriageMap from './components/TriageMap';
 import SyncConflictTimeline from './components/SyncConflictTimeline';
@@ -246,7 +247,19 @@ export default function App() {
           />
         )}
 
-        {(activeTab === 'patients' || activeTab === 'triage') && (
+        {activeTab === 'patients' && (
+          <PatientsRegistry 
+            patients={patients}
+            selectedPatientId={selectedPatientId}
+            onSelectPatient={handleSelectPatient}
+            onOpenChart={(id) => {
+              handleSelectPatient(id);
+              setIsDetailOpen(true);
+            }}
+          />
+        )}
+
+        {activeTab === 'triage' && (
           <div className="h-[calc(100vh-180px)]">
             <HarmRankedQueue 
               patients={patients}
