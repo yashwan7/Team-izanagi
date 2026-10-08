@@ -1,0 +1,32 @@
+{
+  "features": [
+    "sample_index",
+    "latency_A_ms",
+    "jitter_A_ms",
+    "packet_loss_A_pct",
+    "dns_time_A_ms",
+    "latency_B_ms",
+    "jitter_B_ms",
+    "packet_loss_B_pct",
+    "dns_time_B_ms",
+    "heart_rate_bpm",
+    "bed_force_pct",
+    "accel_magnitude_g",
+    "pir_motion",
+    "bed_distance_cm",
+    "gps_lat",
+    "gps_lon",
+    "fall_detected",
+    "high_hr_flag",
+    "red_flag_count",
+    "primary_link_up",
+    "backup_link_up",
+    "espnow_mesh_active"
+  ],
+  "classes": [
+    "CRITICAL",
+    "DEGRADING",
+    "HEALTHY"
+  ],
+  "input_size": 22
+}
