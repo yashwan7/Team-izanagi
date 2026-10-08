@@ -9,3 +9,8 @@ __pycache__/
 # OS artifacts
 .DS_Store
 Thumbs.db
+
+# Build artifacts & IDEs
+build/
+bin/
+.vscode/

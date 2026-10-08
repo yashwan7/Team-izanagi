@@ -1,0 +1,19 @@
+{
+  "accuracy_pct": 100.0,
+  "keras_accuracy_pct": 100.0,
+  "avg_latency_ms": 0.01,
+  "p95_latency_ms": 0.015,
+  "model_size_kb": 5.49,
+  "classes": [
+    "HEALTHY",
+    "DEGRADED",
+    "CRITICAL"
+  ],
+  "input_features": [
+    "latency_ms",
+    "jitter_ms",
+    "packet_loss_pct",
+    "dns_time_ms"
+  ],
+  "timestamp": "2026-10-08 21:24:46"
+}
