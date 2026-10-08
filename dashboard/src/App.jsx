@@ -113,10 +113,12 @@ export default function App() {
     };
   }, []);
 
-  const handleSelectPatient = (id) => {
+  const handleSelectPatient = (id, openModal = true) => {
     setSelectedPatientId(id);
     fetchPatientDetail(id);
-    setIsDetailOpen(true);
+    if (openModal) {
+      setIsDetailOpen(true);
+    }
   };
 
   const handleSimulateNetwork = async (scenario) => {
