@@ -1,5 +1,6 @@
-# Kshitij (Team Izanagi)
-**Austere Disaster & Tactical Triage Mission Control System**
+# HR2-OI-41CD6D4B — Kshitij (Team Izanagi)
+**HACKERING 2.0 Round 2 Project Repository (Open Innovation Track)**  
+*Austere Disaster & Tactical Triage Mission Control System*
 
 Kshitij is a resilient tactical clinical triage and telemetry management stack built for degraded, austere, and disconnected field environments.
 
@@ -9,43 +10,48 @@ Kshitij is a resilient tactical clinical triage and telemetry management stack b
 
 The system is developed collaboratively across 4 specialized modules:
 
-1. **Developer 1 — Network Failure Prediction & Dual-Port Failover Engine**:
+1. **Developer 1 — Network Failure Prediction & Dual-Port Failover Engine (`core/failover/`, `ml/network_anomaly/`)**:
    - Synthetic telemetry generator for Port A (Primary Eth0) and Port B (Backup LTE/Sat).
    - 8-dimensional sliding window state machine evaluating degradation scores.
    - Dynamic path failover (`PORT_A_ACTIVE` $\rightarrow$ `PORT_B_ACTIVE` $\rightarrow$ `MESH_ACTIVE`).
-   - TinyML inference model classifying link state.
+   - TinyML TFLite inference model classifying link state anomalies.
 
-2. **Developer 2 — EOG DSP Filter, Case Capsule Encoder & RFID HMAC Security**:
+2. **Developer 2 — EOG DSP Filter, Case Capsule Encoder & RFID HMAC Security (`sensors/eog_dsp/`, `security/capsule/`)**:
    - 4th-order IIR Butterworth bandpass filter (0.1–10 Hz) for EOG eye-gaze and blink signal detection (`CALL_NURSE`, `PAIN`, `WATER`, `BATHROOM`).
    - Delta Encoding Engine reducing telemetry payload size by ~90%.
    - Cryptographic HMAC-SHA256 signature generator and verification (`VERIFIED` vs `TAMPERED`).
 
-3. **Developer 3 — Local LLM Prompt Engine, Offline Merge & Mission Control Dashboard**:
+3. **Developer 3 — Local LLM Prompt Engine, Offline Merge & Mission Control Dashboard (`backend/`, `dashboard/`)**:
    - **Delay-Aware Clinical Triage Service (FastAPI + Ollama `llama3.2:3b`)**:
-     - Calculates `priority_score = (severity * time_sensitivity) / time_to_help`.
+     - Calculates $\text{priority\_score} = (\text{severity} \times \text{time\_sensitivity}) / \text{time\_to\_help}$.
      - Protocol Adaptation:
        - `time_to_help <= 30m` $\rightarrow$ **Acute Stabilization** (MARCH algorithm, rapid transport packaging).
        - `time_to_help >= 24h` $\rightarrow$ **Prolonged Field Care (PFC)** (strict fluid/oxygen rationing, decubitus ulcer 2-hour rotation schedule, escalation red flags).
      - Strictly formatted JSON clinical outputs.
-   - **Offline Sync & Merge Engine**:
+   - **Offline Sync & Merge Engine (`backend/merge_engine/`)**:
      - Deduplication and conflict resolution (e.g. duplicate medication dosages from offline multi-medic batches).
      - Chronological incident timeline and Ollama narrative synthesis.
-   - **Real-Time Tactical Dashboard (React + Tailwind CSS + Leaflet)**:
+   - **Real-Time Tactical Dashboard (`dashboard/` — React + Vite + Tailwind + Lucide + Leaflet)**:
+     - Modern Apple iPad clinical hospital EMR interface.
      - Live Header & Network Bar with active failover indicators and interactive simulation triggers.
      - Harm-Ranked Queue auto-sorted by calculated `priority_score`.
+     - Dedicated Patients Directory and clinical records registry.
      - Offline Tactical Leaflet Map with glowing triage pins.
+     - AI Reports tab with delay-aware checklists and timeline synthesis.
+     - Settings tab for hardware interfaces, failover thresholds, and DSP parameters.
      - Real-Time Eye-Gaze Alert Modal with live HMAC verification status.
 
 ---
 
 ## Quickstart
 
-### 1. Backend Sync & Merge Service (`backend/merge_engine/`)
+### 1. Backend Merge & Triage Service
 ```bash
 # Set up Python virtual environment
 python3 -m venv venv
 source venv/bin/activate
 pip install -r backend/requirements.txt
+pip install websockets
 
 # Run Unit Tests
 pytest backend/merge_engine/test_merge_engine.py -v
@@ -54,7 +60,7 @@ pytest backend/merge_engine/test_merge_engine.py -v
 uvicorn backend.merge_engine.service:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-### 2. React Triage Dashboard (`dashboard/`)
+### 2. React Triage Dashboard
 ```bash
 cd dashboard
 npm install

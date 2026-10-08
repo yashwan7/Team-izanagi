@@ -1,9 +1,11 @@
-# macOS
+# macOS & OS artifacts
 .DS_Store
 .AppleDouble
 .LSOverride
+Thumbs.db
+~$*
 
-# Node
+# Node & Frontend
 node_modules/
 npm-debug.log*
 yarn-debug.log*
@@ -29,9 +31,9 @@ __pycache__/
 *$py.class
 .pytest_cache/
 
-# Build outputs
+# Build artifacts & outputs
 dist/
 build/
+bin/
 out/
 .next/
-
