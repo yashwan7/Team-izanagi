@@ -8,6 +8,8 @@ import TriageMap from './components/TriageMap';
 import SyncConflictTimeline from './components/SyncConflictTimeline';
 import EyeGazeAlertModal from './components/EyeGazeAlertModal';
 import PatientDetailModal from './components/PatientDetailModal';
+import AIReports from './components/AIReports';
+import SettingsView from './components/SettingsView';
 import { 
   HeartPulse, ShieldAlert, RefreshCw, 
   Sparkles, Stethoscope, Activity, FileText 
@@ -290,14 +292,21 @@ export default function App() {
           </div>
         )}
 
-        {(activeTab === 'reports' || activeTab === 'settings') && (
-          <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm text-center py-20">
-            <FileText className="w-12 h-12 text-blue-500 mx-auto mb-3" />
-            <h3 className="text-lg font-bold text-slate-800">Ollama Clinical Decision Support (Llama 3.2:3b)</h3>
-            <p className="text-xs text-slate-500 max-w-md mx-auto mt-1">
-              Active model endpoint connected. All patient admissions are evaluated continuously for delay-aware acute stabilization and prolonged field care protocols.
-            </p>
-          </div>
+        {activeTab === 'reports' && (
+          <AIReports 
+            patients={patients}
+            selectedPatientId={selectedPatientId}
+            onSelectPatient={handleSelectPatient}
+            onFetchTimelineNarrative={handleFetchTimelineNarrative}
+          />
+        )}
+
+        {activeTab === 'settings' && (
+          <SettingsView 
+            networkStatus={networkStatus}
+            onSimulateNetwork={handleSimulateNetwork}
+            onSimulateGaze={handleSimulateGaze}
+          />
         )}
 
       </div>
