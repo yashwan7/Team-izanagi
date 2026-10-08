@@ -179,8 +179,42 @@ def trigger_preset(preset_name: str) -> Dict[str, Any]:
     elif preset_name == "recover":
         eng.clear_degradation()
         return {"preset": "recover", "message": "All links restored to normal baseline"}
-    else:
-        return {"error": f"Unknown preset: {preset_name}. Use 'warning', 'failover', 'mesh', or 'recover'."}
+@app.get("/api/tinyml/status")
+def get_tinyml_status() -> Dict[str, Any]:
+    """Get TinyML model info, report, and runtime status."""
+    from pathlib import Path
+    import json
+    report_file = Path("ml/network_anomaly/training_report.json")
+    report = {}
+    if report_file.exists():
+        try:
+            with open(report_file, "r") as f:
+                report = json.load(f)
+        except Exception:
+            pass
+    return {
+        "status": "active",
+        "model_path": "ml/network_anomaly/model.tflite",
+        "quantization": "INT8",
+        "target_latency_budget_ms": 5.0,
+        "training_report": report,
+    }
+
+
+class TinyMLPredictRequest(BaseModel):
+    latency_ms: float = 22.0
+    jitter_ms: float = 2.5
+    packet_loss_pct: float = 0.1
+    dns_time_ms: float = 10.0
+
+
+@app.post("/api/tinyml/predict")
+def predict_tinyml_anomaly(req: TinyMLPredictRequest) -> Dict[str, Any]:
+    """Run real-time <5ms inference using the INT8 TFLite model."""
+    from ml.network_anomaly.inference import AnomalyInferenceWrapper
+    wrapper = AnomalyInferenceWrapper()
+    pred = wrapper.predict(req.latency_ms, req.jitter_ms, req.packet_loss_pct, req.dns_time_ms)
+    return pred.model_dump()
 
 
 @app.websocket("/ws/telemetry")

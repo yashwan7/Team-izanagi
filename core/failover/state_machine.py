@@ -58,6 +58,22 @@ class FailoverStateMachine:
         self._running = False
         self._thread: Optional[threading.Thread] = None
 
+        # Optional TinyML TFLite Classifier
+        self._tinyml_classifier = None
+
+    def attach_tinyml_classifier(self, classifier: Optional[Any] = None) -> Any:
+        """Attach an INT8 TinyML TFLite anomaly classifier for live streaming inference."""
+        with self._lock:
+            if classifier is None:
+                try:
+                    from ml.network_anomaly.inference import AnomalyInferenceWrapper
+                    self._tinyml_classifier = AnomalyInferenceWrapper()
+                except Exception:
+                    self._tinyml_classifier = None
+            else:
+                self._tinyml_classifier = classifier
+            return self._tinyml_classifier
+
     def register_mesh_callback(self, callback: Callable[[Dict[str, Any]], None]) -> None:
         """Register software callback triggered when Mesh Mode is activated."""
         with self._lock:
@@ -270,6 +286,16 @@ class FailoverStateMachine:
             new_path = PortId.PORT_A
             message = f"HEALTHY: Dual links nominal. Port A active (deg={deg_a:.2f}, crit={crit_a:.2f})."
 
+        # Optional TinyML Inference evaluation
+        tinyml_preds = None
+        if self._tinyml_classifier is not None and window_len > 0:
+            try:
+                mean_a = [mean_8d[0], mean_8d[1], mean_8d[2], mean_8d[3]]
+                mean_b = [mean_8d[4], mean_8d[5], mean_8d[6], mean_8d[7]]
+                tinyml_preds = self._tinyml_classifier.evaluate_state_machine_endpoint(mean_a, mean_b)
+            except Exception:
+                pass
+
         evaluation = HealthEvaluation(
             timestamp=time.time(),
             state=new_state,
@@ -282,6 +308,7 @@ class FailoverStateMachine:
             feature_vector_8d_mean=mean_8d,
             message=message,
             mesh_activated=mesh_activated,
+            tinyml_predictions=tinyml_preds,
         )
 
         with self._lock:

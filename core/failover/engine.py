@@ -51,6 +51,13 @@ class FailoverEngine:
         # Wire default mesh callback logger
         self.state_machine.register_mesh_callback(self._default_mesh_callback)
 
+        # Attach TinyML TFLite Classifier for live inference
+        try:
+            from ml.network_anomaly.inference import AnomalyInferenceWrapper
+            self.state_machine.attach_tinyml_classifier(AnomalyInferenceWrapper())
+        except Exception:
+            pass
+
     def _handle_telemetry_sample(self, sample: DualTelemetrySample) -> None:
         """Route incoming 100ms telemetry samples directly into state machine sliding window."""
         self.state_machine.ingest_sample(sample)

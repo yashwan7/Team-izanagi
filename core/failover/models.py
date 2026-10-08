@@ -63,6 +63,7 @@ class HealthEvaluation(BaseModel):
     feature_vector_8d_mean: List[float]
     message: str = ""
     mesh_activated: bool = False
+    tinyml_predictions: Optional[Dict[str, Any]] = None
 
 
 class NetworkDegradationProfile(BaseModel):
