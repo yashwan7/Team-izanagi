@@ -1,0 +1,1062 @@
+Last login: Tue Sep 29 15:01:01 on ttys001
+yashwanth@Yashwanths-MacBook-Air ~ % history
+  985  git log --oneline
+  986  git switch main
+  987  git switch master
+  988  git cherry-pick FIRST_COMMIT_ID^..THIRD_COMMIT_ID
+  989  git cherry-pick e20042c^..9242707
+  990  git log --oneline
+  991  git reflog
+  992  git reflog --oneline
+  993  git show fcba5e2
+  994  git show YOUR_COMMIT_ID
+  995  git switch -c recovery YOUR_COMMIT_ID
+  996  git switch -c recovery fcba5e2
+  997  git log --oneline
+  998  history 
+  999  r
+ 1000  history 
+yashwanth@Yashwanths-MacBook-Air ~ % 
+  [Restored 8 Oct 2026 at 7:58:28 PM]
+Last login: Thu Oct  8 17:42:39 on console
+Restored session: Wed Sep 30 10:39:12 IST 2026
+yashwanth@Yashwanths-MacBook-Air ~ % # There is currently no official GPU support for MacOS.
+python3 -m pip install tensorflow
+# Verify the installation:
+python3 -c "import tensorflow as tf; print(tf.reduce_sum(tf.random.normal([1000, 1000])))"
+zsh: command not found: #
+Defaulting to user installation because normal site-packages is not writeable
+Collecting tensorflow
+  Downloading tensorflow-2.20.0-cp39-cp39-macosx_12_0_arm64.whl (200.4 MB)
+     |████████████████████████████████| 200.4 MB 6.2 MB/s 
+Collecting google_pasta>=0.1.1
+  Downloading google_pasta-0.2.0-py3-none-any.whl (57 kB)
+     |████████████████████████████████| 57 kB 3.2 MB/s 
+Collecting flatbuffers>=24.3.25
+  Using cached flatbuffers-25.12.19-py2.py3-none-any.whl (26 kB)
+Collecting gast!=0.5.0,!=0.5.1,!=0.5.2,>=0.2.1
+  Downloading gast-0.7.0-py3-none-any.whl (22 kB)
+Collecting grpcio<2.0,>=1.24.3
+  Using cached grpcio-1.80.0-cp39-cp39-macosx_11_0_universal2.whl (12.0 MB)
+Collecting termcolor>=1.1.0
+  Downloading termcolor-3.1.0-py3-none-any.whl (7.7 kB)
+Requirement already satisfied: six>=1.12.0 in /Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/site-packages (from tensorflow) (1.15.0)
+Collecting libclang>=13.0.0
+  Downloading libclang-18.1.1-1-py2.py3-none-macosx_11_0_arm64.whl (25.8 MB)
+     |████████████████████████████████| 25.8 MB 6.2 MB/s 
+Collecting keras>=3.10.0
+  Downloading keras-3.10.0-py3-none-any.whl (1.4 MB)
+     |████████████████████████████████| 1.4 MB 4.0 MB/s 
+Collecting numpy>=1.26.0
+  Using cached numpy-2.0.2-cp39-cp39-macosx_14_0_arm64.whl (5.3 MB)
+Collecting ml_dtypes<1.0.0,>=0.5.1
+  Downloading ml_dtypes-0.5.4-cp39-cp39-macosx_10_9_universal2.whl (676 kB)
+     |████████████████████████████████| 676 kB 2.6 MB/s 
+Collecting h5py>=3.11.0
+  Downloading h5py-3.14.0-cp39-cp39-macosx_11_0_arm64.whl (2.8 MB)
+     |████████████████████████████████| 2.8 MB 6.3 MB/s 
+Requirement already satisfied: typing_extensions>=3.6.6 in ./Library/Python/3.9/lib/python/site-packages (from tensorflow) (4.16.0)
+Requirement already satisfied: setuptools in /Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/site-packages (from tensorflow) (58.0.4)
+Collecting packaging
+  Downloading packaging-26.3-py3-none-any.whl (129 kB)
+     |████████████████████████████████| 129 kB 4.1 MB/s 
+Collecting tensorboard~=2.20.0
+  Downloading tensorboard-2.20.0-py3-none-any.whl (5.5 MB)
+     |████████████████████████████████| 5.5 MB 4.7 MB/s 
+Collecting protobuf>=5.28.0
+  Using cached protobuf-6.33.6-cp39-abi3-macosx_10_9_universal2.whl (427 kB)
+Collecting opt_einsum>=2.3.2
+  Downloading opt_einsum-3.4.0-py3-none-any.whl (71 kB)
+     |████████████████████████████████| 71 kB 583 kB/s 
+Requirement already satisfied: requests<3,>=2.21.0 in ./Library/Python/3.9/lib/python/site-packages (from tensorflow) (2.32.5)
+Collecting absl-py>=1.0.0
+  Downloading absl_py-2.3.1-py3-none-any.whl (135 kB)
+     |████████████████████████████████| 135 kB 4.6 MB/s 
+Collecting wrapt>=1.11.0
+  Downloading wrapt-2.5.0-cp39-cp39-macosx_11_0_arm64.whl (105 kB)
+     |████████████████████████████████| 105 kB 1.8 MB/s 
+Collecting astunparse>=1.6.0
+  Downloading astunparse-1.6.3-py2.py3-none-any.whl (12 kB)
+Requirement already satisfied: wheel<1.0,>=0.23.0 in /Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/site-packages (from astunparse>=1.6.0->tensorflow) (0.37.0)
+Collecting optree
+  Downloading optree-0.20.0-cp39-cp39-macosx_11_0_arm64.whl (393 kB)
+     |████████████████████████████████| 393 kB 2.7 MB/s 
+Collecting rich
+  Using cached rich-15.0.0-py3-none-any.whl (310 kB)
+Collecting namex
+  Downloading namex-0.1.0-py3-none-any.whl (5.9 kB)
+Requirement already satisfied: urllib3<3,>=1.21.1 in ./Library/Python/3.9/lib/python/site-packages (from requests<3,>=2.21.0->tensorflow) (2.6.3)
+Requirement already satisfied: charset_normalizer<4,>=2 in ./Library/Python/3.9/lib/python/site-packages (from requests<3,>=2.21.0->tensorflow) (3.5.1)
+Requirement already satisfied: idna<4,>=2.5 in ./Library/Python/3.9/lib/python/site-packages (from requests<3,>=2.21.0->tensorflow) (3.19)
+Requirement already satisfied: certifi>=2017.4.17 in ./Library/Python/3.9/lib/python/site-packages (from requests<3,>=2.21.0->tensorflow) (2026.7.22)
+Collecting werkzeug>=1.0.1
+  Downloading werkzeug-3.1.9-py3-none-any.whl (228 kB)
+     |████████████████████████████████| 228 kB 3.8 MB/s 
+Collecting markdown>=2.6.8
+  Downloading markdown-3.9-py3-none-any.whl (107 kB)
+     |████████████████████████████████| 107 kB 2.4 MB/s 
+Collecting pillow
+  Using cached pillow-11.3.0-cp39-cp39-macosx_11_0_arm64.whl (4.7 MB)
+Collecting tensorboard-data-server<0.8.0,>=0.7.0
+  Downloading tensorboard_data_server-0.7.2-py3-none-any.whl (2.4 kB)
+Collecting importlib-metadata>=4.4
+  Using cached importlib_metadata-8.7.1-py3-none-any.whl (27 kB)
+Collecting zipp>=3.20
+  Using cached zipp-3.23.1-py3-none-any.whl (10 kB)
+Collecting markupsafe>=2.1.1
+  Downloading markupsafe-3.0.4-cp39-cp39-macosx_11_0_arm64.whl (12 kB)
+Collecting pygments<3.0.0,>=2.13.0
+  Downloading pygments-2.21.0-py3-none-any.whl (1.3 MB)
+     |████████████████████████████████| 1.3 MB 3.8 MB/s 
+Collecting markdown-it-py>=2.2.0
+  Using cached markdown_it_py-3.0.0-py3-none-any.whl (87 kB)
+Collecting mdurl~=0.1
+  Using cached mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+Installing collected packages: zipp, mdurl, pygments, numpy, markupsafe, markdown-it-py, importlib-metadata, werkzeug, tensorboard-data-server, rich, protobuf, pillow, packaging, optree, namex, ml-dtypes, markdown, h5py, grpcio, absl-py, wrapt, termcolor, tensorboard, opt-einsum, libclang, keras, google-pasta, gast, flatbuffers, astunparse, tensorflow
+  WARNING: The script pygmentize is installed in '/Users/yashwanth/Library/Python/3.9/bin' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+  WARNING: The scripts f2py and numpy-config are installed in '/Users/yashwanth/Library/Python/3.9/bin' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+  WARNING: The script markdown-it is installed in '/Users/yashwanth/Library/Python/3.9/bin' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+  WARNING: The script markdown_py is installed in '/Users/yashwanth/Library/Python/3.9/bin' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+  WARNING: The script tensorboard is installed in '/Users/yashwanth/Library/Python/3.9/bin' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+  WARNING: The scripts import_pb_to_tensorboard, saved_model_cli, tensorboard, tf_upgrade_v2, tflite_convert and toco are installed in '/Users/yashwanth/Library/Python/3.9/bin' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+Successfully installed absl-py-2.3.1 astunparse-1.6.3 flatbuffers-25.12.19 gast-0.7.0 google-pasta-0.2.0 grpcio-1.80.0 h5py-3.14.0 importlib-metadata-8.7.1 keras-3.10.0 libclang-18.1.1 markdown-3.9 markdown-it-py-3.0.0 markupsafe-3.0.4 mdurl-0.1.2 ml-dtypes-0.5.4 namex-0.1.0 numpy-2.0.2 opt-einsum-3.4.0 optree-0.20.0 packaging-26.3 pillow-11.3.0 protobuf-6.33.6 pygments-2.21.0 rich-15.0.0 tensorboard-2.20.0 tensorboard-data-server-0.7.2 tensorflow-2.20.0 termcolor-3.1.0 werkzeug-3.1.9 wrapt-2.5.0 zipp-3.23.1
+WARNING: You are using pip version 21.2.4; however, version 26.0.1 is available.
+You should consider upgrading via the '/Library/Developer/CommandLineTools/usr/bin/python3 -m pip install --upgrade pip' command.
+zsh: command not found: #
+/Users/yashwanth/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+tf.Tensor(-1258.625, shape=(), dtype=float32)
+yashwanth@Yashwanths-MacBook-Air ~ % mkdir mcxn236-ml
+cd mcxn236-ml
+yashwanth@Yashwanths-MacBook-Air mcxn236-ml % python3 -m venv .venv
+source .venv/bin/activate
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % python -m pip install --upgrade pip
+Requirement already satisfied: pip in ./.venv/lib/python3.9/site-packages (21.2.4)
+Collecting pip
+  Using cached pip-26.0.1-py3-none-any.whl (1.8 MB)
+Installing collected packages: pip
+  Attempting uninstall: pip
+    Found existing installation: pip 21.2.4
+    Uninstalling pip-21.2.4:
+      Successfully uninstalled pip-21.2.4
+Successfully installed pip-26.0.1
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % python -m pip install tensorflow pandas numpy scikit-learn matplotlib
+Collecting tensorflow
+  Downloading tensorflow-2.20.0-cp39-cp39-macosx_12_0_arm64.whl.metadata (4.5 kB)
+Collecting pandas
+  Using cached pandas-2.3.3-cp39-cp39-macosx_11_0_arm64.whl.metadata (91 kB)
+Collecting numpy
+  Using cached numpy-2.0.2-cp39-cp39-macosx_14_0_arm64.whl.metadata (60 kB)
+Collecting scikit-learn
+  Using cached scikit_learn-1.6.1-cp39-cp39-macosx_12_0_arm64.whl.metadata (31 kB)
+Collecting matplotlib
+  Using cached matplotlib-3.9.4-cp39-cp39-macosx_11_0_arm64.whl.metadata (11 kB)
+Collecting absl-py>=1.0.0 (from tensorflow)
+  Downloading absl_py-2.3.1-py3-none-any.whl.metadata (3.3 kB)
+Collecting astunparse>=1.6.0 (from tensorflow)
+  Downloading astunparse-1.6.3-py2.py3-none-any.whl.metadata (4.4 kB)
+Collecting flatbuffers>=24.3.25 (from tensorflow)
+  Downloading flatbuffers-25.12.19-py2.py3-none-any.whl.metadata (1.0 kB)
+Collecting gast!=0.5.0,!=0.5.1,!=0.5.2,>=0.2.1 (from tensorflow)
+  Downloading gast-0.7.0-py3-none-any.whl.metadata (1.5 kB)
+Collecting google_pasta>=0.1.1 (from tensorflow)
+  Downloading google_pasta-0.2.0-py3-none-any.whl.metadata (814 bytes)
+Collecting libclang>=13.0.0 (from tensorflow)
+  Downloading libclang-18.1.1-1-py2.py3-none-macosx_11_0_arm64.whl.metadata (5.2 kB)
+Collecting opt_einsum>=2.3.2 (from tensorflow)
+  Downloading opt_einsum-3.4.0-py3-none-any.whl.metadata (6.3 kB)
+Collecting packaging (from tensorflow)
+  Using cached packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+Collecting protobuf>=5.28.0 (from tensorflow)
+  Downloading protobuf-6.33.6-cp39-abi3-macosx_10_9_universal2.whl.metadata (593 bytes)
+Collecting requests<3,>=2.21.0 (from tensorflow)
+  Using cached requests-2.32.5-py3-none-any.whl.metadata (4.9 kB)
+Requirement already satisfied: setuptools in ./.venv/lib/python3.9/site-packages (from tensorflow) (58.0.4)
+Collecting six>=1.12.0 (from tensorflow)
+  Using cached six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+Collecting termcolor>=1.1.0 (from tensorflow)
+  Downloading termcolor-3.1.0-py3-none-any.whl.metadata (6.4 kB)
+Collecting typing_extensions>=3.6.6 (from tensorflow)
+  Using cached typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting wrapt>=1.11.0 (from tensorflow)
+  Downloading wrapt-2.5.0-cp39-cp39-macosx_11_0_arm64.whl.metadata (7.6 kB)
+Collecting grpcio<2.0,>=1.24.3 (from tensorflow)
+  Downloading grpcio-1.80.0-cp39-cp39-macosx_11_0_universal2.whl.metadata (3.8 kB)
+Collecting tensorboard~=2.20.0 (from tensorflow)
+  Downloading tensorboard-2.20.0-py3-none-any.whl.metadata (1.8 kB)
+Collecting keras>=3.10.0 (from tensorflow)
+  Downloading keras-3.10.0-py3-none-any.whl.metadata (6.0 kB)
+Collecting h5py>=3.11.0 (from tensorflow)
+  Downloading h5py-3.14.0-cp39-cp39-macosx_11_0_arm64.whl.metadata (2.7 kB)
+Collecting ml_dtypes<1.0.0,>=0.5.1 (from tensorflow)
+  Downloading ml_dtypes-0.5.4-cp39-cp39-macosx_10_9_universal2.whl.metadata (8.9 kB)
+Collecting charset_normalizer<4,>=2 (from requests<3,>=2.21.0->tensorflow)
+  Downloading charset_normalizer-3.5.2-cp39-cp39-macosx_10_9_universal2.whl.metadata (46 kB)
+Collecting idna<4,>=2.5 (from requests<3,>=2.21.0->tensorflow)
+  Using cached idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+Collecting urllib3<3,>=1.21.1 (from requests<3,>=2.21.0->tensorflow)
+  Using cached urllib3-2.6.3-py3-none-any.whl.metadata (6.9 kB)
+Collecting certifi>=2017.4.17 (from requests<3,>=2.21.0->tensorflow)
+  Using cached certifi-2026.7.22-py3-none-any.whl.metadata (2.5 kB)
+Collecting markdown>=2.6.8 (from tensorboard~=2.20.0->tensorflow)
+  Downloading markdown-3.9-py3-none-any.whl.metadata (5.1 kB)
+Collecting pillow (from tensorboard~=2.20.0->tensorflow)
+  Using cached pillow-11.3.0-cp39-cp39-macosx_11_0_arm64.whl.metadata (9.0 kB)
+Collecting tensorboard-data-server<0.8.0,>=0.7.0 (from tensorboard~=2.20.0->tensorflow)
+  Downloading tensorboard_data_server-0.7.2-py3-none-any.whl.metadata (1.1 kB)
+Collecting werkzeug>=1.0.1 (from tensorboard~=2.20.0->tensorflow)
+  Downloading werkzeug-3.1.9-py3-none-any.whl.metadata (4.1 kB)
+Collecting python-dateutil>=2.8.2 (from pandas)
+  Using cached python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
+Collecting pytz>=2020.1 (from pandas)
+  Downloading pytz-2026.5-py2.py3-none-any.whl.metadata (22 kB)
+Collecting tzdata>=2022.7 (from pandas)
+  Downloading tzdata-2026.5-py2.py3-none-any.whl.metadata (1.4 kB)
+Collecting scipy>=1.6.0 (from scikit-learn)
+  Using cached scipy-1.13.1-cp39-cp39-macosx_12_0_arm64.whl.metadata (60 kB)
+Collecting joblib>=1.2.0 (from scikit-learn)
+  Using cached joblib-1.5.3-py3-none-any.whl.metadata (5.5 kB)
+Collecting threadpoolctl>=3.1.0 (from scikit-learn)
+  Using cached threadpoolctl-3.7.0-py3-none-any.whl.metadata (24 kB)
+Collecting contourpy>=1.0.1 (from matplotlib)
+  Using cached contourpy-1.3.0-cp39-cp39-macosx_11_0_arm64.whl.metadata (5.4 kB)
+Collecting cycler>=0.10 (from matplotlib)
+  Using cached cycler-0.12.1-py3-none-any.whl.metadata (3.8 kB)
+Collecting fonttools>=4.22.0 (from matplotlib)
+  Using cached fonttools-4.60.2-cp39-cp39-macosx_10_9_universal2.whl.metadata (113 kB)
+Collecting kiwisolver>=1.3.1 (from matplotlib)
+  Using cached kiwisolver-1.4.7-cp39-cp39-macosx_11_0_arm64.whl.metadata (6.3 kB)
+Collecting pyparsing>=2.3.1 (from matplotlib)
+  Using cached pyparsing-3.3.3-py3-none-any.whl.metadata (5.9 kB)
+Collecting importlib-resources>=3.2.0 (from matplotlib)
+  Using cached importlib_resources-6.5.2-py3-none-any.whl.metadata (3.9 kB)
+Collecting wheel<1.0,>=0.23.0 (from astunparse>=1.6.0->tensorflow)
+  Downloading wheel-0.48.0-py3-none-any.whl.metadata (2.3 kB)
+Collecting zipp>=3.1.0 (from importlib-resources>=3.2.0->matplotlib)
+  Using cached zipp-3.23.1-py3-none-any.whl.metadata (3.6 kB)
+Collecting rich (from keras>=3.10.0->tensorflow)
+  Downloading rich-15.0.0-py3-none-any.whl.metadata (18 kB)
+Collecting namex (from keras>=3.10.0->tensorflow)
+  Downloading namex-0.1.0-py3-none-any.whl.metadata (322 bytes)
+Collecting optree (from keras>=3.10.0->tensorflow)
+  Downloading optree-0.20.0-cp39-cp39-macosx_11_0_arm64.whl.metadata (32 kB)
+Collecting importlib-metadata>=4.4 (from markdown>=2.6.8->tensorboard~=2.20.0->tensorflow)
+  Using cached importlib_metadata-8.7.1-py3-none-any.whl.metadata (4.7 kB)
+Collecting markupsafe>=2.1.1 (from werkzeug>=1.0.1->tensorboard~=2.20.0->tensorflow)
+  Downloading markupsafe-3.0.4-cp39-cp39-macosx_11_0_arm64.whl.metadata (2.7 kB)
+Collecting markdown-it-py>=2.2.0 (from rich->keras>=3.10.0->tensorflow)
+  Downloading markdown_it_py-3.0.0-py3-none-any.whl.metadata (6.9 kB)
+Collecting pygments<3.0.0,>=2.13.0 (from rich->keras>=3.10.0->tensorflow)
+  Using cached pygments-2.21.0-py3-none-any.whl.metadata (2.5 kB)
+Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich->keras>=3.10.0->tensorflow)
+  Downloading mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
+Downloading tensorflow-2.20.0-cp39-cp39-macosx_12_0_arm64.whl (200.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 200.4/200.4 MB 4.1 MB/s  0:01:12
+Downloading grpcio-1.80.0-cp39-cp39-macosx_11_0_universal2.whl (12.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.0/12.0 MB 3.8 MB/s  0:00:03
+Downloading ml_dtypes-0.5.4-cp39-cp39-macosx_10_9_universal2.whl (676 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 676.9/676.9 kB 2.7 MB/s  0:00:00
+Using cached requests-2.32.5-py3-none-any.whl (64 kB)
+Downloading charset_normalizer-3.5.2-cp39-cp39-macosx_10_9_universal2.whl (374 kB)
+Using cached idna-3.20-py3-none-any.whl (69 kB)
+Downloading tensorboard-2.20.0-py3-none-any.whl (5.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.5/5.5 MB 4.7 MB/s  0:00:01
+Downloading tensorboard_data_server-0.7.2-py3-none-any.whl (2.4 kB)
+Using cached typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+Using cached urllib3-2.6.3-py3-none-any.whl (131 kB)
+Using cached pandas-2.3.3-cp39-cp39-macosx_11_0_arm64.whl (10.8 MB)
+Using cached numpy-2.0.2-cp39-cp39-macosx_14_0_arm64.whl (5.3 MB)
+Using cached scikit_learn-1.6.1-cp39-cp39-macosx_12_0_arm64.whl (11.1 MB)
+Using cached matplotlib-3.9.4-cp39-cp39-macosx_11_0_arm64.whl (7.8 MB)
+Downloading absl_py-2.3.1-py3-none-any.whl (135 kB)
+Downloading astunparse-1.6.3-py2.py3-none-any.whl (12 kB)
+Using cached six-1.17.0-py2.py3-none-any.whl (11 kB)
+Downloading wheel-0.48.0-py3-none-any.whl (33 kB)
+Using cached certifi-2026.7.22-py3-none-any.whl (136 kB)
+Using cached contourpy-1.3.0-cp39-cp39-macosx_11_0_arm64.whl (249 kB)
+Using cached cycler-0.12.1-py3-none-any.whl (8.3 kB)
+Downloading flatbuffers-25.12.19-py2.py3-none-any.whl (26 kB)
+Using cached fonttools-4.60.2-cp39-cp39-macosx_10_9_universal2.whl (2.9 MB)
+Downloading gast-0.7.0-py3-none-any.whl (22 kB)
+Downloading google_pasta-0.2.0-py3-none-any.whl (57 kB)
+Downloading h5py-3.14.0-cp39-cp39-macosx_11_0_arm64.whl (2.8 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.8/2.8 MB 2.6 MB/s  0:00:01
+Using cached importlib_resources-6.5.2-py3-none-any.whl (37 kB)
+Using cached joblib-1.5.3-py3-none-any.whl (309 kB)
+Downloading keras-3.10.0-py3-none-any.whl (1.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.4/1.4 MB 2.4 MB/s  0:00:00
+Using cached kiwisolver-1.4.7-cp39-cp39-macosx_11_0_arm64.whl (64 kB)
+Downloading libclang-18.1.1-1-py2.py3-none-macosx_11_0_arm64.whl (25.8 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 25.8/25.8 MB 3.0 MB/s  0:00:08
+Downloading markdown-3.9-py3-none-any.whl (107 kB)
+Using cached importlib_metadata-8.7.1-py3-none-any.whl (27 kB)
+Downloading opt_einsum-3.4.0-py3-none-any.whl (71 kB)
+Using cached packaging-26.3-py3-none-any.whl (129 kB)
+Using cached pillow-11.3.0-cp39-cp39-macosx_11_0_arm64.whl (4.7 MB)
+Downloading protobuf-6.33.6-cp39-abi3-macosx_10_9_universal2.whl (427 kB)
+Using cached pyparsing-3.3.3-py3-none-any.whl (126 kB)
+Using cached python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+Downloading pytz-2026.5-py2.py3-none-any.whl (506 kB)
+Using cached scipy-1.13.1-cp39-cp39-macosx_12_0_arm64.whl (30.3 MB)
+Downloading termcolor-3.1.0-py3-none-any.whl (7.7 kB)
+Using cached threadpoolctl-3.7.0-py3-none-any.whl (26 kB)
+Downloading tzdata-2026.5-py2.py3-none-any.whl (347 kB)
+Downloading werkzeug-3.1.9-py3-none-any.whl (228 kB)
+Downloading markupsafe-3.0.4-cp39-cp39-macosx_11_0_arm64.whl (12 kB)
+Downloading wrapt-2.5.0-cp39-cp39-macosx_11_0_arm64.whl (105 kB)
+Using cached zipp-3.23.1-py3-none-any.whl (10 kB)
+Downloading namex-0.1.0-py3-none-any.whl (5.9 kB)
+Downloading optree-0.20.0-cp39-cp39-macosx_11_0_arm64.whl (393 kB)
+Downloading rich-15.0.0-py3-none-any.whl (310 kB)
+Using cached pygments-2.21.0-py3-none-any.whl (1.3 MB)
+Downloading markdown_it_py-3.0.0-py3-none-any.whl (87 kB)
+Downloading mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+Installing collected packages: pytz, namex, libclang, flatbuffers, zipp, wrapt, urllib3, tzdata, typing_extensions, threadpoolctl, termcolor, tensorboard-data-server, six, pyparsing, pygments, protobuf, pillow, packaging, opt_einsum, numpy, mdurl, markupsafe, kiwisolver, joblib, idna, gast, fonttools, cycler, charset_normalizer, certifi, absl-py, wheel, werkzeug, scipy, requests, python-dateutil, optree, ml_dtypes, markdown-it-py, importlib-resources, importlib-metadata, h5py, grpcio, google_pasta, contourpy, scikit-learn, rich, pandas, matplotlib, markdown, astunparse, tensorboard, keras, tensorflow
+Successfully installed absl-py-2.3.1 astunparse-1.6.3 certifi-2026.7.22 charset_normalizer-3.5.2 contourpy-1.3.0 cycler-0.12.1 flatbuffers-25.12.19 fonttools-4.60.2 gast-0.7.0 google_pasta-0.2.0 grpcio-1.80.0 h5py-3.14.0 idna-3.20 importlib-metadata-8.7.1 importlib-resources-6.5.2 joblib-1.5.3 keras-3.10.0 kiwisolver-1.4.7 libclang-18.1.1 markdown-3.9 markdown-it-py-3.0.0 markupsafe-3.0.4 matplotlib-3.9.4 mdurl-0.1.2 ml_dtypes-0.5.4 namex-0.1.0 numpy-2.0.2 opt_einsum-3.4.0 optree-0.20.0 packaging-26.3 pandas-2.3.3 pillow-11.3.0 protobuf-6.33.6 pygments-2.21.0 pyparsing-3.3.3 python-dateutil-2.9.0.post0 pytz-2026.5 requests-2.32.5 rich-15.0.0 scikit-learn-1.6.1 scipy-1.13.1 six-1.17.0 tensorboard-2.20.0 tensorboard-data-server-0.7.2 tensorflow-2.20.0 termcolor-3.1.0 threadpoolctl-3.7.0 typing_extensions-4.16.0 tzdata-2026.5 urllib3-2.6.3 werkzeug-3.1.9 wheel-0.48.0 wrapt-2.5.0 zipp-3.23.1
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % python -c "import tensorflow as tf; import pandas as pd; import numpy as np; import sklearn; print('TensorFlow:', tf.__version__); print('Pandas:', pd.__version__); print('NumPy:', np.__version__); print('Everything OK')"
+python -c "import tensorflow as tf; import pandas as pd; import numpy as np; import sklearn; print('TensorFlow:', tf.__version__); print('Pandas:', pd/Users/yashwanth/mcxn236-ml/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+^R
+python -c "import tensorflow as tfTensorFlow: 2.20.0                                                                                                  
+Pandas: 2.3.3
+NumPy: 2.0.2
+Everything OK
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % ~/mcxn236-ml                      
+zsh: permission denied: /Users/yashwanth/mcxn236-ml
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % cd ~/mcxn236-ml
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % source .venv/bin/activate
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % ls
+nirantara_integrated_synthetic_telemetry_120k.csv
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % python -c "import pandas as pd; df=pd.read_csv('nirantara_integrated_synthetic_telemetry_120k(1).csv'); print(df.shape); print(df.columns.tolist()); print(df['network_state'].value_counts())"
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/yashwanth/mcxn236-ml/.venv/lib/python3.9/site-packages/pandas/io/parsers/readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+  File "/Users/yashwanth/mcxn236-ml/.venv/lib/python3.9/site-packages/pandas/io/parsers/readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+  File "/Users/yashwanth/mcxn236-ml/.venv/lib/python3.9/site-packages/pandas/io/parsers/readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+  File "/Users/yashwanth/mcxn236-ml/.venv/lib/python3.9/site-packages/pandas/io/parsers/readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+  File "/Users/yashwanth/mcxn236-ml/.venv/lib/python3.9/site-packages/pandas/io/common.py", line 873, in get_handle
+    handle = open(
+FileNotFoundError: [Errno 2] No such file or directory: 'nirantara_integrated_synthetic_telemetry_120k(1).csv'
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % python -c "import pandas as pd; df=pd.read_csv('nirantara_integrated_synthetic_telemetry_120k.csv'); print(df.shape); print(df.columns.tolist()); print(df['network_state'].value_counts())" 
+(120000, 27)
+['episode_id', 'sample_index', 'timestamp', 'latency_A_ms', 'jitter_A_ms', 'packet_loss_A_pct', 'dns_time_A_ms', 'latency_B_ms', 'jitter_B_ms', 'packet_loss_B_pct', 'dns_time_B_ms', 'network_state', 'heart_rate_bpm', 'bed_force_pct', 'accel_magnitude_g', 'pir_motion', 'bed_distance_cm', 'rfid_status', 'gps_lat', 'gps_lon', 'fall_detected', 'high_hr_flag', 'red_flag_count', 'patient_event', 'primary_link_up', 'backup_link_up', 'espnow_mesh_active']
+network_state
+HEALTHY      65977
+DEGRADING    35910
+CRITICAL     18113
+Name: count, dtype: int64
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % pip install tensorflow pandas numpy scikit-learn matplotlib
+Requirement already satisfied: tensorflow in ./.venv/lib/python3.9/site-packages (2.20.0)
+Requirement already satisfied: pandas in ./.venv/lib/python3.9/site-packages (2.3.3)
+Requirement already satisfied: numpy in ./.venv/lib/python3.9/site-packages (2.0.2)
+Requirement already satisfied: scikit-learn in ./.venv/lib/python3.9/site-packages (1.6.1)
+Requirement already satisfied: matplotlib in ./.venv/lib/python3.9/site-packages (3.9.4)
+Requirement already satisfied: absl-py>=1.0.0 in ./.venv/lib/python3.9/site-packages (from tensorflow) (2.3.1)
+Requirement already satisfied: astunparse>=1.6.0 in ./.venv/lib/python3.9/site-packages (from tensorflow) (1.6.3)
+Requirement already satisfied: flatbuffers>=24.3.25 in ./.venv/lib/python3.9/site-packages (from tensorflow) (25.12.19)
+Requirement already satisfied: gast!=0.5.0,!=0.5.1,!=0.5.2,>=0.2.1 in ./.venv/lib/python3.9/site-packages (from tensorflow) (0.7.0)
+Requirement already satisfied: google_pasta>=0.1.1 in ./.venv/lib/python3.9/site-packages (from tensorflow) (0.2.0)
+Requirement already satisfied: libclang>=13.0.0 in ./.venv/lib/python3.9/site-packages (from tensorflow) (18.1.1)
+Requirement already satisfied: opt_einsum>=2.3.2 in ./.venv/lib/python3.9/site-packages (from tensorflow) (3.4.0)
+Requirement already satisfied: packaging in ./.venv/lib/python3.9/site-packages (from tensorflow) (26.3)
+Requirement already satisfied: protobuf>=5.28.0 in ./.venv/lib/python3.9/site-packages (from tensorflow) (6.33.6)
+Requirement already satisfied: requests<3,>=2.21.0 in ./.venv/lib/python3.9/site-packages (from tensorflow) (2.32.5)
+Requirement already satisfied: setuptools in ./.venv/lib/python3.9/site-packages (from tensorflow) (58.0.4)
+Requirement already satisfied: six>=1.12.0 in ./.venv/lib/python3.9/site-packages (from tensorflow) (1.17.0)
+Requirement already satisfied: termcolor>=1.1.0 in ./.venv/lib/python3.9/site-packages (from tensorflow) (3.1.0)
+Requirement already satisfied: typing_extensions>=3.6.6 in ./.venv/lib/python3.9/site-packages (from tensorflow) (4.16.0)
+Requirement already satisfied: wrapt>=1.11.0 in ./.venv/lib/python3.9/site-packages (from tensorflow) (2.5.0)
+Requirement already satisfied: grpcio<2.0,>=1.24.3 in ./.venv/lib/python3.9/site-packages (from tensorflow) (1.80.0)
+Requirement already satisfied: tensorboard~=2.20.0 in ./.venv/lib/python3.9/site-packages (from tensorflow) (2.20.0)
+Requirement already satisfied: keras>=3.10.0 in ./.venv/lib/python3.9/site-packages (from tensorflow) (3.10.0)
+Requirement already satisfied: h5py>=3.11.0 in ./.venv/lib/python3.9/site-packages (from tensorflow) (3.14.0)
+Requirement already satisfied: ml_dtypes<1.0.0,>=0.5.1 in ./.venv/lib/python3.9/site-packages (from tensorflow) (0.5.4)
+Requirement already satisfied: charset_normalizer<4,>=2 in ./.venv/lib/python3.9/site-packages (from requests<3,>=2.21.0->tensorflow) (3.5.2)
+Requirement already satisfied: idna<4,>=2.5 in ./.venv/lib/python3.9/site-packages (from requests<3,>=2.21.0->tensorflow) (3.20)
+Requirement already satisfied: urllib3<3,>=1.21.1 in ./.venv/lib/python3.9/site-packages (from requests<3,>=2.21.0->tensorflow) (2.6.3)
+Requirement already satisfied: certifi>=2017.4.17 in ./.venv/lib/python3.9/site-packages (from requests<3,>=2.21.0->tensorflow) (2026.7.22)
+Requirement already satisfied: markdown>=2.6.8 in ./.venv/lib/python3.9/site-packages (from tensorboard~=2.20.0->tensorflow) (3.9)
+Requirement already satisfied: pillow in ./.venv/lib/python3.9/site-packages (from tensorboard~=2.20.0->tensorflow) (11.3.0)
+Requirement already satisfied: tensorboard-data-server<0.8.0,>=0.7.0 in ./.venv/lib/python3.9/site-packages (from tensorboard~=2.20.0->tensorflow) (0.7.2)
+Requirement already satisfied: werkzeug>=1.0.1 in ./.venv/lib/python3.9/site-packages (from tensorboard~=2.20.0->tensorflow) (3.1.9)
+Requirement already satisfied: python-dateutil>=2.8.2 in ./.venv/lib/python3.9/site-packages (from pandas) (2.9.0.post0)
+Requirement already satisfied: pytz>=2020.1 in ./.venv/lib/python3.9/site-packages (from pandas) (2026.5)
+Requirement already satisfied: tzdata>=2022.7 in ./.venv/lib/python3.9/site-packages (from pandas) (2026.5)
+Requirement already satisfied: scipy>=1.6.0 in ./.venv/lib/python3.9/site-packages (from scikit-learn) (1.13.1)
+Requirement already satisfied: joblib>=1.2.0 in ./.venv/lib/python3.9/site-packages (from scikit-learn) (1.5.3)
+Requirement already satisfied: threadpoolctl>=3.1.0 in ./.venv/lib/python3.9/site-packages (from scikit-learn) (3.7.0)
+Requirement already satisfied: contourpy>=1.0.1 in ./.venv/lib/python3.9/site-packages (from matplotlib) (1.3.0)
+Requirement already satisfied: cycler>=0.10 in ./.venv/lib/python3.9/site-packages (from matplotlib) (0.12.1)
+Requirement already satisfied: fonttools>=4.22.0 in ./.venv/lib/python3.9/site-packages (from matplotlib) (4.60.2)
+Requirement already satisfied: kiwisolver>=1.3.1 in ./.venv/lib/python3.9/site-packages (from matplotlib) (1.4.7)
+Requirement already satisfied: pyparsing>=2.3.1 in ./.venv/lib/python3.9/site-packages (from matplotlib) (3.3.3)
+Requirement already satisfied: importlib-resources>=3.2.0 in ./.venv/lib/python3.9/site-packages (from matplotlib) (6.5.2)
+Requirement already satisfied: wheel<1.0,>=0.23.0 in ./.venv/lib/python3.9/site-packages (from astunparse>=1.6.0->tensorflow) (0.48.0)
+Requirement already satisfied: zipp>=3.1.0 in ./.venv/lib/python3.9/site-packages (from importlib-resources>=3.2.0->matplotlib) (3.23.1)
+Requirement already satisfied: rich in ./.venv/lib/python3.9/site-packages (from keras>=3.10.0->tensorflow) (15.0.0)
+Requirement already satisfied: namex in ./.venv/lib/python3.9/site-packages (from keras>=3.10.0->tensorflow) (0.1.0)
+Requirement already satisfied: optree in ./.venv/lib/python3.9/site-packages (from keras>=3.10.0->tensorflow) (0.20.0)
+Requirement already satisfied: importlib-metadata>=4.4 in ./.venv/lib/python3.9/site-packages (from markdown>=2.6.8->tensorboard~=2.20.0->tensorflow) (8.7.1)
+Requirement already satisfied: markupsafe>=2.1.1 in ./.venv/lib/python3.9/site-packages (from werkzeug>=1.0.1->tensorboard~=2.20.0->tensorflow) (3.0.4)
+Requirement already satisfied: markdown-it-py>=2.2.0 in ./.venv/lib/python3.9/site-packages (from rich->keras>=3.10.0->tensorflow) (3.0.0)
+Requirement already satisfied: pygments<3.0.0,>=2.13.0 in ./.venv/lib/python3.9/site-packages (from rich->keras>=3.10.0->tensorflow) (2.21.0)
+Requirement already satisfied: mdurl~=0.1 in ./.venv/lib/python3.9/site-packages (from markdown-it-py>=2.2.0->rich->keras>=3.10.0->tensorflow) (0.1.2)
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % nano train.py
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % nano train.py
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % ls
+nirantara_integrated_synthetic_telemetry_120k.csv	train.py
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % python train.py
+/Users/yashwanth/mcxn236-ml/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+Traceback (most recent call last):
+  File "/Users/yashwanth/mcxn236-ml/train.py", line 17, in <module>
+    df = pd.read_csv(CSV_FILE)
+  File "/Users/yashwanth/mcxn236-ml/.venv/lib/python3.9/site-packages/pandas/io/parsers/readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+  File "/Users/yashwanth/mcxn236-ml/.venv/lib/python3.9/site-packages/pandas/io/parsers/readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+  File "/Users/yashwanth/mcxn236-ml/.venv/lib/python3.9/site-packages/pandas/io/parsers/readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+  File "/Users/yashwanth/mcxn236-ml/.venv/lib/python3.9/site-packages/pandas/io/parsers/readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+  File "/Users/yashwanth/mcxn236-ml/.venv/lib/python3.9/site-packages/pandas/io/common.py", line 873, in get_handle
+    handle = open(
+FileNotFoundError: [Errno 2] No such file or directory: 'nirantara_integrated_synthetic_telemetry_120k(1).csv'
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % python -c "import tensorflow as tf; m=tf.keras.models.load_model('nirantara_network_model.keras'); print('Parameters:', m.count_params())
+dquote> 
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % nano train.py
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % ls
+nirantara_integrated_synthetic_telemetry_120k.csv	train.py
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % python train.py
+/Users/yashwanth/mcxn236-ml/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+
+Dataset shape: (120000, 27)
+
+Columns:
+['episode_id', 'sample_index', 'timestamp', 'latency_A_ms', 'jitter_A_ms', 'packet_loss_A_pct', 'dns_time_A_ms', 'latency_B_ms', 'jitter_B_ms', 'packet_loss_B_pct', 'dns_time_B_ms', 'network_state', 'heart_rate_bpm', 'bed_force_pct', 'accel_magnitude_g', 'pir_motion', 'bed_distance_cm', 'rfid_status', 'gps_lat', 'gps_lon', 'fall_detected', 'high_hr_flag', 'red_flag_count', 'patient_event', 'primary_link_up', 'backup_link_up', 'espnow_mesh_active']
+
+Classes:
+0 = CRITICAL
+1 = DEGRADING
+2 = HEALTHY
+
+Split:
+Train: 96000
+Validation: 12000
+Test: 12000
+
+MODEL
+Model: "sequential"
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┓
+┃ Layer (type)                         ┃ Output Shape                ┃         Param # ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━┩
+│ dense (Dense)                        │ (None, 512)                 │          11,776 │
+├──────────────────────────────────────┼─────────────────────────────┼─────────────────┤
+│ dense_1 (Dense)                      │ (None, 512)                 │         262,656 │
+├──────────────────────────────────────┼─────────────────────────────┼─────────────────┤
+│ dense_2 (Dense)                      │ (None, 128)                 │          65,664 │
+├──────────────────────────────────────┼─────────────────────────────┼─────────────────┤
+│ dense_3 (Dense)                      │ (None, 3)                   │             387 │
+└──────────────────────────────────────┴─────────────────────────────┴─────────────────┘
+ Total params: 340,483 (1.30 MB)
+ Trainable params: 340,483 (1.30 MB)
+ Non-trainable params: 0 (0.00 B)
+Epoch 1/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9397 - loss: 0.1556 - val_accuracy: 0.9734 - val_loss: 0.0748
+Epoch 2/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9727 - loss: 0.0731 - val_accuracy: 0.9722 - val_loss: 0.0734
+Epoch 3/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9754 - loss: 0.0678 - val_accuracy: 0.9753 - val_loss: 0.0695
+Epoch 4/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9747 - loss: 0.0681 - val_accuracy: 0.9756 - val_loss: 0.0675
+Epoch 5/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9767 - loss: 0.0634 - val_accuracy: 0.9749 - val_loss: 0.0691
+Epoch 6/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9766 - loss: 0.0627 - val_accuracy: 0.9754 - val_loss: 0.0668
+Epoch 7/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9774 - loss: 0.0619 - val_accuracy: 0.9748 - val_loss: 0.0691
+Epoch 8/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9771 - loss: 0.0621 - val_accuracy: 0.9738 - val_loss: 0.0698
+Epoch 9/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9770 - loss: 0.0611 - val_accuracy: 0.9748 - val_loss: 0.0658
+Epoch 10/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9769 - loss: 0.0602 - val_accuracy: 0.9757 - val_loss: 0.0673
+Epoch 11/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9773 - loss: 0.0606 - val_accuracy: 0.9750 - val_loss: 0.0666
+Epoch 12/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9773 - loss: 0.0606 - val_accuracy: 0.9739 - val_loss: 0.0681
+Epoch 13/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9775 - loss: 0.0597 - val_accuracy: 0.9753 - val_loss: 0.0668
+Epoch 14/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9786 - loss: 0.0572 - val_accuracy: 0.9760 - val_loss: 0.0663
+Epoch 15/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9783 - loss: 0.0565 - val_accuracy: 0.9746 - val_loss: 0.0677
+Epoch 16/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9784 - loss: 0.0579 - val_accuracy: 0.9756 - val_loss: 0.0657
+Epoch 17/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9796 - loss: 0.0553 - val_accuracy: 0.9765 - val_loss: 0.0665
+Epoch 18/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9794 - loss: 0.0541 - val_accuracy: 0.9749 - val_loss: 0.0678
+Epoch 19/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9797 - loss: 0.0527 - val_accuracy: 0.9758 - val_loss: 0.0679
+Epoch 20/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9802 - loss: 0.0535 - val_accuracy: 0.9739 - val_loss: 0.0718
+Epoch 21/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9790 - loss: 0.0543 - val_accuracy: 0.9744 - val_loss: 0.0730
+Epoch 22/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9801 - loss: 0.0533 - val_accuracy: 0.9737 - val_loss: 0.0693
+Epoch 23/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9803 - loss: 0.0520 - val_accuracy: 0.9754 - val_loss: 0.0691
+Epoch 24/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9815 - loss: 0.0489 - val_accuracy: 0.9732 - val_loss: 0.0734
+
+================================
+TEST ACCURACY: 0.9764166474342346
+================================
+
+Classification Report:
+              precision    recall  f1-score   support
+
+    CRITICAL       0.93      0.95      0.94      1736
+   DEGRADING       0.97      0.95      0.96      3647
+     HEALTHY       0.99      1.00      0.99      6617
+
+    accuracy                           0.98     12000
+   macro avg       0.96      0.97      0.97     12000
+weighted avg       0.98      0.98      0.98     12000
+
+
+Confusion Matrix:
+[[1654   82    0]
+ [ 123 3466   58]
+ [   0   20 6597]]
+
+Saved:
+nirantara_network_model.keras
+Saved preprocessing files.
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % python -c "import tensorflow as tf; m=tf.keras.models.load_model('nirantara_network_model.keras'); print('Parameters:', m.count_params())"
+/Users/yashwanth/mcxn236-ml/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+Parameters: 340483
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % nano train.py
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % python train.py
+/Users/yashwanth/mcxn236-ml/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+
+Dataset shape: (120000, 27)
+
+Columns:
+['episode_id', 'sample_index', 'timestamp', 'latency_A_ms', 'jitter_A_ms', 'packet_loss_A_pct', 'dns_time_A_ms', 'latency_B_ms', 'jitter_B_ms', 'packet_loss_B_pct', 'dns_time_B_ms', 'network_state', 'heart_rate_bpm', 'bed_force_pct', 'accel_magnitude_g', 'pir_motion', 'bed_distance_cm', 'rfid_status', 'gps_lat', 'gps_lon', 'fall_detected', 'high_hr_flag', 'red_flag_count', 'patient_event', 'primary_link_up', 'backup_link_up', 'espnow_mesh_active']
+
+Classes:
+0 = CRITICAL
+1 = DEGRADING
+2 = HEALTHY
+
+Split:
+Train: 96000
+Validation: 12000
+Test: 12000
+
+MODEL
+Model: "sequential"
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┓
+┃ Layer (type)                         ┃ Output Shape                ┃         Param # ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━┩
+│ dense (Dense)                        │ (None, 768)                 │          17,664 │
+├──────────────────────────────────────┼─────────────────────────────┼─────────────────┤
+│ dense_1 (Dense)                      │ (None, 768)                 │         590,592 │
+├──────────────────────────────────────┼─────────────────────────────┼─────────────────┤
+│ dense_2 (Dense)                      │ (None, 128)                 │          98,432 │
+├──────────────────────────────────────┼─────────────────────────────┼─────────────────┤
+│ dense_3 (Dense)                      │ (None, 3)                   │             387 │
+└──────────────────────────────────────┴─────────────────────────────┴─────────────────┘
+ Total params: 707,075 (2.70 MB)
+ Trainable params: 707,075 (2.70 MB)
+ Non-trainable params: 0 (0.00 B)
+Epoch 1/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9388 - loss: 0.1528 - val_accuracy: 0.9704 - val_loss: 0.0874
+Epoch 2/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9735 - loss: 0.0725 - val_accuracy: 0.9751 - val_loss: 0.0708
+Epoch 3/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9755 - loss: 0.0664 - val_accuracy: 0.9701 - val_loss: 0.0775
+Epoch 4/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9763 - loss: 0.0650 - val_accuracy: 0.9728 - val_loss: 0.0741
+Epoch 5/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9756 - loss: 0.0666 - val_accuracy: 0.9743 - val_loss: 0.0710
+Epoch 6/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9761 - loss: 0.0655 - val_accuracy: 0.9753 - val_loss: 0.0675
+Epoch 7/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9772 - loss: 0.0630 - val_accuracy: 0.9752 - val_loss: 0.0698
+Epoch 8/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9771 - loss: 0.0608 - val_accuracy: 0.9744 - val_loss: 0.0702
+Epoch 9/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9773 - loss: 0.0609 - val_accuracy: 0.9758 - val_loss: 0.0666
+Epoch 10/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9767 - loss: 0.0617 - val_accuracy: 0.9747 - val_loss: 0.0670
+Epoch 11/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9779 - loss: 0.0600 - val_accuracy: 0.9754 - val_loss: 0.0693
+Epoch 12/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9778 - loss: 0.0591 - val_accuracy: 0.9762 - val_loss: 0.0666
+Epoch 13/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9773 - loss: 0.0600 - val_accuracy: 0.9737 - val_loss: 0.0691
+Epoch 14/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9781 - loss: 0.0570 - val_accuracy: 0.9733 - val_loss: 0.0721
+Epoch 15/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9789 - loss: 0.0563 - val_accuracy: 0.9757 - val_loss: 0.0662
+Epoch 16/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9790 - loss: 0.0558 - val_accuracy: 0.9755 - val_loss: 0.0712
+Epoch 17/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9788 - loss: 0.0566 - val_accuracy: 0.9743 - val_loss: 0.0708
+Epoch 18/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9793 - loss: 0.0537 - val_accuracy: 0.9738 - val_loss: 0.0673
+Epoch 19/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9803 - loss: 0.0530 - val_accuracy: 0.9743 - val_loss: 0.0719
+Epoch 20/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9781 - loss: 0.0565 - val_accuracy: 0.9757 - val_loss: 0.0722
+Epoch 21/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9801 - loss: 0.0535 - val_accuracy: 0.9768 - val_loss: 0.0655
+Epoch 22/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9808 - loss: 0.0509 - val_accuracy: 0.9758 - val_loss: 0.0693
+Epoch 23/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9809 - loss: 0.0504 - val_accuracy: 0.9745 - val_loss: 0.0754
+Epoch 24/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9806 - loss: 0.0504 - val_accuracy: 0.9750 - val_loss: 0.0730
+Epoch 25/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9812 - loss: 0.0488 - val_accuracy: 0.9746 - val_loss: 0.0739
+Epoch 26/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9811 - loss: 0.0504 - val_accuracy: 0.9733 - val_loss: 0.0741
+Epoch 27/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9812 - loss: 0.0480 - val_accuracy: 0.9745 - val_loss: 0.0731
+Epoch 28/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9820 - loss: 0.0465 - val_accuracy: 0.9753 - val_loss: 0.0755
+Epoch 29/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - accuracy: 0.9830 - loss: 0.0449 - val_accuracy: 0.9737 - val_loss: 0.0864
+
+================================
+TEST ACCURACY: 0.9767500162124634
+================================
+
+Classification Report:
+              precision    recall  f1-score   support
+
+    CRITICAL       0.92      0.96      0.94      1736
+   DEGRADING       0.98      0.95      0.96      3647
+     HEALTHY       0.99      1.00      0.99      6617
+
+    accuracy                           0.98     12000
+   macro avg       0.96      0.97      0.97     12000
+weighted avg       0.98      0.98      0.98     12000
+
+
+Confusion Matrix:
+[[1665   71    0]
+ [ 136 3455   56]
+ [   0   16 6601]]
+
+Saved:
+nirantara_network_model.keras
+Saved preprocessing files.
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % nano train.py
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % python train.py
+/Users/yashwanth/mcxn236-ml/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+
+Dataset shape: (120000, 27)
+
+Columns:
+['episode_id', 'sample_index', 'timestamp', 'latency_A_ms', 'jitter_A_ms', 'packet_loss_A_pct', 'dns_time_A_ms', 'latency_B_ms', 'jitter_B_ms', 'packet_loss_B_pct', 'dns_time_B_ms', 'network_state', 'heart_rate_bpm', 'bed_force_pct', 'accel_magnitude_g', 'pir_motion', 'bed_distance_cm', 'rfid_status', 'gps_lat', 'gps_lon', 'fall_detected', 'high_hr_flag', 'red_flag_count', 'patient_event', 'primary_link_up', 'backup_link_up', 'espnow_mesh_active']
+
+Classes:
+0 = CRITICAL
+1 = DEGRADING
+2 = HEALTHY
+
+Split:
+Train: 96000
+Validation: 12000
+Test: 12000
+
+MODEL
+Model: "sequential"
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┓
+┃ Layer (type)                         ┃ Output Shape                ┃         Param # ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━┩
+│ dense (Dense)                        │ (None, 896)                 │          20,608 │
+├──────────────────────────────────────┼─────────────────────────────┼─────────────────┤
+│ dense_1 (Dense)                      │ (None, 896)                 │         803,712 │
+├──────────────────────────────────────┼─────────────────────────────┼─────────────────┤
+│ dense_2 (Dense)                      │ (None, 128)                 │         114,816 │
+├──────────────────────────────────────┼─────────────────────────────┼─────────────────┤
+│ dense_3 (Dense)                      │ (None, 3)                   │             387 │
+└──────────────────────────────────────┴─────────────────────────────┴─────────────────┘
+ Total params: 939,523 (3.58 MB)
+ Trainable params: 939,523 (3.58 MB)
+ Non-trainable params: 0 (0.00 B)
+Epoch 1/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 2s 4ms/step - accuracy: 0.9438 - loss: 0.1382 - val_accuracy: 0.9747 - val_loss: 0.0693
+Epoch 2/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 2s 4ms/step - accuracy: 0.9744 - loss: 0.0710 - val_accuracy: 0.9743 - val_loss: 0.0698
+Epoch 3/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - accuracy: 0.9746 - loss: 0.0694 - val_accuracy: 0.9758 - val_loss: 0.0674
+Epoch 4/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 2s 4ms/step - accuracy: 0.9763 - loss: 0.0664 - val_accuracy: 0.9744 - val_loss: 0.0688
+Epoch 5/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - accuracy: 0.9761 - loss: 0.0647 - val_accuracy: 0.9748 - val_loss: 0.0714
+Epoch 6/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - accuracy: 0.9761 - loss: 0.0632 - val_accuracy: 0.9749 - val_loss: 0.0683
+Epoch 7/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - accuracy: 0.9770 - loss: 0.0632 - val_accuracy: 0.9752 - val_loss: 0.0685
+Epoch 8/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - accuracy: 0.9768 - loss: 0.0627 - val_accuracy: 0.9724 - val_loss: 0.0741
+Epoch 9/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - accuracy: 0.9768 - loss: 0.0628 - val_accuracy: 0.9753 - val_loss: 0.0692
+Epoch 10/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - accuracy: 0.9773 - loss: 0.0612 - val_accuracy: 0.9752 - val_loss: 0.0708
+Epoch 11/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - accuracy: 0.9774 - loss: 0.0605 - val_accuracy: 0.9751 - val_loss: 0.0691
+
+================================
+TEST ACCURACY: 0.9759166836738586
+================================
+
+Classification Report:
+              precision    recall  f1-score   support
+
+    CRITICAL       0.93      0.95      0.94      1736
+   DEGRADING       0.97      0.95      0.96      3647
+     HEALTHY       0.99      1.00      0.99      6617
+
+    accuracy                           0.98     12000
+   macro avg       0.96      0.97      0.96     12000
+weighted avg       0.98      0.98      0.98     12000
+
+
+Confusion Matrix:
+[[1655   81    0]
+ [ 134 3454   59]
+ [   0   15 6602]]
+
+Saved:
+nirantara_network_model.keras
+Saved preprocessing files.
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % python -c "import tensorflow as tf; m=tf.keras.models.load_model('nirantara_network_model.keras'); print('Parameters:', m.count_params())"
+/Users/yashwanth/mcxn236-ml/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+Parameters: 939523
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % cd ~/mcxn236-ml
+source .venv/bin/activate
+nano train.py
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % python train.py
+/Users/yashwanth/mcxn236-ml/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+
+Dataset shape: (120000, 27)
+
+Columns:
+['episode_id', 'sample_index', 'timestamp', 'latency_A_ms', 'jitter_A_ms', 'packet_loss_A_pct', 'dns_time_A_ms', 'latency_B_ms', 'jitter_B_ms', 'packet_loss_B_pct', 'dns_time_B_ms', 'network_state', 'heart_rate_bpm', 'bed_force_pct', 'accel_magnitude_g', 'pir_motion', 'bed_distance_cm', 'rfid_status', 'gps_lat', 'gps_lon', 'fall_detected', 'high_hr_flag', 'red_flag_count', 'patient_event', 'primary_link_up', 'backup_link_up', 'espnow_mesh_active']
+
+Classes:
+0 = CRITICAL
+1 = DEGRADING
+2 = HEALTHY
+
+Split:
+Train: 96000
+Validation: 12000
+Test: 12000
+
+MODEL
+Model: "sequential"
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┓
+┃ Layer (type)                         ┃ Output Shape                ┃         Param # ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━┩
+│ dense (Dense)                        │ (None, 640)                 │          14,720 │
+├──────────────────────────────────────┼─────────────────────────────┼─────────────────┤
+│ dense_1 (Dense)                      │ (None, 640)                 │         410,240 │
+├──────────────────────────────────────┼─────────────────────────────┼─────────────────┤
+│ dense_2 (Dense)                      │ (None, 128)                 │          82,048 │
+├──────────────────────────────────────┼─────────────────────────────┼─────────────────┤
+│ dense_3 (Dense)                      │ (None, 3)                   │             387 │
+└──────────────────────────────────────┴─────────────────────────────┴─────────────────┘
+ Total params: 507,395 (1.94 MB)
+ Trainable params: 507,395 (1.94 MB)
+ Non-trainable params: 0 (0.00 B)
+Epoch 1/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9438 - loss: 0.1501 - val_accuracy: 0.9723 - val_loss: 0.0741
+Epoch 2/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9741 - loss: 0.0709 - val_accuracy: 0.9733 - val_loss: 0.0738
+Epoch 3/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9752 - loss: 0.0685 - val_accuracy: 0.9738 - val_loss: 0.0686
+Epoch 4/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9758 - loss: 0.0657 - val_accuracy: 0.9739 - val_loss: 0.0700
+Epoch 5/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9768 - loss: 0.0640 - val_accuracy: 0.9735 - val_loss: 0.0704
+Epoch 6/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9762 - loss: 0.0643 - val_accuracy: 0.9737 - val_loss: 0.0712
+Epoch 7/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9769 - loss: 0.0629 - val_accuracy: 0.9736 - val_loss: 0.0707
+Epoch 8/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9778 - loss: 0.0601 - val_accuracy: 0.9745 - val_loss: 0.0674
+Epoch 9/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9776 - loss: 0.0610 - val_accuracy: 0.9741 - val_loss: 0.0678
+Epoch 10/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9778 - loss: 0.0601 - val_accuracy: 0.9752 - val_loss: 0.0688
+Epoch 11/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9779 - loss: 0.0595 - val_accuracy: 0.9762 - val_loss: 0.0663
+Epoch 12/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9771 - loss: 0.0599 - val_accuracy: 0.9752 - val_loss: 0.0687
+Epoch 13/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9783 - loss: 0.0594 - val_accuracy: 0.9755 - val_loss: 0.0690
+Epoch 14/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9783 - loss: 0.0580 - val_accuracy: 0.9751 - val_loss: 0.0681
+Epoch 15/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9795 - loss: 0.0553 - val_accuracy: 0.9753 - val_loss: 0.0684
+Epoch 16/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9780 - loss: 0.0577 - val_accuracy: 0.9752 - val_loss: 0.0675
+Epoch 17/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9798 - loss: 0.0542 - val_accuracy: 0.9762 - val_loss: 0.0693
+Epoch 18/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9793 - loss: 0.0547 - val_accuracy: 0.9759 - val_loss: 0.0659
+Epoch 19/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9795 - loss: 0.0542 - val_accuracy: 0.9747 - val_loss: 0.0725
+Epoch 20/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9799 - loss: 0.0537 - val_accuracy: 0.9738 - val_loss: 0.0694
+Epoch 21/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9797 - loss: 0.0542 - val_accuracy: 0.9749 - val_loss: 0.0711
+Epoch 22/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9797 - loss: 0.0531 - val_accuracy: 0.9728 - val_loss: 0.0752
+Epoch 23/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9806 - loss: 0.0509 - val_accuracy: 0.9753 - val_loss: 0.0680
+Epoch 24/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9808 - loss: 0.0504 - val_accuracy: 0.9745 - val_loss: 0.0712
+Epoch 25/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9806 - loss: 0.0503 - val_accuracy: 0.9732 - val_loss: 0.0766
+Epoch 26/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9814 - loss: 0.0488 - val_accuracy: 0.9745 - val_loss: 0.0714
+
+================================
+TEST ACCURACY: 0.9765833616256714
+================================
+
+Classification Report:
+              precision    recall  f1-score   support
+
+    CRITICAL       0.93      0.95      0.94      1736
+   DEGRADING       0.97      0.95      0.96      3647
+     HEALTHY       0.99      1.00      0.99      6617
+
+    accuracy                           0.98     12000
+   macro avg       0.96      0.97      0.97     12000
+weighted avg       0.98      0.98      0.98     12000
+
+
+Confusion Matrix:
+[[1650   86    0]
+ [ 122 3471   54]
+ [   0   19 6598]]
+
+Saved:
+nirantara_network_model.keras
+Saved preprocessing files.
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % python train.py
+/Users/yashwanth/mcxn236-ml/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+
+Dataset shape: (120000, 27)
+
+Columns:
+['episode_id', 'sample_index', 'timestamp', 'latency_A_ms', 'jitter_A_ms', 'packet_loss_A_pct', 'dns_time_A_ms', 'latency_B_ms', 'jitter_B_ms', 'packet_loss_B_pct', 'dns_time_B_ms', 'network_state', 'heart_rate_bpm', 'bed_force_pct', 'accel_magnitude_g', 'pir_motion', 'bed_distance_cm', 'rfid_status', 'gps_lat', 'gps_lon', 'fall_detected', 'high_hr_flag', 'red_flag_count', 'patient_event', 'primary_link_up', 'backup_link_up', 'espnow_mesh_active']
+
+Classes:
+0 = CRITICAL
+1 = DEGRADING
+2 = HEALTHY
+
+Split:
+Train: 96000
+Validation: 12000
+Test: 12000
+
+MODEL
+Model: "sequential"
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┓
+┃ Layer (type)                         ┃ Output Shape                ┃         Param # ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━┩
+│ dense (Dense)                        │ (None, 640)                 │          14,720 │
+├──────────────────────────────────────┼─────────────────────────────┼─────────────────┤
+│ dense_1 (Dense)                      │ (None, 640)                 │         410,240 │
+├──────────────────────────────────────┼─────────────────────────────┼─────────────────┤
+│ dense_2 (Dense)                      │ (None, 128)                 │          82,048 │
+├──────────────────────────────────────┼─────────────────────────────┼─────────────────┤
+│ dense_3 (Dense)                      │ (None, 3)                   │             387 │
+└──────────────────────────────────────┴─────────────────────────────┴─────────────────┘
+ Total params: 507,395 (1.94 MB)
+ Trainable params: 507,395 (1.94 MB)
+ Non-trainable params: 0 (0.00 B)
+Epoch 1/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9472 - loss: 0.1441 - val_accuracy: 0.9714 - val_loss: 0.0808
+Epoch 2/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9742 - loss: 0.0713 - val_accuracy: 0.9734 - val_loss: 0.0737
+Epoch 3/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9750 - loss: 0.0671 - val_accuracy: 0.9740 - val_loss: 0.0712
+Epoch 4/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9765 - loss: 0.0640 - val_accuracy: 0.9726 - val_loss: 0.0735
+Epoch 5/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9758 - loss: 0.0658 - val_accuracy: 0.9754 - val_loss: 0.0678
+Epoch 6/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9764 - loss: 0.0646 - val_accuracy: 0.9746 - val_loss: 0.0679
+Epoch 7/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9764 - loss: 0.0620 - val_accuracy: 0.9719 - val_loss: 0.0728
+Epoch 8/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9765 - loss: 0.0629 - val_accuracy: 0.9744 - val_loss: 0.0728
+Epoch 9/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9775 - loss: 0.0597 - val_accuracy: 0.9753 - val_loss: 0.0693
+Epoch 10/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9775 - loss: 0.0606 - val_accuracy: 0.9736 - val_loss: 0.0697
+Epoch 11/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9777 - loss: 0.0589 - val_accuracy: 0.9742 - val_loss: 0.0694
+Epoch 12/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9769 - loss: 0.0607 - val_accuracy: 0.9745 - val_loss: 0.0701
+Epoch 13/50
+375/375 ━━━━━━━━━━━━━━━━━━━━ 1s 2ms/step - accuracy: 0.9788 - loss: 0.0563 - val_accuracy: 0.9755 - val_loss: 0.0682
+
+================================
+TEST ACCURACY: 0.9769999980926514
+================================
+
+Classification Report:
+              precision    recall  f1-score   support
+
+    CRITICAL       0.92      0.97      0.94      1736
+   DEGRADING       0.98      0.95      0.96      3647
+     HEALTHY       0.99      1.00      0.99      6617
+
+    accuracy                           0.98     12000
+   macro avg       0.96      0.97      0.97     12000
+weighted avg       0.98      0.98      0.98     12000
+
+
+Confusion Matrix:
+[[1679   57    0]
+ [ 144 3448   55]
+ [   0   20 6597]]
+
+Saved:
+nirantara_network_model.keras
+Saved preprocessing files.
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % nano convert_int8.py
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % python convert_int8.py
+/Users/yashwanth/mcxn236-ml/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+Input features: 22
+Total samples: 120000
+Scaled input shape: (96000, 22)
+
+Model parameters: 507395
+
+Converting to full INT8...
+Saved artifact at '/var/folders/wp/0yyswp5d1pzd187h2zc7jl280000gn/T/tmpzipkcrjf'. The following endpoints are available:
+
+* Endpoint 'serve'
+  args_0 (POSITIONAL_ONLY): TensorSpec(shape=(None, 22), dtype=tf.float32, name='input_layer')
+Output Type:
+  TensorSpec(shape=(None, 3), dtype=tf.float32, name=None)
+Captures:
+  5145234416: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  5145332544: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  5145527568: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  5145526688: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  5145554784: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  5145578304: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  5145615696: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  5145635120: TensorSpec(shape=(), dtype=tf.resource, name=None)
+/Users/yashwanth/mcxn236-ml/.venv/lib/python3.9/site-packages/tensorflow/lite/python/convert.py:863: UserWarning: Statistics for quantized inputs were expected, but not specified; continuing anyway.
+  warnings.warn(
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+W0000 00:00:1791483291.518074  426327 tf_tfl_flatbuffer_helpers.cc:364] Ignored output_format.
+W0000 00:00:1791483291.518184  426327 tf_tfl_flatbuffer_helpers.cc:367] Ignored drop_control_dependency.
+2026-10-08 23:44:51.518374: I tensorflow/cc/saved_model/reader.cc:83] Reading SavedModel from: /var/folders/wp/0yyswp5d1pzd187h2zc7jl280000gn/T/tmpzipkcrjf
+2026-10-08 23:44:51.518565: I tensorflow/cc/saved_model/reader.cc:52] Reading meta graph with tags { serve }
+2026-10-08 23:44:51.518570: I tensorflow/cc/saved_model/reader.cc:147] Reading SavedModel debug info (if present) from: /var/folders/wp/0yyswp5d1pzd187h2zc7jl280000gn/T/tmpzipkcrjf
+I0000 00:00:1791483291.519803  426327 mlir_graph_optimization_pass.cc:437] MLIR V1 optimization pass is not enabled
+2026-10-08 23:44:51.520023: I tensorflow/cc/saved_model/loader.cc:236] Restoring SavedModel bundle.
+2026-10-08 23:44:51.538239: I tensorflow/cc/saved_model/loader.cc:220] Running initialization op on SavedModel bundle at path: /var/folders/wp/0yyswp5d1pzd187h2zc7jl280000gn/T/tmpzipkcrjf
+2026-10-08 23:44:51.540713: I tensorflow/cc/saved_model/loader.cc:471] SavedModel load for tags { serve }; Status: success: OK. Took 22340 microseconds.
+2026-10-08 23:44:51.560615: I tensorflow/compiler/mlir/tensorflow/utils/dump_mlir_util.cc:269] disabling MLIR crash reproducer, set env var `MLIR_CRASH_REPRODUCER_DIRECTORY` to enable.
+fully_quantize: 0, inference_type: 6, input_inference_type: INT8, output_inference_type: INT8
+2026-10-08 23:44:52.108702: W tensorflow/compiler/mlir/lite/flatbuffer_export.cc:3705] Skipping runtime version metadata in the model. This will be generated by the exporter.
+
+================================
+INT8 MODEL CREATED
+================================
+File: nirantara_network_model_int8.tflite
+Size: 548336 bytes
+Size: 535.48 KB
+Size: 0.523 MB
+
+Input type: INT8
+Output type: INT8
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % nano test_int8.py
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % python test_int8.py
+/Users/yashwanth/mcxn236-ml/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/yashwanth/mcxn236-ml/.venv/lib/python3.9/site-packages/tensorflow/lite/python/interpreter.py:457: UserWarning:     Warning: tf.lite.Interpreter is deprecated and is scheduled for deletion in
+    TF 2.20. Please use the LiteRT interpreter from the ai_edge_litert package.
+    See the [migration guide](https://ai.google.dev/edge/litert/migration)
+    for details.
+    
+  warnings.warn(_INTERPRETER_DELETION_WARNING)
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+================================
+INT8 MODEL INFORMATION
+================================
+Input shape: [ 1 22]
+Input dtype: <class 'numpy.int8'>
+Input scale: 0.11253108829259872
+Input zero point: 74
+
+Output shape: [1 3]
+Output dtype: <class 'numpy.int8'>
+Output scale: 0.00390625
+Output zero point: -128
+
+================================
+INT8 TEST RESULTS
+================================
+INT8 TEST ACCURACY: 0.976417
+
+Classification Report:
+              precision    recall  f1-score   support
+
+    CRITICAL       0.92      0.97      0.94      1736
+   DEGRADING       0.98      0.94      0.96      3647
+     HEALTHY       0.99      1.00      0.99      6617
+
+    accuracy                           0.98     12000
+   macro avg       0.96      0.97      0.97     12000
+weighted avg       0.98      0.98      0.98     12000
+
+Confusion Matrix:
+[[1681   55    0]
+ [ 151 3444   52]
+ [   0   25 6592]]
+
+================================
+FP32 vs INT8
+================================
+FP32 accuracy : ~0.977
+INT8 accuracy : 0.976417
+Accuracy drop : 0.000583
+(.venv) yashwanth@Yashwanths-MacBook-Air mcxn236-ml % 
