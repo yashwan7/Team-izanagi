@@ -34,7 +34,7 @@ def seed_initial_mock_data():
         medications=[
             MedicationEntry(medication="Fentanyl", dose="100mcg", administered_at="14:15", administered_by="Medic Echo", entry_id="M1")
         ],
-        gps=GPSLocation(lat=28.6189, lng=77.2050, altitude=218.0),
+        gps=GPSLocation(lat=12.871773, lng=77.576856, altitude=920.0),
         triage_color="RED"
     )
     # Sign p1 with HMAC
@@ -61,7 +61,7 @@ def seed_initial_mock_data():
         medications=[
             MedicationEntry(medication="Ceftriaxone", dose="1g IV", administered_at="12:00", administered_by="Sgt. Bradley", entry_id="M2")
         ],
-        gps=GPSLocation(lat=28.6250, lng=77.2180, altitude=230.0),
+        gps=GPSLocation(lat=12.875210, lng=77.579430, altitude=925.0),
         triage_color="YELLOW"
     )
     p2_signed = sign_capsule(p2.model_dump())
@@ -85,7 +85,7 @@ def seed_initial_mock_data():
         red_flags=["spinal_cord_immobilized", "dysphagia"],
         eye_gaze=EyeGaze(command="CALL_NURSE", direction="CENTER", blink_count=2, timestamp=now - 15),
         medications=[],
-        gps=GPSLocation(lat=28.6090, lng=77.2200, altitude=210.0),
+        gps=GPSLocation(lat=12.868920, lng=77.574210, altitude=915.0),
         triage_color="YELLOW"
     )
     p3_signed = sign_capsule(p3.model_dump())
@@ -109,7 +109,7 @@ def seed_initial_mock_data():
         red_flags=[],
         eye_gaze=EyeGaze(command="BATHROOM", direction="RIGHT", blink_count=1, timestamp=now - 30),
         medications=[],
-        gps=GPSLocation(lat=28.6145, lng=77.2310, altitude=212.0),
+        gps=GPSLocation(lat=12.873540, lng=77.572180, altitude=918.0),
         triage_color="GREEN",
         hmac_signature="bad_tampered_hash_9876543210deadbeef" # Invalid HMAC!
     )

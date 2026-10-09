@@ -62,7 +62,7 @@ export default function NetworkBar({ networkStatus, onSimulateNetwork, isOnline 
       {/* Header Title */}
       <div>
         <h2 className="text-xl md:text-2xl font-bold text-slate-800 tracking-tight flex items-center gap-2 m-0">
-          Emergency Trauma Telemetry
+          Emergency Telemetry
         </h2>
         <p className="text-xs text-slate-500 mt-0.5 m-0">
           Kshitij Clinical Command
