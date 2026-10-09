@@ -4,11 +4,13 @@ Generates metrics every 100ms for Port A (Primary IP) and Port B (Backup Path).
 Supports network fault injection to simulate link degradation and failure.
 """
 
+from __future__ import annotations
+
 import math
 import random
 import threading
 import time
-from typing import Callable, List, Optional, Dict, Any
+from typing import Callable, List, Optional, Dict, Any, Union
 from .models import PortMetric, DualTelemetrySample, PortId, NetworkDegradationProfile
 
 

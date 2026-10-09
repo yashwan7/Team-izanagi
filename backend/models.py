@@ -76,7 +76,7 @@ class TimelineIncident(BaseModel):
     id: str
     timestamp: str
     patient_id: str
-    category: str # 'VITALS_CRITICAL', 'MEDICATION_ADMIN', 'CONFLICT_RESOLVED', 'EYE_GAZE_ALERT', 'TRIAGE_UPDATE'
+    category: str # 'VITALS_CRITICAL', 'MEDICATION_ADMIN', 'CONFLICT_RESOLVED', 'EYE_GAZE_ALERT', 'SECURITY_ALERT', 'SYNC_DEDUPLICATION'
     title: str
     details: str
     conflict_detected: bool = False

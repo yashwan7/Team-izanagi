@@ -112,3 +112,42 @@ def test_network_failover_state_machine():
 
     net.restore_healthy()
     assert net.active_state == "PORT_A_ACTIVE"
+
+def test_clubbed_tinyml_predict_endpoint():
+    from backend.merge_engine.service import predict_tinyml_anomaly, TinyMLPredictRequest
+    
+    # Healthy telemetry vector
+    req_healthy = TinyMLPredictRequest(latency_ms=22.0, jitter_ms=1.5, packet_loss_pct=0.05, dns_time_ms=10.0)
+    res_healthy = predict_tinyml_anomaly(req_healthy)
+    assert res_healthy["class_label"] == "HEALTHY"
+    assert res_healthy["confidence"] > 0.80
+    assert res_healthy["inference_time_ms"] < 5.0 # Sub-5ms target
+
+    # Critical anomaly telemetry vector
+    req_crit = TinyMLPredictRequest(latency_ms=320.0, jitter_ms=45.0, packet_loss_pct=40.0, dns_time_ms=180.0)
+    res_crit = predict_tinyml_anomaly(req_crit)
+    assert res_crit["class_label"] == "CRITICAL"
+    assert res_crit["is_anomalous"] is True
+
+def test_clubbed_eog_live_batch_endpoint():
+    from backend.merge_engine.service import get_eog_live_batch
+    batch = get_eog_live_batch(scenario="nurse")
+    assert batch["sample_count"] == 50
+    assert len(batch["frames"]) == 50
+    # Check that filtered vertical biopotentials exist
+    assert "filtered_vertical" in batch["frames"][0]
+    assert "gaze" in batch["frames"][0]
+
+@pytest.mark.asyncio
+async def test_clubbed_chaos_injection_endpoint():
+    from backend.merge_engine.service import inject_chaos_scenario, ChaosInjectRequest
+    
+    req = ChaosInjectRequest(action="BURST_JITTER")
+    res = await inject_chaos_scenario(req)
+    assert res["action"] == "BURST_JITTER"
+    assert "High jitter anomaly" in res["message"]
+
+    req_reset = ChaosInjectRequest(action="RESET_ALL")
+    res_reset = await inject_chaos_scenario(req_reset)
+    assert res_reset["action"] == "RESET_ALL"
+

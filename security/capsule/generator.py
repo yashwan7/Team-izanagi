@@ -16,7 +16,7 @@ Emits signed delta capsules via DeltaEncoder and HMAC-SHA256 crypto engine.
 from copy import deepcopy
 import json
 import time
-from typing import Any, Callable, Dict, Generator, List, Optional
+from typing import Any, Callable, Dict, Generator, List, Optional, Tuple
 
 from .crypto import sign_capsule
 from .delta import DEFAULT_BASELINE, DeltaEncoder

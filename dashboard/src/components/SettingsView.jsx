@@ -391,6 +391,134 @@ export default function SettingsView({
 
       </div>
 
+      {/* 5. Tactical Chaos & Fault Lab (Clubbed from core/failover) */}
+      <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.03)] space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+              <AlertTriangle className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-800 m-0">Tactical Chaos & Fault Lab</h3>
+              <p className="text-[11px] text-slate-500 m-0">Simulate link drops, network storms, cryptographic tampering, and offline conflicts in real-time</p>
+            </div>
+          </div>
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 font-semibold border border-rose-200">
+            CHAOS SIMULATOR
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
+          <button
+            onClick={async () => {
+              await fetch('/api/chaos/inject', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'CUT_PORT_A' })
+              });
+              alert('⚡ Severed Port A physical link! Automatic 500ms Failover to Port B engaged.');
+            }}
+            className="p-3.5 rounded-2xl bg-slate-50 hover:bg-orange-50 hover:border-orange-200 border border-slate-200 text-left transition-all group"
+          >
+            <div className="text-xs font-bold text-slate-800 group-hover:text-orange-700 flex items-center justify-between">
+              <span>Cut Primary Port A</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-orange-100 text-orange-700 font-mono">500ms</span>
+            </div>
+            <p className="text-[11px] text-slate-500 mt-1">Triggers 100% loss on Port A and evaluates instant failover to secondary path.</p>
+          </button>
+
+          <button
+            onClick={async () => {
+              await fetch('/api/chaos/inject', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'BURST_JITTER' })
+              });
+              alert('🌊 High Jitter Anomaly (85ms) injected! TinyML classifier triggered DEGRADED.');
+            }}
+            className="p-3.5 rounded-2xl bg-slate-50 hover:bg-amber-50 hover:border-amber-200 border border-slate-200 text-left transition-all group"
+          >
+            <div className="text-xs font-bold text-slate-800 group-hover:text-amber-700 flex items-center justify-between">
+              <span>Jitter & Loss Storm</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-mono">TinyML</span>
+            </div>
+            <p className="text-[11px] text-slate-500 mt-1">Injects high jitter and packet loss to test INT8 neural edge classifier.</p>
+          </button>
+
+          <button
+            onClick={async () => {
+              await fetch('/api/chaos/inject', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'TAMPER_HMAC' })
+              });
+              alert('🛡️ Tampered HMAC signature injected! Integrity breach caught by Crypto Engine.');
+            }}
+            className="p-3.5 rounded-2xl bg-slate-50 hover:bg-rose-50 hover:border-rose-200 border border-slate-200 text-left transition-all group"
+          >
+            <div className="text-xs font-bold text-slate-800 group-hover:text-rose-700 flex items-center justify-between">
+              <span>Tamper HMAC Signature</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 font-mono">Crypto</span>
+            </div>
+            <p className="text-[11px] text-slate-500 mt-1">Injects corrupted hash to verify zero-trust cryptographic defense.</p>
+          </button>
+
+          <button
+            onClick={async () => {
+              await fetch('/api/chaos/inject', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'REPLAY_MEDICATION' })
+              });
+              alert('🔄 Duplicate medication replay injected! Conflict logged on Audit Timeline.');
+            }}
+            className="p-3.5 rounded-2xl bg-slate-50 hover:bg-blue-50 hover:border-blue-200 border border-slate-200 text-left transition-all group"
+          >
+            <div className="text-xs font-bold text-slate-800 group-hover:text-blue-700 flex items-center justify-between">
+              <span>Medication Replay Attack</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-mono">Sync</span>
+            </div>
+            <p className="text-[11px] text-slate-500 mt-1">Replays offline cached morphine dose to trigger deduplication logic.</p>
+          </button>
+
+          <button
+            onClick={async () => {
+              await fetch('/api/chaos/inject', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'EOG_DISTRESS' })
+              });
+              alert('👁️ EOG Double-Blink Nurse Call simulated! Modal alert dispatched.');
+            }}
+            className="p-3.5 rounded-2xl bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 border border-slate-200 text-left transition-all group"
+          >
+            <div className="text-xs font-bold text-slate-800 group-hover:text-emerald-700 flex items-center justify-between">
+              <span>EOG Distress Call</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 font-mono">Bio-DSP</span>
+            </div>
+            <p className="text-[11px] text-slate-500 mt-1">Simulates double-blink biopotential pulse to trigger nurse call modal.</p>
+          </button>
+
+          <button
+            onClick={async () => {
+              await fetch('/api/chaos/inject', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'RESET_ALL' })
+              });
+              alert('✅ Restored all subsystems to nominal baseline.');
+            }}
+            className="p-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 border border-slate-300 text-left transition-all group"
+          >
+            <div className="text-xs font-bold text-slate-800 flex items-center justify-between">
+              <span>Restore Nominal State</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-mono">Reset</span>
+            </div>
+            <p className="text-[11px] text-slate-500 mt-1">Clears all injected faults, resets Port A, and stabilizes telemetry.</p>
+          </button>
+        </div>
+      </div>
+
       {/* Hospital Station & Physician Profile Info */}
       <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.03)] flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
         <div className="flex items-center gap-3">

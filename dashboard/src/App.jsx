@@ -10,9 +10,11 @@ import EyeGazeAlertModal from './components/EyeGazeAlertModal';
 import PatientDetailModal from './components/PatientDetailModal';
 import AIReports from './components/AIReports';
 import SettingsView from './components/SettingsView';
+import FailoverTinyMLView from './components/FailoverTinyMLView';
+import EOGSecurityView from './components/EOGSecurityView';
 import { 
   HeartPulse, ShieldAlert, RefreshCw, 
-  Sparkles, Stethoscope, Activity, FileText 
+  Sparkles, Stethoscope, Activity, FileText, Zap, Eye 
 } from 'lucide-react';
 
 const API_BASE = '/api';
@@ -281,6 +283,14 @@ export default function App() {
               onSelectPatient={handleSelectPatient}
             />
           </div>
+        )}
+
+        {activeTab === 'failover' && (
+          <FailoverTinyMLView />
+        )}
+
+        {activeTab === 'eog' && (
+          <EOGSecurityView />
         )}
 
         {activeTab === 'timeline' && (

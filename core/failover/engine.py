@@ -3,10 +3,12 @@ Unified Failover Engine for Kshitij.
 Coordinates Telemetry Generation (100ms) with State Machine Link Health Evaluations (500ms).
 """
 
+from __future__ import annotations
+
 import logging
 import threading
 import time
-from typing import Callable, Dict, Any, Optional, List
+from typing import Callable, Dict, Any, Optional, List, Union
 
 from .models import (
     DualTelemetrySample,
