@@ -195,3 +195,31 @@ def test_hospital_capacity_models_and_reallocation():
     )
     assert req.delta == 1
 
+
+def test_ambulance_dispatch_intelligence_and_fallback():
+    from backend.merge_engine.models import AmbulanceUnit, ReceivingHospital, DispatchMission, AmbulanceDispatchData
+    from backend.merge_engine.service import ambulance_dispatch_state
+
+    # Verify dispatch system initial state
+    assert len(ambulance_dispatch_state.ambulances) >= 4
+    assert len(ambulance_dispatch_state.hospitals) >= 3
+    assert len(ambulance_dispatch_state.missions) >= 2
+
+    # Check receiving hospital recommendations and capacity separation
+    hosp1 = ambulance_dispatch_state.hospitals[0]
+    assert hosp1.icu_beds_free >= 1
+    assert "RECOMMENDED" in hosp1.recommendation_tier
+    assert len(hosp1.logistics_rationale) > 0
+
+    # Verify mission routing advisory is distinct from clinical triage
+    m1 = ambulance_dispatch_state.missions[0]
+    assert m1.clinical_urgency in ["IMMEDIATE_RED", "DELAYED_YELLOW", "MINIMAL_GREEN"]
+    assert "LOGISTICS ROUTING" in m1.routing_advisory
+
+    # Verify ambulance unit telemetry
+    a1 = ambulance_dispatch_state.ambulances[0]
+    assert a1.gps_quality == "HIGH"
+    assert a1.speed_kmh is not None
+    assert a1.heading_deg is not None
+
+

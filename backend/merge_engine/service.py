@@ -15,7 +15,14 @@ from .models import (
     BedUnit,
     CriticalResource,
     HospitalCapacityData,
-    CapacityUpdateRequest
+    CapacityUpdateRequest,
+    AmbulanceUnit,
+    ReceivingHospital,
+    DispatchMilestones,
+    RouteTelemetry,
+    DispatchMission,
+    AmbulanceDispatchData,
+    DispatchActionRequest
 )
 from .prompt_engine import evaluate_clinical_triage, calculate_clinical_metrics
 from .engine import merge_engine
@@ -266,6 +273,187 @@ hospital_capacity_state = HospitalCapacityData(
         ),
     ]
 )
+
+ambulance_dispatch_state = AmbulanceDispatchData(
+    system_status="OPERATIONAL",
+    gps_satellite_lock="LOCK_OPTIMAL",
+    ambulances=[
+        AmbulanceUnit(
+            unit_id="MEDEVAC-01",
+            callsign="Medic-1 (ALS)",
+            type="ALS",
+            status="TRANSPORTING",
+            gps_lat=28.6150,
+            gps_lng=77.2100,
+            heading_deg=35.0,
+            speed_kmh=54.0,
+            crew="Paramedic Sharma, EMT Nair",
+            equipment=["Transport Vent", "Defibrillator", "TXA", "Whole Blood"],
+            assigned_patient_id="PT-101",
+            assigned_hospital_id="FST-ALPHA",
+            battery_or_fuel_pct=88,
+            gps_quality="HIGH"
+        ),
+        AmbulanceUnit(
+            unit_id="MEDEVAC-02",
+            callsign="Rescue-2 (CCT)",
+            type="CCT",
+            status="DISPATCHED",
+            gps_lat=28.6220,
+            gps_lng=77.2140,
+            heading_deg=110.0,
+            speed_kmh=42.0,
+            crew="Flight Nurse Roy, Paramedic Das",
+            equipment=["Dual IV Pumps", "ECMO Standby", "Burn Debridement Kit"],
+            assigned_patient_id="PT-204",
+            assigned_hospital_id="BASE-HOSP-03",
+            battery_or_fuel_pct=95,
+            gps_quality="HIGH"
+        ),
+        AmbulanceUnit(
+            unit_id="MEDEVAC-03",
+            callsign="Rough-3 (Austere)",
+            type="TACTICAL_4X4",
+            status="AVAILABLE",
+            gps_lat=28.6080,
+            gps_lng=77.2020,
+            heading_deg=0.0,
+            speed_kmh=0.0,
+            crew="Combat Medic Sgt. Khan, Driver Cpl. Joshi",
+            equipment=["MARCH Trauma Kit", "Litter Bracket", "O2 Concentrator"],
+            assigned_patient_id=None,
+            assigned_hospital_id=None,
+            battery_or_fuel_pct=91,
+            gps_quality="HIGH"
+        ),
+        AmbulanceUnit(
+            unit_id="MEDEVAC-04",
+            callsign="Rapid-4 (BLS)",
+            type="BLS",
+            status="AVAILABLE",
+            gps_lat=28.6320,
+            gps_lng=77.2180,
+            heading_deg=0.0,
+            speed_kmh=0.0,
+            crew="EMT Wilson, EMT Kapoor",
+            equipment=["AED", "Splinting Set", "O2 Therapy"],
+            assigned_patient_id=None,
+            assigned_hospital_id=None,
+            battery_or_fuel_pct=100,
+            gps_quality="HIGH"
+        )
+    ],
+    hospitals=[
+        ReceivingHospital(
+            hospital_id="FST-ALPHA",
+            name="Forward Surgical Team Alpha (FST-A)",
+            gps_lat=28.6139,
+            gps_lng=77.2090,
+            trauma_level="LEVEL_1",
+            icu_beds_free=2,
+            trauma_bays_free=1,
+            total_occupancy_pct=76.4,
+            accepting_status="ACCEPTING_ALL",
+            distance_km=2.1,
+            travel_time_mins=6,
+            delay_factor_mins=0,
+            specialties=["Damage Control Resus", "Vascular Shunt", "Whole Blood"],
+            recommendation_tier="RECOMMENDED",
+            logistics_rationale="Fastest transit time (<7m) with immediate damage control surgical bay free."
+        ),
+        ReceivingHospital(
+            hospital_id="BASE-HOSP-03",
+            name="Base General Hospital 3 (Apex Trauma)",
+            gps_lat=28.6380,
+            gps_lng=77.2250,
+            trauma_level="LEVEL_1",
+            icu_beds_free=9,
+            trauma_bays_free=4,
+            total_occupancy_pct=54.0,
+            accepting_status="ACCEPTING_ALL",
+            distance_km=4.8,
+            travel_time_mins=12,
+            delay_factor_mins=0,
+            specialties=["Comprehensive Neurosurgery", "Burn ICU", "Orthopedic Reconstruction"],
+            recommendation_tier="RECOMMENDED",
+            logistics_rationale="Optimal ICU capacity buffer (9 open beds) and specialized burn & trauma center."
+        ),
+        ReceivingHospital(
+            hospital_id="CIVIL-ZONE-B",
+            name="Cantonment Field Infirmary (Zone Bravo)",
+            gps_lat=28.5950,
+            gps_lng=77.1850,
+            trauma_level="LEVEL_2",
+            icu_beds_free=0,
+            trauma_bays_free=1,
+            total_occupancy_pct=91.5,
+            accepting_status="DIVERT_OVERCAPACITY",
+            distance_km=6.9,
+            travel_time_mins=19,
+            delay_factor_mins=0,
+            specialties=["Basic Resuscitation", "Holding Ward"],
+            recommendation_tier="DIVERT",
+            logistics_rationale="ICU bed capacity exhausted (0 available). Advisory recommends divert to FST-Alpha or Base-3."
+        )
+    ],
+    missions=[
+        DispatchMission(
+            mission_id="MSN-2026-081",
+            ambulance_id="MEDEVAC-01",
+            patient_id="PT-101",
+            patient_name="Sgt. Marcus Vance",
+            clinical_urgency="IMMEDIATE_RED",
+            recommended_hospital_id="FST-ALPHA",
+            assigned_hospital_id="FST-ALPHA",
+            stage="TRANSPORTING",
+            milestones=DispatchMilestones(
+                dispatched_at="10:41",
+                en_route_at="10:43",
+                on_scene_at="10:48",
+                patient_loaded_at="10:53",
+                hospital_arrived_at="ETA 11:02"
+            ),
+            route=RouteTelemetry(
+                route_name="Central Tactical Corridor NH-44",
+                status="NOMINAL",
+                estimated_arrival_eta_mins=7,
+                delay_added_mins=0,
+                waypoints=[[28.6189, 77.2050], [28.6170, 77.2075], [28.6150, 77.2100], [28.6139, 77.2090]]
+            ),
+            fallback_active=False,
+            routing_advisory="LOGISTICS ROUTING: Route clear on NH-44. Transit to FST-Alpha optimal due to rapid proximity (<7m) and available emergency resuscitation bay. Clinical urgency handled independently by tactical triage protocol."
+        ),
+        DispatchMission(
+            mission_id="MSN-2026-082",
+            ambulance_id="MEDEVAC-02",
+            patient_id="PT-204",
+            patient_name="Cpl. David Chen",
+            clinical_urgency="DELAYED_YELLOW",
+            recommended_hospital_id="BASE-HOSP-03",
+            assigned_hospital_id="BASE-HOSP-03",
+            stage="DISPATCHED",
+            milestones=DispatchMilestones(
+                dispatched_at="10:52",
+                en_route_at="10:54",
+                on_scene_at="ETA 11:03",
+                patient_loaded_at=None,
+                hospital_arrived_at="ETA 11:22"
+            ),
+            route=RouteTelemetry(
+                route_name="North Ring Express",
+                status="DELAYED_CONGESTION",
+                estimated_arrival_eta_mins=18,
+                delay_added_mins=5,
+                route_change_reason="Congestion at Northern Junction 3 — Rerouted via Ring Expressway (+5 mins)",
+                waypoints=[[28.6320, 77.2180], [28.6270, 77.2160], [28.6220, 77.2140], [28.6250, 77.2180], [28.6380, 77.2250]]
+            ),
+            fallback_active=False,
+            routing_advisory="LOGISTICS ROUTING: Base Hospital 3 selected for specialized burn care capability and 9 free ICU beds despite +5m traffic detour. Priority routing approved on express perimeter."
+        )
+    ],
+    fallback_protocol_enabled=False
+)
+
 
 async def telemetry_ticker():
     while True:
@@ -712,6 +900,109 @@ async def update_hospital_capacity(req: CapacityUpdateRequest):
     await broadcast_ws("CAPACITY_UPDATE", hospital_capacity_state.model_dump())
     return hospital_capacity_state
 
+@app.get("/api/dispatch", response_model=AmbulanceDispatchData)
+def get_ambulance_dispatch_state():
+    return ambulance_dispatch_state
+
+@app.post("/api/dispatch/action")
+async def handle_dispatch_action(req: DispatchActionRequest):
+    import time
+    ambulance_dispatch_state.last_updated = time.time()
+    now_str = time.strftime("%H:%M")
+
+    if req.action == "ASSIGN_DISPATCH":
+        if req.ambulance_id and req.patient_id and req.hospital_id:
+            amb = next((a for a in ambulance_dispatch_state.ambulances if a.unit_id == req.ambulance_id), None)
+            hosp = next((h for h in ambulance_dispatch_state.hospitals if h.hospital_id == req.hospital_id), None)
+            patient = merge_engine.get_patient(req.patient_id)
+            patient_name = patient.patient_name if patient else "Field Casualty"
+            triage_color = patient.triage_color if patient else "YELLOW"
+            urgency_map = {"RED": "IMMEDIATE_RED", "YELLOW": "DELAYED_YELLOW", "GREEN": "MINIMAL_GREEN", "BLACK": "EXPECTANT_BLACK"}
+            clinical_urgency = urgency_map.get(triage_color, "DELAYED_YELLOW")
+
+            if amb:
+                amb.status = "DISPATCHED"
+                amb.assigned_patient_id = req.patient_id
+                amb.assigned_hospital_id = req.hospital_id
+
+            existing_mission = next((m for m in ambulance_dispatch_state.missions if m.patient_id == req.patient_id or m.ambulance_id == req.ambulance_id), None)
+            if existing_mission:
+                existing_mission.ambulance_id = req.ambulance_id
+                existing_mission.assigned_hospital_id = req.hospital_id
+                existing_mission.stage = "DISPATCHED"
+                existing_mission.milestones.dispatched_at = now_str
+            else:
+                new_msn = DispatchMission(
+                    mission_id=f"MSN-{int(time.time()) % 100000}",
+                    ambulance_id=req.ambulance_id,
+                    patient_id=req.patient_id,
+                    patient_name=patient_name,
+                    clinical_urgency=clinical_urgency,
+                    recommended_hospital_id=req.hospital_id,
+                    assigned_hospital_id=req.hospital_id,
+                    stage="DISPATCHED",
+                    milestones=DispatchMilestones(
+                        dispatched_at=now_str,
+                        en_route_at=now_str
+                    ),
+                    route=RouteTelemetry(
+                        route_name=f"Tactical Route to {hosp.name if hosp else 'Facility'}",
+                        status="NOMINAL",
+                        estimated_arrival_eta_mins=hosp.travel_time_mins if hosp else 12,
+                        waypoints=[[amb.gps_lat, amb.gps_lng], [hosp.gps_lat, hosp.gps_lng]] if (amb and hosp) else []
+                    ),
+                    routing_advisory=f"LOGISTICS ROUTING: Assigned based on estimated travel time ({hosp.travel_time_mins if hosp else 10}m) and bed availability. Clinical triage priority is preserved independently."
+                )
+                ambulance_dispatch_state.missions.append(new_msn)
+
+    elif req.action == "UPDATE_MILESTONE" and req.mission_id and req.next_stage:
+        mission = next((m for m in ambulance_dispatch_state.missions if m.mission_id == req.mission_id), None)
+        if mission:
+            mission.stage = req.next_stage
+            amb = next((a for a in ambulance_dispatch_state.ambulances if a.unit_id == mission.ambulance_id), None)
+            if req.next_stage == "ON_SCENE":
+                mission.milestones.on_scene_at = now_str
+                if amb: amb.status = "ON_SCENE"
+            elif req.next_stage == "TRANSPORTING":
+                mission.milestones.patient_loaded_at = now_str
+                if amb: amb.status = "TRANSPORTING"
+            elif req.next_stage == "ARRIVED":
+                mission.milestones.hospital_arrived_at = now_str
+                if amb:
+                    amb.status = "AVAILABLE"
+                    amb.assigned_patient_id = None
+                    amb.assigned_hospital_id = None
+
+    elif req.action == "INJECT_ROUTE_DELAY" and req.mission_id:
+        mission = next((m for m in ambulance_dispatch_state.missions if m.mission_id == req.mission_id), None)
+        if mission:
+            delay = req.delay_minutes if req.delay_minutes is not None else 6
+            mission.route.delay_added_mins += delay
+            mission.route.estimated_arrival_eta_mins += delay
+            mission.route.status = "DETOUR_APPLIED"
+            mission.route.route_change_reason = req.route_change_reason or f"Traffic choke point on main sector corridor — Rerouted via alternate artery (+{delay} mins)"
+
+    elif req.action == "TOGGLE_FALLBACK":
+        target = not ambulance_dispatch_state.fallback_protocol_enabled if req.fallback_enabled is None else req.fallback_enabled
+        ambulance_dispatch_state.fallback_protocol_enabled = target
+        ambulance_dispatch_state.gps_satellite_lock = "OFFLINE_FALLBACK" if target else "LOCK_OPTIMAL"
+        for a in ambulance_dispatch_state.ambulances:
+            a.gps_quality = "LOST_DEAD_RECKONING" if target else "HIGH"
+        for m in ambulance_dispatch_state.missions:
+            m.fallback_active = target
+            if target and not m.fallback_grid_mgrs:
+                m.fallback_grid_mgrs = "43R EK 284 195"
+                m.fallback_notes = "GPS blackout/jamming detected. Dead-reckoning protocol active; coordinates relayed via tactical VHF radio."
+
+    elif req.action == "UPDATE_MGRS" and req.mission_id and req.mgrs_grid:
+        mission = next((m for m in ambulance_dispatch_state.missions if m.mission_id == req.mission_id), None)
+        if mission:
+            mission.fallback_grid_mgrs = req.mgrs_grid
+            mission.fallback_notes = f"Field checkpoint updated via VHF radio: MGRS {req.mgrs_grid}"
+
+    await broadcast_ws("DISPATCH_UPDATE", ambulance_dispatch_state.model_dump())
+    return ambulance_dispatch_state
+
 # --- WebSocket Channel ---
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -723,7 +1014,8 @@ async def websocket_endpoint(websocket: WebSocket):
             "payload": {
                 "network": network_engine.get_status().model_dump(),
                 "patients_count": len(merge_engine.get_all_patients()),
-                "capacity": hospital_capacity_state.model_dump()
+                "capacity": hospital_capacity_state.model_dump(),
+                "dispatch": ambulance_dispatch_state.model_dump()
             }
         }))
         while True:

@@ -31,21 +31,26 @@ export default function App() {
   const [wsConnected, setWsConnected] = useState(false);
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'capacity' | 'patients' | 'triage' | 'map' | 'timeline' | 'reports' | 'settings'
   const [capacityData, setCapacityData] = useState(null);
+  const [dispatchData, setDispatchData] = useState(null);
   const wsRef = useRef(null);
 
   const fetchAllData = async () => {
     try {
-      const [resNet, resPat, resTime, resCap] = await Promise.all([
+      const [resNet, resPat, resTime, resCap, resDisp] = await Promise.all([
         fetch(`${API_BASE}/network-state`).then(r => r.json()),
         fetch(`${API_BASE}/patients`).then(r => r.json()),
         fetch(`${API_BASE}/timeline`).then(r => r.json()),
-        fetch(`${API_BASE}/hospital-capacity`).then(r => r.json()).catch(() => null)
+        fetch(`${API_BASE}/hospital-capacity`).then(r => r.json()).catch(() => null),
+        fetch(`${API_BASE}/dispatch`).then(r => r.json()).catch(() => null)
       ]);
       setNetworkStatus(resNet);
       setPatients(resPat);
       setIncidentTimeline(resTime);
       if (resCap) {
         setCapacityData(resCap);
+      }
+      if (resDisp) {
+        setDispatchData(resDisp);
       }
 
       if (resPat.length > 0 && !selectedPatientId) {
@@ -105,9 +110,14 @@ export default function App() {
             fetchAllData();
           } else if (msg.type === 'CAPACITY_UPDATE') {
             setCapacityData(msg.payload);
+          } else if (msg.type === 'DISPATCH_UPDATE') {
+            setDispatchData(msg.payload);
           } else if (msg.type === 'INIT_STATE') {
             if (msg.payload && msg.payload.capacity) {
               setCapacityData(msg.payload.capacity);
+            }
+            if (msg.payload && msg.payload.dispatch) {
+              setDispatchData(msg.payload.dispatch);
             }
           }
         } catch (e) {
@@ -206,6 +216,23 @@ export default function App() {
       }
     } catch (err) {
       console.error('Failed to update capacity:', err);
+    }
+  };
+
+  const handleDispatchAction = async (payload) => {
+    try {
+      const res = await fetch(`${API_BASE}/dispatch/action`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setDispatchData(data);
+        return data;
+      }
+    } catch (err) {
+      console.error('Failed dispatch action:', err);
     }
   };
 
@@ -314,13 +341,17 @@ export default function App() {
         )}
 
         {activeTab === 'map' && (
-          <div className="h-[calc(100vh-180px)] rounded-3xl overflow-hidden border border-slate-200 shadow-lg">
-            <TriageMap 
-              patients={patients}
-              selectedPatientId={selectedPatientId}
-              onSelectPatient={handleSelectPatient}
-            />
-          </div>
+          <TriageMap 
+            patients={patients}
+            selectedPatientId={selectedPatientId}
+            onSelectPatient={handleSelectPatient}
+            dispatchData={dispatchData}
+            onDispatchAction={handleDispatchAction}
+            onOpenChart={(id) => {
+              handleSelectPatient(id);
+              setIsDetailOpen(true);
+            }}
+          />
         )}
 
         {activeTab === 'failover' && (

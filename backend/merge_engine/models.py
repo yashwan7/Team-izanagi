@@ -120,3 +120,89 @@ class CapacityUpdateRequest(BaseModel):
     delta: Optional[float] = None
     target_status: Optional[str] = None
     rationing_mode: Optional[bool] = None
+
+class AmbulanceUnit(BaseModel):
+    unit_id: str
+    callsign: str
+    type: str # "ALS", "BLS", "CCT", "TACTICAL_4X4"
+    status: str # "AVAILABLE", "DISPATCHED", "ON_SCENE", "TRANSPORTING", "OFFLINE"
+    gps_lat: float
+    gps_lng: float
+    heading_deg: Optional[float] = 45.0
+    speed_kmh: Optional[float] = 0.0
+    crew: str
+    equipment: List[str] = Field(default_factory=list)
+    assigned_patient_id: Optional[str] = None
+    assigned_hospital_id: Optional[str] = None
+    battery_or_fuel_pct: int = 92
+    gps_quality: str = "HIGH" # "HIGH", "DEGRADED", "LOST_DEAD_RECKONING"
+
+class ReceivingHospital(BaseModel):
+    hospital_id: str
+    name: str
+    gps_lat: float
+    gps_lng: float
+    trauma_level: str # "LEVEL_1", "LEVEL_2", "AUSTERE_SURGICAL"
+    icu_beds_free: int
+    trauma_bays_free: int
+    total_occupancy_pct: float
+    accepting_status: str # "ACCEPTING_ALL", "SELECTIVE_TRAUMA", "DIVERT_OVERCAPACITY"
+    distance_km: float
+    travel_time_mins: int
+    delay_factor_mins: int = 0
+    specialties: List[str] = Field(default_factory=list)
+    recommendation_tier: str = "RECOMMENDED" # "RECOMMENDED", "SECONDARY", "DIVERT"
+    logistics_rationale: str = ""
+
+class DispatchMilestones(BaseModel):
+    dispatched_at: Optional[str] = None
+    en_route_at: Optional[str] = None
+    on_scene_at: Optional[str] = None
+    patient_loaded_at: Optional[str] = None
+    hospital_arrived_at: Optional[str] = None
+
+class RouteTelemetry(BaseModel):
+    route_name: str
+    status: str # "NOMINAL", "DELAYED_CONGESTION", "DETOUR_APPLIED", "OFFLINE_DEAD_RECKONING"
+    estimated_arrival_eta_mins: int
+    delay_added_mins: int = 0
+    route_change_reason: Optional[str] = None
+    waypoints: List[List[float]] = Field(default_factory=list)
+
+class DispatchMission(BaseModel):
+    mission_id: str
+    ambulance_id: str
+    patient_id: str
+    patient_name: str
+    clinical_urgency: str # "IMMEDIATE_RED", "DELAYED_YELLOW", "MINIMAL_GREEN"
+    recommended_hospital_id: str
+    assigned_hospital_id: str
+    stage: str # "DISPATCHED", "ON_SCENE", "TRANSPORTING", "ARRIVED"
+    milestones: DispatchMilestones = Field(default_factory=DispatchMilestones)
+    route: RouteTelemetry
+    fallback_active: bool = False
+    fallback_grid_mgrs: Optional[str] = None
+    fallback_notes: Optional[str] = None
+    routing_advisory: str
+
+class AmbulanceDispatchData(BaseModel):
+    system_status: str = "OPERATIONAL"
+    gps_satellite_lock: str = "LOCK_OPTIMAL"
+    ambulances: List[AmbulanceUnit]
+    hospitals: List[ReceivingHospital]
+    missions: List[DispatchMission]
+    fallback_protocol_enabled: bool = False
+    last_updated: float = Field(default_factory=time.time)
+
+class DispatchActionRequest(BaseModel):
+    action: str # "ASSIGN_DISPATCH", "UPDATE_MILESTONE", "INJECT_ROUTE_DELAY", "TOGGLE_FALLBACK", "UPDATE_MGRS"
+    ambulance_id: Optional[str] = None
+    mission_id: Optional[str] = None
+    patient_id: Optional[str] = None
+    hospital_id: Optional[str] = None
+    next_stage: Optional[str] = None
+    delay_minutes: Optional[int] = None
+    route_change_reason: Optional[str] = None
+    mgrs_grid: Optional[str] = None
+    fallback_enabled: Optional[bool] = None
+
