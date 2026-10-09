@@ -323,7 +323,7 @@ export default function TriageMap({
         if (onSelectPatient) onSelectPatient(p.patient_id);
       });
 
-      markersRef.current[\`patient_\${p.patient_id}\`] = marker;
+      markersRef.current[`patient_${p.patient_id}`] = marker;
     });
 
     // 2. Render Receiving Hospital Markers
@@ -370,7 +370,7 @@ export default function TriageMap({
         </div>
       `);
 
-      markersRef.current[\`hospital_\${hosp.hospital_id}\`] = marker;
+      markersRef.current[`hospital_${hosp.hospital_id}`] = marker;
     });
 
     // 3. Render Ambulances with live heading and siren beacon
@@ -427,7 +427,7 @@ export default function TriageMap({
         setSelectedAmbulanceId(amb.unit_id);
       });
 
-      markersRef.current[\`amb_\${amb.unit_id}\`] = marker;
+      markersRef.current[`amb_${amb.unit_id}`] = marker;
 
       // 4. Dead Reckoning Circle when GPS is lost
       if (isFallback) {
@@ -439,7 +439,7 @@ export default function TriageMap({
           fillColor: '#fef3c7',
           fillOpacity: 0.25
         }).addTo(map);
-        circleRef.current[\`dr_\${amb.unit_id}\`] = circle;
+        circleRef.current[`dr_${amb.unit_id}`] = circle;
       }
     });
 
@@ -462,11 +462,11 @@ export default function TriageMap({
             <div style="color: ${isDelayed ? '#d97706' : '#16a34a'}; font-weight: 700; margin-top: 2px;">
               ${mission.route.status} &bull; ETA ${mission.route.estimated_arrival_eta_mins} mins
             </div>
-            ${mission.route.route_change_reason ? \`<div style="font-size: 11px; color: #ef4444; margin-top: 4px;">\${mission.route.route_change_reason}</div>\` : ''}
+            ${mission.route.route_change_reason ? `<div style="font-size: 11px; color: #ef4444; margin-top: 4px;">${mission.route.route_change_reason}</div>` : ''}
           </div>
         `);
 
-        polylineRef.current[\`mission_\${mission.mission_id}\`] = poly;
+        polylineRef.current[`mission_${mission.mission_id}`] = poly;
       }
     });
 
@@ -554,7 +554,7 @@ export default function TriageMap({
   const copyVhfScript = (mission) => {
     const amb = data.ambulances.find(a => a.unit_id === mission.ambulance_id);
     const hosp = data.hospitals.find(h => h.hospital_id === mission.assigned_hospital_id);
-    const script = \`DISPATCH-1 TO \${amb?.callsign || 'UNIT'}: GPS BLACKOUT ACTIVE IN SECTOR. PROCEED VIA MGRS GRID \${manualGridInput}. DESTINATION: \${hosp?.name || 'FIELD SURGICAL TEAM'}. ESTIMATED TRANSIT: \${mission.route?.estimated_arrival_eta_mins || 15} MINS. ACKNOWLEDGE VIA VHF FREQ 142.85. OVER.\`;
+    const script = `DISPATCH-1 TO ${amb?.callsign || 'UNIT'}: GPS BLACKOUT ACTIVE IN SECTOR. PROCEED VIA MGRS GRID ${manualGridInput}. DESTINATION: ${hosp?.name || 'FIELD SURGICAL TEAM'}. ESTIMATED TRANSIT: ${mission.route?.estimated_arrival_eta_mins || 15} MINS. ACKNOWLEDGE VIA VHF FREQ 142.85. OVER.`;
     navigator.clipboard.writeText(script);
     setCopiedScript(true);
     setTimeout(() => setCopiedScript(false), 3000);
