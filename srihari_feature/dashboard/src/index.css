@@ -1,0 +1,397 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+/* ==========================================================================
+   KSHITIJ EMR - TACTICAL BIO-CAPSULE OS / CLINICAL COMMAND
+   THEME: BLACK, CHARCOAL GREY & RESTRAINED RED (SHARP SQUARE CORNERS)
+   ========================================================================== */
+
+:root {
+  /* Tactical Command Tokens */
+  --cmd-black: #0a0d14;
+  --cmd-black-soft: #0f131c;
+  --cmd-charcoal: #141824;
+  --cmd-charcoal-card: #181d2a;
+  --cmd-charcoal-hover: #1f2536;
+  --cmd-charcoal-active: #252c40;
+  
+  --cmd-border: #222a3a;
+  --cmd-border-subtle: #1c2230;
+  --cmd-border-hover: #323d54;
+  
+  --cmd-red: #dc2626;
+  --cmd-red-bright: #ef4444;
+  --cmd-red-hover: #f87171;
+  --cmd-red-dark: #991b1b;
+  --cmd-red-glow: rgba(220, 38, 38, 0.25);
+  --cmd-red-border: rgba(239, 68, 68, 0.45);
+  --cmd-red-tint: rgba(220, 38, 38, 0.04);
+  
+  --cmd-text-main: #0f172a;
+  --cmd-text-muted: #64748b;
+  --cmd-text-dim: #94a3b8;
+  
+  --cmd-transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@layer base {
+  body {
+    background-color: #f1f4f9;
+    color: var(--cmd-text-main);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+}
+
+/* ==========================================================================
+   1. SHARP, SQUARE CORNERS DESIGN SYSTEM
+   ========================================================================== */
+
+/* Remove rounded corners from cards, buttons, inputs, tables, modals, containers */
+.rounded-3xl,
+.rounded-2xl,
+.rounded-xl,
+.rounded-lg,
+.rounded-md,
+.rounded-sm,
+.rounded {
+  border-radius: 0px !important;
+}
+
+/* Buttons, inputs, dropdowns, tables, tabs */
+button:not(.preserve-radius),
+input:not(.preserve-radius),
+select:not(.preserve-radius),
+textarea:not(.preserve-radius),
+table,
+thead,
+tbody,
+tr,
+th,
+td {
+  border-radius: 0px !important;
+}
+
+/* Flatten pill badges & buttons while keeping tiny telemetry LED status dots circular */
+button.rounded-full,
+input.rounded-full,
+.rounded-full:not([class*="w-1"]):not([class*="w-1.5"]):not([class*="w-2"]):not([class*="w-2.5"]):not([class*="w-3"]):not([class*="w-3.5"]):not([class*="h-1"]):not([class*="h-1.5"]):not([class*="h-2"]):not([class*="h-2.5"]):not([class*="h-3"]):not([class*="h-3.5"]) {
+  border-radius: 0px !important;
+}
+
+/* ==========================================================================
+   2. SIDEBAR HOVER & ACTIVE STATE EFFECTS
+   ========================================================================== */
+
+.sidebar-tactical,
+aside {
+  background-color: var(--cmd-black) !important;
+  border-right: 1px solid var(--cmd-border-subtle) !important;
+}
+
+.sidebar-nav-item,
+aside nav button {
+  border-radius: 0px !important;
+  transition: var(--cmd-transition);
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Inactive Sidebar Item Hover Effect:
+   - slightly lighter charcoal grey background
+   - subtle red vertical indicator / red left border
+   - transition icon and label from muted grey to white
+   - smooth 150-200ms duration
+   - sharp square corners */
+aside nav button:hover:not(.active-tab) {
+  background-color: var(--cmd-charcoal-hover) !important;
+  border-left: 3px solid var(--cmd-red-bright) !important;
+  color: #ffffff !important;
+}
+
+aside nav button:hover:not(.active-tab) svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+  transition: color 180ms ease, stroke 180ms ease;
+}
+
+aside nav button:hover:not(.active-tab) span {
+  color: #ffffff !important;
+}
+
+/* Active tab visibly highlighted with red accent */
+aside nav button.active-sidebar-tab,
+.sidebar-nav-item.active {
+  background-color: var(--cmd-charcoal-card) !important;
+  border-left: 4px solid var(--cmd-red) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+/* ==========================================================================
+   3. DASHBOARD CARD HOVER EFFECTS
+   ========================================================================== */
+
+/* Universal card transition setup */
+div[class*="shadow-"][class*="border"],
+div[class*="bg-white"][class*="p-"],
+div[class*="bg-slate-50"][class*="p-"],
+div[class*="bg-slate-100"][class*="p-"],
+.dashboard-card,
+.tactical-card {
+  border-radius: 0px !important;
+  transition: border-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1),
+              transform 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+}
+
+/* Card hover:
+   - slightly lightens background
+   - changes border from grey to restrained red accent
+   - subtle 1-2px upward movement for non-critical cards
+   - dimensions remain stable, zero layout shift */
+@media (hover: hover) and (pointer: fine) {
+  div[class*="bg-white"][class*="p-"]:hover,
+  div[class*="bg-slate-50"][class*="p-"]:hover,
+  div[class*="bg-slate-100"][class*="p-"]:hover,
+  .dashboard-card:hover,
+  .tactical-card:hover {
+    border-color: var(--cmd-red-border) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(220, 38, 38, 0.12) !important;
+  }
+
+  /* Subtle 1.5px lift on informational stat cards */
+  .grid > div[class*="p-5"]:hover,
+  .grid > div[class*="p-4"]:hover,
+  .card-lift:hover {
+    transform: translateY(-1.5px);
+  }
+}
+
+/* ==========================================================================
+   4. BUTTON HOVER EFFECTS
+   ========================================================================== */
+
+button {
+  transition: background-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+              color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1),
+              transform 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 0px !important;
+}
+
+/* Primary red buttons: transition to slightly brighter red */
+button[class*="bg-rose-6"],
+button[class*="bg-rose-7"],
+button[class*="bg-red-6"],
+button[class*="bg-red-7"],
+button[class*="bg-red-500"],
+.btn-primary-red {
+  border-radius: 0px !important;
+}
+
+button[class*="bg-rose-6"]:hover:not(:disabled),
+button[class*="bg-rose-7"]:hover:not(:disabled),
+button[class*="bg-red-6"]:hover:not(:disabled),
+button[class*="bg-red-7"]:hover:not(:disabled),
+button[class*="bg-red-500"]:hover:not(:disabled),
+.btn-primary-red:hover:not(:disabled) {
+  background-color: var(--cmd-red-bright) !important;
+  box-shadow: 0 0 10px var(--cmd-red-glow) !important;
+}
+
+/* Secondary buttons: lighten charcoal background and highlight border in red */
+@media (hover: hover) and (pointer: fine) {
+  button[class*="bg-slate-900"]:hover:not(:disabled),
+  button[class*="bg-slate-800"]:hover:not(:disabled) {
+    background-color: #1e2433 !important;
+    border: 1px solid var(--cmd-red-bright) !important;
+    color: #ffffff !important;
+  }
+
+  button[class*="bg-slate-100"]:hover:not(:disabled),
+  button[class*="bg-slate-50"]:hover:not(:disabled),
+  button[class*="bg-blue-50"]:hover:not(:disabled),
+  button[class*="border-slate-200"]:hover:not(:disabled) {
+    border-color: var(--cmd-red-border) !important;
+  }
+}
+
+/* Destructive actions: stronger red highlight */
+button[class*="text-rose-600"]:hover:not(:disabled),
+button[class*="text-rose-700"]:hover:not(:disabled),
+button[class*="bg-rose-50"]:hover:not(:disabled) {
+  background-color: #fee2e2 !important;
+  border-color: var(--cmd-red) !important;
+  color: var(--cmd-red-dark) !important;
+}
+
+/* Disabled buttons: strictly remain visually disabled with zero interactive styling */
+button:disabled,
+button[disabled],
+button[aria-disabled="true"],
+.disabled {
+  cursor: not-allowed !important;
+  opacity: 0.45 !important;
+  pointer-events: none !important;
+  transform: none !important;
+  border-color: inherit !important;
+  box-shadow: none !important;
+  background-color: inherit !important;
+  color: inherit !important;
+}
+
+/* ==========================================================================
+   5. TABLE ROW HOVER EFFECTS
+   ========================================================================== */
+
+table tbody tr {
+  transition: background-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  table tbody tr:hover {
+    background-color: #f8fafc !important;
+    box-shadow: inset 3px 0 0 0 var(--cmd-red) !important;
+  }
+}
+
+/* ==========================================================================
+   6. INPUT AND DROPDOWN HOVER & FOCUS EFFECTS
+   ========================================================================== */
+
+input,
+select,
+textarea {
+  border-radius: 0px !important;
+  transition: border-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+input:hover:not(:disabled),
+select:hover:not(:disabled),
+textarea:hover:not(:disabled) {
+  border-color: #64748b !important;
+}
+
+input:focus,
+input:focus-visible,
+select:focus,
+select:focus-visible,
+textarea:focus,
+textarea:focus-visible {
+  outline: none !important;
+  border-color: var(--cmd-red) !important;
+  box-shadow: 0 0 0 1px var(--cmd-red) !important;
+}
+
+/* ==========================================================================
+   7. ICONS, TABS, AND SMALL CONTROLS
+   ========================================================================== */
+
+button svg,
+a svg {
+  transition: color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+              stroke 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Tab button controls */
+button[role="tab"],
+nav button {
+  border-radius: 0px !important;
+  transition: var(--cmd-transition);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  button[role="tab"]:hover:not([aria-selected="true"]) {
+    border-color: var(--cmd-red-border) !important;
+    color: var(--cmd-red-bright) !important;
+  }
+}
+
+/* ==========================================================================
+   8. TOOLTIPS & CONTEXTUAL INFO
+   ========================================================================== */
+
+[title],
+[data-tooltip],
+.tooltip {
+  border-radius: 0px !important;
+}
+
+/* Leaflet popups command center styling */
+.leaflet-popup-content-wrapper {
+  background: #0f131c !important;
+  color: #f1f5f9 !important;
+  border: 1px solid #2a3245 !important;
+  border-radius: 0px !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+}
+
+.leaflet-popup-tip {
+  background: #0f131c !important;
+}
+
+/* ==========================================================================
+   9. ACCESSIBILITY, REDUCED MOTION & SCROLLBARS
+   ========================================================================== */
+
+:focus-visible {
+  outline: 2px solid var(--cmd-red) !important;
+  outline-offset: 1px !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+    transform: none !important;
+  }
+}
+
+/* Pulsing radar animations */
+@keyframes soft-pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.06); opacity: 0.85; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.clinical-pulse {
+  animation: soft-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Leaflet clean light medical map styling */
+.leaflet-container {
+  background-color: #f1f5f9 !important;
+  font-family: inherit !important;
+  border-radius: 0px !important;
+  z-index: 10;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0d14;
+}
+::-webkit-scrollbar-thumb {
+  background: #262c3b;
+  border-radius: 0px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--cmd-red);
+}
