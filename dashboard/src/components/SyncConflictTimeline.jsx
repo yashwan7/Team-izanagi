@@ -141,7 +141,7 @@ export default function SyncConflictTimeline({
 
             return (
               <div 
-                key={`${event.id || event.incident_id || 'inc'}_${idx}`}
+                key={event.id || event.incident_id || idx}
                 className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-xs"
               >
                 <div className="flex items-start justify-between gap-3 mb-2">

@@ -13,14 +13,12 @@ export default function TriageMap({
   onSelectPatient,
   dispatchData,
   onDispatchAction,
-  onOpenChart,
-  sensorData
+  onOpenChart
 }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const tileLayerRef = useRef(null);
   const markersRef = useRef({});
-  const mqttMarkerRef = useRef(null);
   const polylineRef = useRef({});
   const circleRef = useRef({});
 
@@ -31,10 +29,6 @@ export default function TriageMap({
   const [copiedScript, setCopiedScript] = useState(false);
   const [manualGridInput, setManualGridInput] = useState("43R EK 284 195");
   const [actionLoading, setActionLoading] = useState(false);
-
-  // Focal Tracking Coordinates (defaults updated dynamically via MQTT lat/lng)
-  const FOCAL_LAT = !isNaN(parseFloat(sensorData?.lat)) ? parseFloat(sensorData.lat) : 12.871773;
-  const FOCAL_LNG = !isNaN(parseFloat(sensorData?.lng)) ? parseFloat(sensorData.lng) : 77.576856;
 
   const data = dispatchData || {
     system_status: "OPERATIONAL",
@@ -460,47 +454,6 @@ export default function TriageMap({
     });
 
   }, [patients, selectedPatientId, data, selectedAmbulanceId, onSelectPatient]);
-
-  // Zero UI freeze real-time update of MQTT sensor telemetry marker
-  useEffect(() => {
-    const map = mapInstanceRef.current;
-    if (!map || !sensorData?.lat || !sensorData?.lng) return;
-
-    const lat = Number(sensorData.lat);
-    const lng = Number(sensorData.lng);
-    if (isNaN(lat) || isNaN(lng)) return;
-
-    if (!mqttMarkerRef.current) {
-      const liveIconHtml = `
-        <div style="position: relative; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-          <div style="position: absolute; width: 36px; height: 36px; border-radius: 50%; background: #06b6d4; opacity: 0.4; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
-          <div style="position: absolute; width: 26px; height: 26px; border-radius: 50%; background: #0284c7; border: 2px solid #ffffff; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 12px #06b6d4;">
-            <span style="font-size: 11px;">📍</span>
-          </div>
-        </div>
-      `;
-      const liveIcon = L.divIcon({
-        html: liveIconHtml,
-        className: 'mqtt-live-tracking-pin',
-        iconSize: [38, 38],
-        iconAnchor: [19, 19]
-      });
-
-      const marker = L.marker([lat, lng], { icon: liveIcon }).addTo(map);
-      marker.bindPopup(`
-        <div style="font-family: -apple-system, sans-serif; font-size: 12px; color: #fff;">
-          <div style="font-weight: 800; color: #38bdf8; margin-bottom: 2px;">⚡ LIVE MQTT SENSOR NODE</div>
-          <div style="font-family: monospace; font-size: 11px; color: #94a3b8; margin-bottom: 4px;">
-            GPS: ${lat.toFixed(6)}, ${lng.toFixed(6)}
-          </div>
-          <div style="font-size: 10px; color: #10b981;">Active Route Matrix Online</div>
-        </div>
-      `);
-      mqttMarkerRef.current = marker;
-    } else {
-      mqttMarkerRef.current.setLatLng([lat, lng]);
-    }
-  }, [sensorData?.lat, sensorData?.lng]);
 
   const handleToggleFallback = async () => {
     if (!onDispatchAction) return;

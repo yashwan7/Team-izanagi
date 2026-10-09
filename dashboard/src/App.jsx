@@ -11,25 +11,12 @@ import PatientDetailModal from './components/PatientDetailModal';
 import AIReports from './components/AIReports';
 import SettingsView from './components/SettingsView';
 import HospitalCapacity from './components/HospitalCapacity';
-import PharmaceuticalNetwork from './components/PharmaceuticalNetwork';
-import BloodBankNetwork from './components/BloodBankNetwork';
 import FailoverTinyMLView from './components/FailoverTinyMLView';
 import EOGSecurityView from './components/EOGSecurityView';
 import { 
   HeartPulse, ShieldAlert, RefreshCw, 
-  Sparkles, Stethoscope, Activity, FileText, Zap, Eye, Pill, Droplet 
+  Sparkles, Stethoscope, Activity, FileText, Zap, Eye 
 } from 'lucide-react';
-
-import mqtt from 'mqtt';
-import { connectMQTT } from './mqttService';
-import SensorWidgetsGrid, { 
-  PulseCard, 
-  ForceGauge, 
-  BedForceCard, 
-  PatientMotionIndicator, 
-  RFIDBadge, 
-  ActiveRouteMatrixCard 
-} from './components/SensorWidgets';
 
 const API_BASE = '/api';
 
@@ -42,61 +29,19 @@ export default function App() {
   const [incidentTimeline, setIncidentTimeline] = useState([]);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [wsConnected, setWsConnected] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'capacity' | 'pharma' | 'patients' | 'triage' | 'map' | 'timeline' | 'reports' | 'settings'
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'capacity' | 'patients' | 'triage' | 'map' | 'timeline' | 'reports' | 'settings'
   const [capacityData, setCapacityData] = useState(null);
   const [dispatchData, setDispatchData] = useState(null);
-  const [pharmacyData, setPharmacyData] = useState(null);
-  const [bloodBankData, setBloodBankData] = useState(null);
   const wsRef = useRef(null);
-
-  // MQTT Real-time Sensor State with all 5 telemetry bindings
-  const [sensorData, setSensorData] = useState({
-    pulse_bpm: 0,
-    force_n: 0,
-    gyro_z: 0.0,
-    mpu_ok: true,
-    rfid: 'NONE',
-    lat: 12.871773,
-    lng: 77.576856,
-    pressure_kpa: 101.3,
-    temp_c: 36.8,
-  });
-  const [connectionStatus, setConnectionStatus] = useState('Connecting...');
-
-  // MQTT Connection Lifecycle - Auto-reconnecting with RAF zero-freeze updates
-  useEffect(() => {
-    const client = connectMQTT(
-      (newData) => {
-        setSensorData(prev => ({ ...prev, ...newData }));
-
-        // If an RFID tag is detected, automatically match and select patient
-        if (newData.rfid && newData.rfid !== 'NONE' && newData.rfid !== 'NO_TAG') {
-          const match = patients.find(p => p.capsule.patient_id === newData.rfid);
-          if (match) {
-            setSelectedPatientId(match.capsule.patient_id);
-          }
-        }
-      },
-      (status) => setConnectionStatus(status)
-    );
-
-    return () => {
-      if (client && client.end) {
-        client.end();
-      }
-    };
-  }, [patients]);
 
   const fetchAllData = async () => {
     try {
-      const [resNet, resPat, resTime, resCap, resDisp, resPharm, resBlood] = await Promise.all([
+      const [resNet, resPat, resTime, resCap, resDisp] = await Promise.all([
         fetch(`${API_BASE}/network-state`).then(r => r.json()),
         fetch(`${API_BASE}/patients`).then(r => r.json()),
         fetch(`${API_BASE}/timeline`).then(r => r.json()),
         fetch(`${API_BASE}/hospital-capacity`).then(r => r.json()).catch(() => null),
-        fetch(`${API_BASE}/dispatch`).then(r => r.json()).catch(() => null),
-        fetch(`${API_BASE}/pharmacy`).then(r => r.json()).catch(() => null),
-        fetch(`${API_BASE}/bloodbank`).then(r => r.json()).catch(() => null)
+        fetch(`${API_BASE}/dispatch`).then(r => r.json()).catch(() => null)
       ]);
       setNetworkStatus(resNet);
       setPatients(resPat);
@@ -106,12 +51,6 @@ export default function App() {
       }
       if (resDisp) {
         setDispatchData(resDisp);
-      }
-      if (resPharm) {
-        setPharmacyData(resPharm);
-      }
-      if (resBlood) {
-        setBloodBankData(resBlood);
       }
 
       if (resPat.length > 0 && !selectedPatientId) {
@@ -173,22 +112,12 @@ export default function App() {
             setCapacityData(msg.payload);
           } else if (msg.type === 'DISPATCH_UPDATE') {
             setDispatchData(msg.payload);
-          } else if (msg.type === 'PHARMACY_UPDATE') {
-            setPharmacyData(msg.payload);
-          } else if (msg.type === 'BLOODBANK_UPDATE') {
-            setBloodBankData(msg.payload);
           } else if (msg.type === 'INIT_STATE') {
             if (msg.payload && msg.payload.capacity) {
               setCapacityData(msg.payload.capacity);
             }
             if (msg.payload && msg.payload.dispatch) {
               setDispatchData(msg.payload.dispatch);
-            }
-            if (msg.payload && msg.payload.pharmacy) {
-              setPharmacyData(msg.payload.pharmacy);
-            }
-            if (msg.payload && msg.payload.bloodbank) {
-              setBloodBankData(msg.payload.bloodbank);
             }
           }
         } catch (e) {
@@ -307,40 +236,6 @@ export default function App() {
     }
   };
 
-  const handlePharmacyAction = async (payload) => {
-    try {
-      const res = await fetch(`${API_BASE}/pharmacy/action`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setPharmacyData(data);
-        return data;
-      }
-    } catch (err) {
-      console.error('Failed pharmacy action:', err);
-    }
-  };
-
-  const handleBloodBankAction = async (payload) => {
-    try {
-      const res = await fetch(`${API_BASE}/bloodbank/action`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setBloodBankData(data);
-        return data;
-      }
-    } catch (err) {
-      console.error('Failed blood bank action:', err);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-[#eef2f7] flex font-sans selection:bg-blue-500 selection:text-white">
       
@@ -350,19 +245,11 @@ export default function App() {
       {/* ================= MAIN TABLET CONTENT AREA ================= */}
       <div className="flex-1 flex flex-col min-w-0 p-5 md:p-8 max-h-screen overflow-y-auto">
         
-        {/* Top Header & Search Bar with Network and MQTT status */}
+        {/* Top Header & Search Bar */}
         <NetworkBar 
           networkStatus={networkStatus} 
           onSimulateNetwork={handleSimulateNetwork} 
           isOnline={wsConnected}
-          mqttStatus={connectionStatus}
-        />
-
-        {/* Real-Time MQTT Sensors Telemetry Widget Grid */}
-        <SensorWidgetsGrid 
-          sensorData={sensorData} 
-          connectionStatus={connectionStatus}
-          networkStatus={networkStatus}
         />
 
         {/* Demo Quick Simulator Pills */}
@@ -419,7 +306,6 @@ export default function App() {
             selectedPatientId={selectedPatientId}
             onSelectPatient={handleSelectPatient}
             networkStatus={networkStatus}
-            sensorData={sensorData}
           />
         )}
 
@@ -429,25 +315,6 @@ export default function App() {
             onUpdateCapacity={handleUpdateCapacity}
             onSelectPatient={(id) => handleSelectPatient(id, true)}
             patients={patients}
-          />
-        )}
-
-        {activeTab === 'pharma' && (
-          <PharmaceuticalNetwork 
-            pharmacyData={pharmacyData}
-            onPharmacyAction={handlePharmacyAction}
-            patients={patients}
-            dispatchData={dispatchData}
-            onSelectPatient={handleSelectPatient}
-          />
-        )}
-
-        {activeTab === 'bloodbank' && (
-          <BloodBankNetwork 
-            bloodBankData={bloodBankData}
-            onBloodBankAction={handleBloodBankAction}
-            patients={patients}
-            onSelectPatient={handleSelectPatient}
           />
         )}
 
@@ -484,7 +351,6 @@ export default function App() {
               handleSelectPatient(id);
               setIsDetailOpen(true);
             }}
-            sensorData={sensorData}
           />
         )}
 
