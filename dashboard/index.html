@@ -7,7 +7,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/mqtt@5.10.4/dist/mqtt.min.js"></script>
+  <script src="/static/mqtt.min.js"></script>
+  <script>if (typeof mqtt === 'undefined') document.write('<script src="https://cdn.jsdelivr.net/npm/mqtt@5.10.4/dist/mqtt.min.js"><\\/script>');</script>
+  <script>if (typeof mqtt === 'undefined') document.write('<script src="https://unpkg.com/mqtt@5.10.4/dist/mqtt.min.js"><\\/script>');</script>
   <style>
     :root {
       --bg-gradient: radial-gradient(circle at 10% 20%, #e0eafc 0%, #cfdef3 40%, #e4e9f2 100%);
@@ -904,6 +906,17 @@
                 </div>
                 <span class="route-tag" id="tagMesh">READY</span>
               </div>
+
+              <div class="route-item" id="itemGpsRoute" style="border-left: 3px solid #3b82f6;">
+                <div class="route-left">
+                  <div class="route-bullet" style="background: #3b82f6;"></div>
+                  <div>
+                    <div class="route-title">GPS Coordinates (Ambulance Telemetry)</div>
+                    <div class="route-sub" id="mqtt_route_gps" style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #2563eb;">12.8718° N, 77.5769° E</div>
+                  </div>
+                </div>
+                <span class="route-tag active" style="background: rgba(59, 130, 246, 0.15); color: #2563eb;">GPS LOCKED</span>
+              </div>
             </div>
 
             <p style="font-size: 11px; color: var(--text-muted); margin-top: 14px; line-height: 1.4;">
@@ -1711,7 +1724,122 @@
       } catch (e) {}
     }
 
-    // Connect WebSocket
+    let pendingMqtt = null;
+    let mqttRaf = null;
+
+    function updateSensorUI(data) {
+      if (!data) return;
+      pendingMqtt = pendingMqtt ? { ...pendingMqtt, ...data } : data;
+      if (!mqttRaf && window.requestAnimationFrame) {
+        mqttRaf = window.requestAnimationFrame(flushMqttUi);
+      } else if (!mqttRaf) {
+        flushMqttUi();
+      }
+    }
+
+    function flushMqttUi() {
+      mqttRaf = null;
+      if (!pendingMqtt) return;
+      const data = pendingMqtt;
+      pendingMqtt = null;
+
+      // 1. pulse_bpm -> Updates Pulse Rate (BPM) card
+      if (data.pulse_bpm !== undefined) {
+        const bpm = parseInt(data.pulse_bpm);
+        const el = document.getElementById('mqtt_pulse_val');
+        if (el) el.innerText = bpm > 0 ? bpm : '--';
+        const trend = document.getElementById('mqtt_pulse_trend');
+        if (trend) {
+          if (bpm > 100) {
+            trend.innerHTML = '<span style="color: #ef4444;">⚠️</span> Tachycardia';
+          } else if (bpm >= 60) {
+            trend.innerHTML = '<span style="color: #10b981;">●</span> Nominal Pulse';
+          } else if (bpm > 0) {
+            trend.innerHTML = '<span style="color: #6366f1;">●</span> Bradycardia';
+          } else {
+            trend.innerHTML = '<span>❤️</span> MQTT Stream';
+          }
+        }
+      }
+
+      // 2. force_n -> Updates Bed Force / Patient Weight readout
+      if (data.force_n !== undefined) {
+        const force = typeof data.force_n === 'number' ? data.force_n : parseFloat(data.force_n) || 0;
+        const elForce = document.getElementById('mqtt_force_val');
+        if (elForce) elForce.innerText = force.toFixed(1);
+        const elWeight = document.getElementById('mqtt_weight_val');
+        if (elWeight) {
+          const estKg = force > 60 ? (force / 9.81).toFixed(1) : (force >= 2.0 ? (force * 1.8 + 25.0).toFixed(1) : '0.0');
+          elWeight.innerText = force >= 2.0 ? `~${estKg} kg` : '--';
+        }
+        const bar = document.getElementById('mqtt_force_bar');
+        if (bar) bar.style.width = Math.min(100, Math.max(0, (force / 300.0) * 100)) + '%';
+      }
+
+      // 3. gyro_z & mpu_ok -> Updates Patient Motion / Gyroscope indicator
+      if (data.gyro_z !== undefined || data.mpu_ok !== undefined) {
+        if (data.gyro_z !== undefined) {
+          const z = typeof data.gyro_z === 'number' ? data.gyro_z : parseFloat(data.gyro_z) || 0;
+          const elGyro = document.getElementById('mqtt_gyro_val');
+          if (elGyro) elGyro.innerText = (z >= 0 ? '+' : '') + z.toFixed(2) + ' rad/s';
+
+          const elMotion = document.getElementById('mqtt_motion_status');
+          if (elMotion) {
+            const absZ = Math.abs(z);
+            elMotion.innerText = absZ >= 0.8 ? 'AGITATED' : absZ >= 0.15 ? 'IN-BED MOTION' : 'RESTING';
+            elMotion.style.color = absZ >= 0.8 ? '#ef4444' : absZ >= 0.15 ? '#f59e0b' : '#10b981';
+          }
+        }
+
+        if (data.mpu_ok !== undefined) {
+          const ok = data.mpu_ok === true || data.mpu_ok === 1 || data.mpu_ok === 'true';
+          const elMpu = document.getElementById('mqtt_mpu_status');
+          if (elMpu) {
+            elMpu.innerText = ok ? 'MPU OK' : 'MPU FAULT';
+            elMpu.style.color = ok ? '#10b981' : '#ef4444';
+          }
+        }
+      }
+
+      // 4. rfid -> Updates RFID Patient Tag card (NONE vs Tag ID)
+      if (data.rfid !== undefined) {
+        const el = document.getElementById('mqtt_rfid_val');
+        const isNone = !data.rfid || data.rfid === 'NONE' || data.rfid === 'NO_TAG';
+        if (el) {
+          el.innerText = isNone ? 'NONE' : data.rfid;
+          el.style.color = isNone ? 'var(--text-muted)' : '#a855f7';
+        }
+        const tagTrend = document.getElementById('mqtt_rfid_trend');
+        if (tagTrend) {
+          tagTrend.innerHTML = isNone ? '<span>🏷️</span> Scanner Ready' : '<span style="color:#10b981;">✓</span> Tag Identified';
+        }
+      }
+
+      // 5. lat & lng -> Updates GPS Location / Active Route Matrix
+      if (data.lat !== undefined && data.lng !== undefined) {
+        const lat = typeof data.lat === 'number' ? data.lat : parseFloat(data.lat);
+        const lng = typeof data.lng === 'number' ? data.lng : parseFloat(data.lng);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          const formatted = `${lat.toFixed(4)}° N, ${lng.toFixed(4)}° E`;
+          const elCoords = document.getElementById('mqtt_gps_coords');
+          if (elCoords) elCoords.innerText = formatted;
+          const elRouteGps = document.getElementById('mqtt_route_gps');
+          if (elRouteGps) elRouteGps.innerText = formatted;
+        }
+      }
+
+      // Environmental readouts
+      if (data.temp_c !== undefined) {
+        const el = document.getElementById('mqtt_temp_val');
+        if (el) el.innerText = data.temp_c + ' °C';
+      }
+      if (data.pressure_kpa !== undefined) {
+        const el = document.getElementById('mqtt_press_val');
+        if (el) el.innerText = data.pressure_kpa + ' kPa';
+      }
+    }
+
+    // Connect WebSocket to local telemetry stream with embedded live sensor data
     function connectWS() {
       const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
       const ws = new WebSocket(`${proto}//${location.host}/ws/telemetry`);
@@ -1719,168 +1847,137 @@
         try {
           const data = JSON.parse(event.data);
           renderStatus(data);
+          if (data.mqtt_sensors && Object.keys(data.mqtt_sensors).length > 0) {
+            updateSensorUI(data.mqtt_sensors);
+            const statusPill = document.getElementById('mqttStatusPill');
+            const statusText = document.getElementById('mqttStatusText');
+            if (statusText && statusText.innerText.includes('Connecting')) {
+              statusText.innerText = 'MQTT: Connected';
+              if (statusPill) {
+                statusPill.style.background = 'var(--green-light)';
+                statusPill.style.color = 'var(--green)';
+                statusPill.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+              }
+            }
+          }
         } catch (e) {}
       };
       ws.onclose = () => { setTimeout(connectWS, 1000); };
       ws.onerror = () => { ws.close(); };
     }
 
-    // MQTT Connection to HiveMQ WebSocket Broker
+    // Direct Browser MQTT Connection with Multi-Port Fallback (8884 / 8084 / 8000)
     function connectMQTT() {
-      const BROKER_URL = 'wss://broker.hivemq.com:8084/mqtt';
+      const BROKER_CANDIDATES = [
+        'wss://broker.hivemq.com:8884/mqtt', // Verified unblocked WSS port
+        'wss://broker.hivemq.com:8084/mqtt', // Primary port
+        'ws://broker.hivemq.com:8000/mqtt'   // Plain WS fallback
+      ];
       const TOPIC = 'izanagi/sensors/data';
       const statusPill = document.getElementById('mqttStatusPill');
       const statusText = document.getElementById('mqttStatusText');
 
       if (typeof mqtt === 'undefined') {
-        console.warn('[MQTT] Client library not loaded yet');
+        console.warn('[MQTT] Library not loaded yet, retrying in 500ms...');
+        setTimeout(connectMQTT, 500);
         return;
       }
 
-      console.log('[MQTT] Connecting to ' + BROKER_URL + ' on topic ' + TOPIC + '...');
-      const client = mqtt.connect(BROKER_URL, {
-        clientId: 'Izanagi_API_' + Math.random().toString(16).substring(2, 8),
-        clean: true,
-        connectTimeout: 5000,
-        reconnectPeriod: 2000
-      });
+      let currentIdx = 0;
+      let activeClient = null;
+      let fallbackTimer = null;
 
-      let pendingMqtt = null;
-      let mqttRaf = null;
-
-      function flushMqttUi() {
-        mqttRaf = null;
-        if (!pendingMqtt) return;
-        const data = pendingMqtt;
-        pendingMqtt = null;
-
-        // 1. pulse_bpm -> Updates Pulse Rate (BPM) card
-        if (data.pulse_bpm !== undefined) {
-          const el = document.getElementById('mqtt_pulse_val');
-          if (el) el.innerText = data.pulse_bpm > 0 ? data.pulse_bpm : '--';
+      function attemptBroker() {
+        if (activeClient) {
+          try { activeClient.end(true); } catch(e) {}
+          activeClient = null;
+        }
+        if (fallbackTimer) {
+          clearTimeout(fallbackTimer);
+          fallbackTimer = null;
         }
 
-        // 2. force_n -> Updates Bed Force / Patient Weight readout
-        if (data.force_n !== undefined) {
-          const force = typeof data.force_n === 'number' ? data.force_n : parseFloat(data.force_n) || 0;
-          const elForce = document.getElementById('mqtt_force_val');
-          if (elForce) elForce.innerText = force.toFixed(1);
-          const elWeight = document.getElementById('mqtt_weight_val');
-          if (elWeight) elWeight.innerText = force >= 2.0 ? `~${(force * 1.8 + 25.0).toFixed(1)} kg` : '--';
-          const bar = document.getElementById('mqtt_force_bar');
-          if (bar) bar.style.width = Math.min(100, (force / 50.0) * 100) + '%';
+        const brokerUrl = BROKER_CANDIDATES[currentIdx];
+        console.log(`[MQTT] Connecting to ${brokerUrl} (candidate ${currentIdx + 1}/${BROKER_CANDIDATES.length})...`);
+        if (statusText && !statusText.innerText.includes('Connected')) {
+          statusText.innerText = 'MQTT: Connecting...';
         }
 
-        // 3. gyro_z & mpu_ok -> Updates Patient Motion / Gyroscope indicator
-        if (data.gyro_z !== undefined || data.mpu_ok !== undefined) {
-          if (data.gyro_z !== undefined) {
-            const z = typeof data.gyro_z === 'number' ? data.gyro_z : parseFloat(data.gyro_z) || 0;
-            const elGyro = document.getElementById('mqtt_gyro_val');
-            if (elGyro) elGyro.innerText = (z >= 0 ? '+' : '') + z.toFixed(2) + ' rad/s';
+        activeClient = mqtt.connect(brokerUrl, {
+          clientId: 'Izanagi_UI_' + Math.random().toString(16).substring(2, 8),
+          clean: true,
+          connectTimeout: 4000,
+          reconnectPeriod: 2500
+        });
 
-            const elMotion = document.getElementById('mqtt_motion_status');
-            if (elMotion) {
-              const absZ = Math.abs(z);
-              elMotion.innerText = absZ >= 0.8 ? 'AGITATED' : absZ >= 0.15 ? 'IN-BED MOTION' : 'RESTING';
-              elMotion.style.color = absZ >= 0.8 ? '#ef4444' : absZ >= 0.15 ? '#f59e0b' : '#10b981';
-            }
+        // If not connected within 2.5s, failover to the next candidate
+        fallbackTimer = setTimeout(() => {
+          if (!activeClient || !activeClient.connected) {
+            console.warn(`[MQTT] Port timeout on ${brokerUrl}, trying fallback port...`);
+            currentIdx = (currentIdx + 1) % BROKER_CANDIDATES.length;
+            attemptBroker();
           }
+        }, 2500);
 
-          if (data.mpu_ok !== undefined) {
-            const ok = data.mpu_ok === true || data.mpu_ok === 1 || data.mpu_ok === 'true';
-            const elMpu = document.getElementById('mqtt_mpu_status');
-            if (elMpu) {
-              elMpu.innerText = ok ? 'MPU OK' : 'MPU FAULT';
-              elMpu.style.color = ok ? '#10b981' : '#ef4444';
-            }
+        activeClient.on('connect', () => {
+          if (fallbackTimer) clearTimeout(fallbackTimer);
+          console.log(`[MQTT] Connected to HiveMQ on ${brokerUrl}!`);
+          if (statusText) statusText.innerText = 'MQTT: Connected';
+          if (statusPill) {
+            statusPill.style.background = 'var(--green-light)';
+            statusPill.style.color = 'var(--green)';
+            statusPill.style.borderColor = 'rgba(16, 185, 129, 0.3)';
           }
-        }
+          activeClient.subscribe(TOPIC, { qos: 0 }, (err) => {
+            if (!err) console.log(`[MQTT] Subscribed to ${TOPIC}`);
+          });
+        });
 
-        // 4. rfid -> Updates RFID Patient Tag card (NONE vs Tag ID)
-        if (data.rfid !== undefined) {
-          const el = document.getElementById('mqtt_rfid_val');
-          const isNone = !data.rfid || data.rfid === 'NONE' || data.rfid === 'NO_TAG';
-          if (el) {
-            el.innerText = isNone ? 'NONE' : data.rfid;
-            el.style.color = isNone ? 'var(--text-muted)' : '#a855f7';
+        activeClient.on('message', (topic, message) => {
+          try {
+            const data = JSON.parse(message.toString());
+            updateSensorUI(data);
+          } catch(e) {}
+        });
+
+        activeClient.on('error', (err) => {
+          console.warn(`[MQTT] Error on ${brokerUrl}:`, err);
+          if (!activeClient.connected && fallbackTimer) {
+            clearTimeout(fallbackTimer);
+            currentIdx = (currentIdx + 1) % BROKER_CANDIDATES.length;
+            setTimeout(attemptBroker, 500);
           }
-          const tagTrend = document.getElementById('mqtt_rfid_trend');
-          if (tagTrend) {
-            tagTrend.innerHTML = isNone ? '<span>🏷️</span> Scanner Ready' : '<span style="color:#10b981;">✓</span> Tag Identified';
+        });
+
+        activeClient.on('reconnect', () => {
+          if (statusText && !statusText.innerText.includes('Connected')) {
+            statusText.innerText = 'MQTT: Reconnecting...';
           }
-        }
+        });
 
-        // 5. lat & lng -> Updates GPS Location / Active Route Matrix
-        if (data.lat !== undefined && data.lng !== undefined) {
-          const lat = typeof data.lat === 'number' ? data.lat : parseFloat(data.lat);
-          const lng = typeof data.lng === 'number' ? data.lng : parseFloat(data.lng);
-          const elCoords = document.getElementById('mqtt_gps_coords');
-          if (elCoords) elCoords.innerText = `${lat.toFixed(4)}° N, ${lng.toFixed(4)}° E`;
-          const elRouteGps = document.getElementById('mqtt_route_gps');
-          if (elRouteGps) elRouteGps.innerText = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-        }
-
-        // Environmental readouts
-        if (data.temp_c !== undefined) {
-          const el = document.getElementById('mqtt_temp_val');
-          if (el) el.innerText = data.temp_c + ' °C';
-        }
-        if (data.pressure_kpa !== undefined) {
-          const el = document.getElementById('mqtt_press_val');
-          if (el) el.innerText = data.pressure_kpa + ' kPa';
-        }
+        activeClient.on('close', () => {});
       }
 
-      client.on('connect', () => {
-        console.log('[MQTT] Connected to HiveMQ broker!');
-        if (statusText) statusText.innerText = 'MQTT: Connected';
-        if (statusPill) {
-          statusPill.style.background = 'var(--green-light)';
-          statusPill.style.color = 'var(--green)';
-          statusPill.style.borderColor = 'rgba(16, 185, 129, 0.3)';
-        }
-        client.subscribe(TOPIC, (err) => {
-          if (!err) console.log('[MQTT] Subscribed to ' + TOPIC);
-        });
-      });
+      attemptBroker();
+    }
 
-      client.on('message', (topic, message) => {
-        try {
-          const data = JSON.parse(message.toString());
-          pendingMqtt = pendingMqtt ? { ...pendingMqtt, ...data } : data;
-          if (!mqttRaf && window.requestAnimationFrame) {
-            mqttRaf = window.requestAnimationFrame(flushMqttUi);
-          } else if (!mqttRaf) {
-            flushMqttUi();
+    // Periodic REST fallback sync
+    async function syncSensorsFromApi() {
+      try {
+        const res = await fetch('/api/sensors');
+        if (res.ok) {
+          const data = await res.json();
+          if (data && Object.keys(data).length > 0) {
+            updateSensorUI(data);
           }
-        } catch(e) {}
-      });
-
-      client.on('reconnect', () => {
-        if (statusText) statusText.innerText = 'MQTT: Reconnecting...';
-        if (statusPill) {
-          statusPill.style.background = 'var(--amber-light)';
-          statusPill.style.color = 'var(--amber)';
         }
-      });
-
-      client.on('close', () => {
-        if (statusText) statusText.innerText = 'MQTT: Disconnected';
-      });
-
-      client.on('offline', () => {
-        if (statusText) statusText.innerText = 'MQTT: Offline';
-      });
-
-      client.on('error', (err) => {
-        console.error('[MQTT] Connection error:', err);
-        if (statusText) statusText.innerText = 'MQTT: Error';
-      });
+      } catch(e) {}
     }
 
     connectWS();
-    setTimeout(connectMQTT, 300);
+    setTimeout(connectMQTT, 200);
     setInterval(fetchEvents, 1000);
+    setInterval(syncSensorsFromApi, 2000);
   </script>
 </body>
 </html>

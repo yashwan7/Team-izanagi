@@ -33,8 +33,8 @@ export default function TriageMap({
   const [actionLoading, setActionLoading] = useState(false);
 
   // Focal Tracking Coordinates (defaults updated dynamically via MQTT lat/lng)
-  const FOCAL_LAT = (sensorData?.lat && typeof sensorData.lat === 'number') ? sensorData.lat : 12.871773;
-  const FOCAL_LNG = (sensorData?.lng && typeof sensorData.lng === 'number') ? sensorData.lng : 77.576856;
+  const FOCAL_LAT = !isNaN(parseFloat(sensorData?.lat)) ? parseFloat(sensorData.lat) : 12.871773;
+  const FOCAL_LNG = !isNaN(parseFloat(sensorData?.lng)) ? parseFloat(sensorData.lng) : 77.576856;
 
   const data = dispatchData || {
     system_status: "OPERATIONAL",
