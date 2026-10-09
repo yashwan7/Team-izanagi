@@ -280,3 +280,95 @@ async def test_pharmaceutical_network_models_and_actions():
     assert q_batch.cold_chain_breach is True
 
 
+@pytest.mark.asyncio
+async def test_blood_bank_network_models_and_actions():
+    from backend.merge_engine.models import (
+        BloodInventoryUnit,
+        BloodBankFacility,
+        BloodRequestOrder,
+        BloodTransferManifest,
+        BloodAuditEntry,
+        BloodBankNetworkData,
+        BloodBankActionRequest
+    )
+    from backend.merge_engine.service import (
+        blood_bank_state,
+        handle_blood_bank_action
+    )
+
+    # 1. Verify blood bank initial state
+    assert len(blood_bank_state.facilities) >= 4
+    assert len(blood_bank_state.inventory) >= 10
+    assert len(blood_bank_state.requests) >= 3
+    assert len(blood_bank_state.transfers) >= 1
+    assert blood_bank_state.cold_chain_compliance_pct > 98.0
+
+    # 2. Verify clinical safety rule: Expired & Quarantined units cannot be reserved
+    expired_unit = next((u for u in blood_bank_state.inventory if u.status == "EXPIRED"), None)
+    assert expired_unit is not None
+    assert expired_unit.can_reserve is False
+    assert expired_unit.days_until_expiry < 0
+
+    quarantined_unit = next((u for u in blood_bank_state.inventory if u.status == "QUARANTINED"), None)
+    assert quarantined_unit is not None
+    assert quarantined_unit.can_reserve is False
+
+    # 3. Verify universal red cell & plasma units exist
+    o_neg_units = [u for u in blood_bank_state.inventory if u.blood_group_display == "O-" and u.status == "AVAILABLE_RELEASED"]
+    assert len(o_neg_units) >= 2
+
+    ab_plasma = next((u for u in blood_bank_state.inventory if u.blood_group_display == "AB+" and u.component_type == "FFP"), None)
+    assert ab_plasma is not None
+    assert "UNIVERSAL_PLASMA_DONOR" in ab_plasma.special_attributes
+
+    # 4. Test CREATE_REQUEST action
+    req_action = BloodBankActionRequest(
+        action="CREATE_REQUEST",
+        patient_id="PT-TEST-BLOOD",
+        patient_name_or_alias="Test Casualty Severe Trauma",
+        component_type="PRBC",
+        abo="O",
+        rh="NEGATIVE",
+        units_requested=1,
+        urgency="EMERGENCY_STAT",
+        clinical_indication="Test emergency blood request",
+        destination_facility="Forward Surgical Team Alpha",
+        actor_name="Capt. Clinical Medic"
+    )
+    created_res = await handle_blood_bank_action(req_action)
+    created_order = created_res.requests[0]
+    assert created_order.requested_abo == "O"
+    assert created_order.status == "SUBMITTED"
+
+    # 5. Test ACCEPT_REQUEST action (locks unit)
+    accept_action = BloodBankActionRequest(
+        action="ACCEPT_REQUEST",
+        request_id=created_order.request_id,
+        actor_name="AFTC Blood Bank Officer"
+    )
+    accepted_res = await handle_blood_bank_action(accept_action)
+    accepted_order = next((r for r in accepted_res.requests if r.request_id == created_order.request_id), None)
+    assert accepted_order.status == "ACCEPTED_RESERVED"
+    assert accepted_order.units_allocated >= 1
+
+    # 6. Test DISPATCH_TRANSFER action
+    dispatch_action = BloodBankActionRequest(
+        action="DISPATCH_TRANSFER",
+        request_id=created_order.request_id,
+        actor_name="Tactical Courier Desk"
+    )
+    dispatched_res = await handle_blood_bank_action(dispatch_action)
+    assert dispatched_res.transfers[0].request_id == created_order.request_id
+    assert dispatched_res.transfers[0].transfer_status == "DISPATCHED_IN_TRANSIT"
+
+    # 7. Test CONFIRM_RECEIPT action
+    receipt_action = BloodBankActionRequest(
+        action="CONFIRM_RECEIPT",
+        transfer_id=dispatched_res.transfers[0].transfer_id,
+        actor_name="Receiving Trauma Surgeon"
+    )
+    received_res = await handle_blood_bank_action(receipt_action)
+    assert received_res.transfers[0].transfer_status == "DELIVERED_RECEIVED"
+    assert received_res.transfers[0].actual_arrival_timestamp is not None
+
+

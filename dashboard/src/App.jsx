@@ -12,11 +12,12 @@ import AIReports from './components/AIReports';
 import SettingsView from './components/SettingsView';
 import HospitalCapacity from './components/HospitalCapacity';
 import PharmaceuticalNetwork from './components/PharmaceuticalNetwork';
+import BloodBankNetwork from './components/BloodBankNetwork';
 import FailoverTinyMLView from './components/FailoverTinyMLView';
 import EOGSecurityView from './components/EOGSecurityView';
 import { 
   HeartPulse, ShieldAlert, RefreshCw, 
-  Sparkles, Stethoscope, Activity, FileText, Zap, Eye, Pill 
+  Sparkles, Stethoscope, Activity, FileText, Zap, Eye, Pill, Droplet 
 } from 'lucide-react';
 
 const API_BASE = '/api';
@@ -34,17 +35,19 @@ export default function App() {
   const [capacityData, setCapacityData] = useState(null);
   const [dispatchData, setDispatchData] = useState(null);
   const [pharmacyData, setPharmacyData] = useState(null);
+  const [bloodBankData, setBloodBankData] = useState(null);
   const wsRef = useRef(null);
 
   const fetchAllData = async () => {
     try {
-      const [resNet, resPat, resTime, resCap, resDisp, resPharm] = await Promise.all([
+      const [resNet, resPat, resTime, resCap, resDisp, resPharm, resBlood] = await Promise.all([
         fetch(`${API_BASE}/network-state`).then(r => r.json()),
         fetch(`${API_BASE}/patients`).then(r => r.json()),
         fetch(`${API_BASE}/timeline`).then(r => r.json()),
         fetch(`${API_BASE}/hospital-capacity`).then(r => r.json()).catch(() => null),
         fetch(`${API_BASE}/dispatch`).then(r => r.json()).catch(() => null),
-        fetch(`${API_BASE}/pharmacy`).then(r => r.json()).catch(() => null)
+        fetch(`${API_BASE}/pharmacy`).then(r => r.json()).catch(() => null),
+        fetch(`${API_BASE}/bloodbank`).then(r => r.json()).catch(() => null)
       ]);
       setNetworkStatus(resNet);
       setPatients(resPat);
@@ -57,6 +60,9 @@ export default function App() {
       }
       if (resPharm) {
         setPharmacyData(resPharm);
+      }
+      if (resBlood) {
+        setBloodBankData(resBlood);
       }
 
       if (resPat.length > 0 && !selectedPatientId) {
@@ -120,6 +126,8 @@ export default function App() {
             setDispatchData(msg.payload);
           } else if (msg.type === 'PHARMACY_UPDATE') {
             setPharmacyData(msg.payload);
+          } else if (msg.type === 'BLOODBANK_UPDATE') {
+            setBloodBankData(msg.payload);
           } else if (msg.type === 'INIT_STATE') {
             if (msg.payload && msg.payload.capacity) {
               setCapacityData(msg.payload.capacity);
@@ -129,6 +137,9 @@ export default function App() {
             }
             if (msg.payload && msg.payload.pharmacy) {
               setPharmacyData(msg.payload.pharmacy);
+            }
+            if (msg.payload && msg.payload.bloodbank) {
+              setBloodBankData(msg.payload.bloodbank);
             }
           }
         } catch (e) {
@@ -264,6 +275,23 @@ export default function App() {
     }
   };
 
+  const handleBloodBankAction = async (payload) => {
+    try {
+      const res = await fetch(`${API_BASE}/bloodbank/action`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setBloodBankData(data);
+        return data;
+      }
+    } catch (err) {
+      console.error('Failed blood bank action:', err);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#eef2f7] flex font-sans selection:bg-blue-500 selection:text-white">
       
@@ -352,6 +380,15 @@ export default function App() {
             onPharmacyAction={handlePharmacyAction}
             patients={patients}
             dispatchData={dispatchData}
+            onSelectPatient={handleSelectPatient}
+          />
+        )}
+
+        {activeTab === 'bloodbank' && (
+          <BloodBankNetwork 
+            bloodBankData={bloodBankData}
+            onBloodBankAction={handleBloodBankAction}
+            patients={patients}
             onSelectPatient={handleSelectPatient}
           />
         )}

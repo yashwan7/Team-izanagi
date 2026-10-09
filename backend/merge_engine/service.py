@@ -1,6 +1,7 @@
 import os
 import json
 import time
+import hashlib
 import asyncio
 from contextlib import asynccontextmanager
 from typing import List, Dict, Any, Optional
@@ -30,7 +31,14 @@ from .models import (
     ReservationOrder,
     PharmacyPartner,
     PharmaceuticalNetworkData,
-    PharmacyActionRequest
+    PharmacyActionRequest,
+    BloodInventoryUnit,
+    BloodBankFacility,
+    BloodRequestOrder,
+    BloodTransferManifest,
+    BloodAuditEntry,
+    BloodBankNetworkData,
+    BloodBankActionRequest
 )
 from .prompt_engine import evaluate_clinical_triage, calculate_clinical_metrics
 from .engine import merge_engine
@@ -884,6 +892,608 @@ pharmaceutical_network_state = PharmaceuticalNetworkData(
     ]
 )
 
+blood_bank_state = BloodBankNetworkData(
+    system_status="OPERATIONAL",
+    total_registered_banks=4,
+    total_available_released_units=528,
+    total_o_negative_emergency_units=42,
+    active_requests_count=3,
+    pending_reservations_count=2,
+    units_near_expiry_count=5,
+    units_quarantined_count=2,
+    in_transit_transfers_count=1,
+    cold_chain_compliance_pct=99.6,
+    facilities=[
+        BloodBankFacility(
+            bank_id="BB-AFTC-01",
+            name="Armed Forces Transfusion Centre (AFTC Depot)",
+            address="Cantonment Military Medical Enclave, Bangalore Sector 1",
+            lat=28.6180,
+            lng=77.2150,
+            distance_km=2.4,
+            travel_time_mins=6,
+            contact_phone="+91-80-2559-4321",
+            contact_vhf="142.85 MHz / Transfusion Desk",
+            operating_status="VERIFIED_24_7",
+            license_accreditation="DCGI / NABH / DGMS Accredited Level-1",
+            verified=True,
+            transport_available=True,
+            walk_in_collection=True,
+            total_units_stocked=412,
+            available_units_count=380,
+            cold_storage_status="OPTIMAL_ONLINE",
+            director="Col. R. K. Mukherjee, MD Transfusion Medicine",
+            last_inventory_sync="4 mins ago"
+        ),
+        BloodBankFacility(
+            bank_id="BB-RC-02",
+            name="Indian Red Cross Society Regional Blood Centre",
+            address="Red Cross Bhavan, Central Medical Corridor, Bangalore",
+            lat=28.6350,
+            lng=77.2280,
+            distance_km=4.8,
+            travel_time_mins=11,
+            contact_phone="+91-80-2226-8488",
+            contact_vhf="148.10 MHz / Ch 4",
+            operating_status="VERIFIED_24_7",
+            license_accreditation="DCGI Licensed / State Apex Blood Centre",
+            verified=True,
+            transport_available=True,
+            walk_in_collection=True,
+            total_units_stocked=620,
+            available_units_count=580,
+            cold_storage_status="OPTIMAL_ONLINE",
+            director="Dr. Sunita Rao, MD Immunohematology",
+            last_inventory_sync="2 mins ago"
+        ),
+        BloodBankFacility(
+            bank_id="BB-APOLLO-03",
+            name="Apollo Apex Trauma Blood Bank & Component Lab",
+            address="Apollo Hospital Complex Level -1, Outer Ring Road",
+            lat=28.5850,
+            lng=77.2400,
+            distance_km=8.2,
+            travel_time_mins=17,
+            contact_phone="+91-80-2441-9922",
+            contact_vhf="155.65 MHz / Ext 402",
+            operating_status="VERIFIED_24_7",
+            license_accreditation="JCI / NABH Blood Bank Certified",
+            verified=True,
+            transport_available=True,
+            walk_in_collection=True,
+            total_units_stocked=350,
+            available_units_count=310,
+            cold_storage_status="OPTIMAL_ONLINE",
+            director="Dr. Deepak Singhania, Lead Transfusionist",
+            last_inventory_sync="6 mins ago"
+        ),
+        BloodBankFacility(
+            bank_id="BB-NIMHANS-04",
+            name="State Emergency Transfusion Center (Govt)",
+            address="Victoria Hospital Enclave, Old City Sector",
+            lat=28.5990,
+            lng=77.1950,
+            distance_km=12.0,
+            travel_time_mins=24,
+            contact_phone="+91-80-2670-1122",
+            contact_vhf="143.40 MHz / Ch 6",
+            operating_status="STANDBY_ON_CALL",
+            license_accreditation="State Health Directorate Certified",
+            verified=True,
+            transport_available=False,
+            walk_in_collection=True,
+            total_units_stocked=195,
+            available_units_count=165,
+            cold_storage_status="OPTIMAL_ONLINE",
+            director="Dr. Anirudh Bhatt, Blood Bank Officer",
+            last_inventory_sync="12 mins ago"
+        )
+    ],
+    inventory=[
+        BloodInventoryUnit(
+            unit_id="W0421-26-981240-A",
+            bank_id="BB-AFTC-01",
+            bank_name="Armed Forces Transfusion Centre",
+            abo="O",
+            rh="NEGATIVE",
+            blood_group_display="O-",
+            component_type="PRBC",
+            component_name="Packed Red Blood Cells (PRBC)",
+            volume_ml=350,
+            collection_date="2026-09-28",
+            preparation_date="2026-09-29",
+            expiry_date="2026-11-09",
+            days_until_expiry=31,
+            status="AVAILABLE_RELEASED",
+            screening_status="TESTED_NEGATIVE",
+            screening_tests={"HIV-1/2": "NON_REACTIVE", "HBsAg": "NON_REACTIVE", "HCV": "NON_REACTIVE", "VDRL": "NON_REACTIVE", "Malaria": "NEGATIVE"},
+            storage_requirement="1°C to 6°C Monitored Refrigerator",
+            storage_location_ref="Vault-Alpha / Shelf-1 / Bin-02",
+            storage_temp_current=3.8,
+            storage_excursion_detected=False,
+            special_attributes=["LEUKOREDUCED", "CMV_NEGATIVE", "HEMOLYSIN_LOW_TITER"],
+            can_reserve=True,
+            last_verified_at="10 mins ago"
+        ),
+        BloodInventoryUnit(
+            unit_id="W0421-26-981241-A",
+            bank_id="BB-AFTC-01",
+            bank_name="Armed Forces Transfusion Centre",
+            abo="O",
+            rh="NEGATIVE",
+            blood_group_display="O-",
+            component_type="PRBC",
+            component_name="Packed Red Blood Cells (PRBC)",
+            volume_ml=350,
+            collection_date="2026-09-20",
+            preparation_date="2026-09-21",
+            expiry_date="2026-11-01",
+            days_until_expiry=23,
+            status="AVAILABLE_RELEASED",
+            screening_status="TESTED_NEGATIVE",
+            screening_tests={"HIV-1/2": "NON_REACTIVE", "HBsAg": "NON_REACTIVE", "HCV": "NON_REACTIVE", "VDRL": "NON_REACTIVE", "Malaria": "NEGATIVE"},
+            storage_requirement="1°C to 6°C Monitored Refrigerator",
+            storage_location_ref="Vault-Alpha / Shelf-1 / Bin-03",
+            storage_temp_current=3.8,
+            storage_excursion_detected=False,
+            special_attributes=["LEUKOREDUCED", "IRRADIATED"],
+            can_reserve=True,
+            last_verified_at="10 mins ago"
+        ),
+        BloodInventoryUnit(
+            unit_id="W0421-26-981242-A",
+            bank_id="BB-AFTC-01",
+            bank_name="Armed Forces Transfusion Centre",
+            abo="O",
+            rh="NEGATIVE",
+            blood_group_display="O-",
+            component_type="WHOLE_BLOOD",
+            component_name="Low-Titer O-Neg Whole Blood (LTOWB)",
+            volume_ml=450,
+            collection_date="2026-09-25",
+            preparation_date="2026-09-25",
+            expiry_date="2026-10-30",
+            days_until_expiry=21,
+            status="AVAILABLE_RELEASED",
+            screening_status="TESTED_NEGATIVE",
+            screening_tests={"HIV-1/2": "NON_REACTIVE", "HBsAg": "NON_REACTIVE", "HCV": "NON_REACTIVE", "VDRL": "NON_REACTIVE", "Malaria": "NEGATIVE"},
+            storage_requirement="1°C to 6°C Monitored Refrigerator",
+            storage_location_ref="Vault-Alpha / Shelf-2 / Bin-01",
+            storage_temp_current=4.1,
+            storage_excursion_detected=False,
+            special_attributes=["UNSCREENED_SAFE_WARM", "HEMOLYSIN_LOW_TITER (<1:256)"],
+            can_reserve=True,
+            last_verified_at="10 mins ago"
+        ),
+        BloodInventoryUnit(
+            unit_id="W0421-26-981243-A",
+            bank_id="BB-RC-02",
+            bank_name="Indian Red Cross Society",
+            abo="O",
+            rh="NEGATIVE",
+            blood_group_display="O-",
+            component_type="PRBC",
+            component_name="Packed Red Blood Cells (PRBC)",
+            volume_ml=350,
+            collection_date="2026-08-31",
+            preparation_date="2026-09-01",
+            expiry_date="2026-10-12",
+            days_until_expiry=3,
+            status="AVAILABLE_RELEASED",
+            screening_status="TESTED_NEGATIVE",
+            screening_tests={"HIV-1/2": "NON_REACTIVE", "HBsAg": "NON_REACTIVE", "HCV": "NON_REACTIVE", "VDRL": "NON_REACTIVE", "Malaria": "NEGATIVE"},
+            storage_requirement="1°C to 6°C Monitored Refrigerator",
+            storage_location_ref="MainBank-RC / Rack-4 / Bin-09",
+            storage_temp_current=4.2,
+            storage_excursion_detected=False,
+            special_attributes=["LEUKOREDUCED"],
+            can_reserve=True,
+            last_verified_at="2 mins ago"
+        ),
+        BloodInventoryUnit(
+            unit_id="W0421-26-981250-A",
+            bank_id="BB-AFTC-01",
+            bank_name="Armed Forces Transfusion Centre",
+            abo="O",
+            rh="POSITIVE",
+            blood_group_display="O+",
+            component_type="PRBC",
+            component_name="Packed Red Blood Cells (PRBC)",
+            volume_ml=350,
+            collection_date="2026-09-24",
+            preparation_date="2026-09-25",
+            expiry_date="2026-11-05",
+            days_until_expiry=27,
+            status="AVAILABLE_RELEASED",
+            screening_status="TESTED_NEGATIVE",
+            screening_tests={"HIV-1/2": "NON_REACTIVE", "HBsAg": "NON_REACTIVE", "HCV": "NON_REACTIVE", "VDRL": "NON_REACTIVE", "Malaria": "NEGATIVE"},
+            storage_requirement="1°C to 6°C Monitored Refrigerator",
+            storage_location_ref="Vault-Alpha / Shelf-3 / Bin-05",
+            storage_temp_current=3.9,
+            storage_excursion_detected=False,
+            special_attributes=["LEUKOREDUCED"],
+            can_reserve=True,
+            last_verified_at="10 mins ago"
+        ),
+        BloodInventoryUnit(
+            unit_id="W0421-26-981260-A",
+            bank_id="BB-RC-02",
+            bank_name="Indian Red Cross Society",
+            abo="A",
+            rh="POSITIVE",
+            blood_group_display="A+",
+            component_type="PRBC",
+            component_name="Packed Red Blood Cells (PRBC)",
+            volume_ml=350,
+            collection_date="2026-09-26",
+            preparation_date="2026-09-27",
+            expiry_date="2026-11-07",
+            days_until_expiry=29,
+            status="AVAILABLE_RELEASED",
+            screening_status="TESTED_NEGATIVE",
+            screening_tests={"HIV-1/2": "NON_REACTIVE", "HBsAg": "NON_REACTIVE", "HCV": "NON_REACTIVE", "VDRL": "NON_REACTIVE", "Malaria": "NEGATIVE"},
+            storage_requirement="1°C to 6°C Monitored Refrigerator",
+            storage_location_ref="MainBank-RC / Rack-2 / Bin-01",
+            storage_temp_current=4.0,
+            storage_excursion_detected=False,
+            special_attributes=["LEUKOREDUCED"],
+            can_reserve=True,
+            last_verified_at="2 mins ago"
+        ),
+        BloodInventoryUnit(
+            unit_id="W0421-26-981270-A",
+            bank_id="BB-APOLLO-03",
+            bank_name="Apollo Apex Trauma Blood Bank",
+            abo="A",
+            rh="NEGATIVE",
+            blood_group_display="A-",
+            component_type="PRBC",
+            component_name="Packed Red Blood Cells (PRBC)",
+            volume_ml=350,
+            collection_date="2026-09-22",
+            preparation_date="2026-09-23",
+            expiry_date="2026-11-03",
+            days_until_expiry=25,
+            status="AVAILABLE_RELEASED",
+            screening_status="TESTED_NEGATIVE",
+            screening_tests={"HIV-1/2": "NON_REACTIVE", "HBsAg": "NON_REACTIVE", "HCV": "NON_REACTIVE", "VDRL": "NON_REACTIVE", "Malaria": "NEGATIVE"},
+            storage_requirement="1°C to 6°C Monitored Refrigerator",
+            storage_location_ref="ColdVault-Apollo / Drawer-1",
+            storage_temp_current=3.7,
+            storage_excursion_detected=False,
+            special_attributes=["CMV_NEGATIVE"],
+            can_reserve=True,
+            last_verified_at="6 mins ago"
+        ),
+        BloodInventoryUnit(
+            unit_id="W0421-26-981280-A",
+            bank_id="BB-RC-02",
+            bank_name="Indian Red Cross Society",
+            abo="B",
+            rh="POSITIVE",
+            blood_group_display="B+",
+            component_type="PRBC",
+            component_name="Packed Red Blood Cells (PRBC)",
+            volume_ml=350,
+            collection_date="2026-09-27",
+            preparation_date="2026-09-28",
+            expiry_date="2026-11-08",
+            days_until_expiry=30,
+            status="AVAILABLE_RELEASED",
+            screening_status="TESTED_NEGATIVE",
+            screening_tests={"HIV-1/2": "NON_REACTIVE", "HBsAg": "NON_REACTIVE", "HCV": "NON_REACTIVE", "VDRL": "NON_REACTIVE", "Malaria": "NEGATIVE"},
+            storage_requirement="1°C to 6°C Monitored Refrigerator",
+            storage_location_ref="MainBank-RC / Rack-3 / Bin-11",
+            storage_temp_current=4.1,
+            storage_excursion_detected=False,
+            special_attributes=["LEUKOREDUCED"],
+            can_reserve=True,
+            last_verified_at="2 mins ago"
+        ),
+        BloodInventoryUnit(
+            unit_id="W0421-26-981281-A",
+            bank_id="BB-APOLLO-03",
+            bank_name="Apollo Apex Trauma Blood Bank",
+            abo="B",
+            rh="POSITIVE",
+            blood_group_display="B+",
+            component_type="PLATELETS",
+            component_name="Platelet Concentrate (Apheresis SDP)",
+            volume_ml=250,
+            collection_date="2026-10-06",
+            preparation_date="2026-10-06",
+            expiry_date="2026-10-11",
+            days_until_expiry=2,
+            status="AVAILABLE_RELEASED",
+            screening_status="TESTED_NEGATIVE",
+            screening_tests={"HIV-1/2": "NON_REACTIVE", "HBsAg": "NON_REACTIVE", "HCV": "NON_REACTIVE", "VDRL": "NON_REACTIVE", "Malaria": "NEGATIVE"},
+            storage_requirement="20°C to 24°C with Continuous Agitation",
+            storage_location_ref="Agitator-B / Rack-01",
+            storage_temp_current=22.1,
+            storage_excursion_detected=False,
+            special_attributes=["SINGLE_DONOR_APHERESIS", "BACTERIAL_SCREEN_NEGATIVE"],
+            can_reserve=True,
+            last_verified_at="6 mins ago"
+        ),
+        BloodInventoryUnit(
+            unit_id="W0421-26-981290-A",
+            bank_id="BB-AFTC-01",
+            bank_name="Armed Forces Transfusion Centre",
+            abo="B",
+            rh="NEGATIVE",
+            blood_group_display="B-",
+            component_type="PRBC",
+            component_name="Packed Red Blood Cells (PRBC)",
+            volume_ml=350,
+            collection_date="2026-09-18",
+            preparation_date="2026-09-19",
+            expiry_date="2026-10-30",
+            days_until_expiry=21,
+            status="AVAILABLE_RELEASED",
+            screening_status="TESTED_NEGATIVE",
+            screening_tests={"HIV-1/2": "NON_REACTIVE", "HBsAg": "NON_REACTIVE", "HCV": "NON_REACTIVE", "VDRL": "NON_REACTIVE", "Malaria": "NEGATIVE"},
+            storage_requirement="1°C to 6°C Monitored Refrigerator",
+            storage_location_ref="Vault-Alpha / Shelf-4 / Bin-02",
+            storage_temp_current=3.8,
+            storage_excursion_detected=False,
+            special_attributes=["LEUKOREDUCED"],
+            can_reserve=True,
+            last_verified_at="10 mins ago"
+        ),
+        BloodInventoryUnit(
+            unit_id="W0421-26-981300-A",
+            bank_id="BB-AFTC-01",
+            bank_name="Armed Forces Transfusion Centre",
+            abo="AB",
+            rh="POSITIVE",
+            blood_group_display="AB+",
+            component_type="FFP",
+            component_name="Fresh Frozen Plasma (FFP - Universal Plasma)",
+            volume_ml=250,
+            collection_date="2026-08-15",
+            preparation_date="2026-08-15",
+            expiry_date="2027-08-15",
+            days_until_expiry=310,
+            status="AVAILABLE_RELEASED",
+            screening_status="TESTED_NEGATIVE",
+            screening_tests={"HIV-1/2": "NON_REACTIVE", "HBsAg": "NON_REACTIVE", "HCV": "NON_REACTIVE", "VDRL": "NON_REACTIVE", "Malaria": "NEGATIVE"},
+            storage_requirement="-18°C or colder Deep Freezer",
+            storage_location_ref="SubZero-Vault-1 / Tray-04",
+            storage_temp_current=-24.2,
+            storage_excursion_detected=False,
+            special_attributes=["UNIVERSAL_PLASMA_DONOR", "FACTOR_VIII_HIGH"],
+            can_reserve=True,
+            last_verified_at="10 mins ago"
+        ),
+        BloodInventoryUnit(
+            unit_id="W0421-26-981301-A",
+            bank_id="BB-AFTC-01",
+            bank_name="Armed Forces Transfusion Centre",
+            abo="AB",
+            rh="POSITIVE",
+            blood_group_display="AB+",
+            component_type="CRYOPRECIPITATE",
+            component_name="Cryoprecipitate Antihemophilic Factor (AHF)",
+            volume_ml=15,
+            collection_date="2026-07-10",
+            preparation_date="2026-07-10",
+            expiry_date="2027-07-10",
+            days_until_expiry=274,
+            status="AVAILABLE_RELEASED",
+            screening_status="TESTED_NEGATIVE",
+            screening_tests={"HIV-1/2": "NON_REACTIVE", "HBsAg": "NON_REACTIVE", "HCV": "NON_REACTIVE", "VDRL": "NON_REACTIVE", "Malaria": "NEGATIVE"},
+            storage_requirement="-18°C or colder Deep Freezer",
+            storage_location_ref="SubZero-Vault-1 / Tray-08",
+            storage_temp_current=-24.0,
+            storage_excursion_detected=False,
+            special_attributes=["HIGH_FIBRINOGEN (>150mg)"],
+            can_reserve=True,
+            last_verified_at="10 mins ago"
+        ),
+        BloodInventoryUnit(
+            unit_id="W0421-26-981244-A",
+            bank_id="BB-AFTC-01",
+            bank_name="Armed Forces Transfusion Centre",
+            abo="O",
+            rh="NEGATIVE",
+            blood_group_display="O-",
+            component_type="PRBC",
+            component_name="Packed Red Blood Cells (PRBC)",
+            volume_ml=350,
+            collection_date="2026-09-22",
+            preparation_date="2026-09-23",
+            expiry_date="2026-11-03",
+            days_until_expiry=25,
+            status="RESERVED",
+            screening_status="TESTED_NEGATIVE",
+            screening_tests={"HIV-1/2": "NON_REACTIVE", "HBsAg": "NON_REACTIVE", "HCV": "NON_REACTIVE", "VDRL": "NON_REACTIVE", "Malaria": "NEGATIVE"},
+            storage_requirement="1°C to 6°C Monitored Refrigerator",
+            storage_location_ref="Vault-Alpha / CrossMatch-Rack",
+            storage_temp_current=3.8,
+            storage_excursion_detected=False,
+            special_attributes=["RESERVED_FOR_REQ_8910"],
+            can_reserve=False,
+            reservation_id="REQ-BLD-8910",
+            last_verified_at="10 mins ago"
+        ),
+        BloodInventoryUnit(
+            unit_id="W0421-26-981245-A",
+            bank_id="BB-AFTC-01",
+            bank_name="Armed Forces Transfusion Centre",
+            abo="O",
+            rh="POSITIVE",
+            blood_group_display="O+",
+            component_type="PRBC",
+            component_name="Packed Red Blood Cells (PRBC)",
+            volume_ml=350,
+            collection_date="2026-09-12",
+            preparation_date="2026-09-13",
+            expiry_date="2026-10-24",
+            days_until_expiry=15,
+            status="QUARANTINED",
+            screening_status="TESTED_NEGATIVE",
+            screening_tests={"HIV-1/2": "NON_REACTIVE", "HBsAg": "NON_REACTIVE", "HCV": "NON_REACTIVE", "VDRL": "NON_REACTIVE", "Malaria": "NEGATIVE"},
+            storage_requirement="1°C to 6°C Monitored Refrigerator",
+            storage_location_ref="Quarantine-Cage / Unit-Q1",
+            storage_temp_current=4.0,
+            storage_excursion_detected=True,
+            special_attributes=["EXCURSION_PENDING_DISPOSITION"],
+            can_reserve=False,
+            last_verified_at="20 mins ago"
+        ),
+        BloodInventoryUnit(
+            unit_id="W0421-26-981246-A",
+            bank_id="BB-RC-02",
+            bank_name="Indian Red Cross Society",
+            abo="A",
+            rh="POSITIVE",
+            blood_group_display="A+",
+            component_type="PRBC",
+            component_name="Packed Red Blood Cells (PRBC)",
+            volume_ml=350,
+            collection_date="2026-08-20",
+            preparation_date="2026-08-21",
+            expiry_date="2026-10-01",
+            days_until_expiry=-8,
+            status="EXPIRED",
+            screening_status="TESTED_NEGATIVE",
+            screening_tests={"HIV-1/2": "NON_REACTIVE", "HBsAg": "NON_REACTIVE", "HCV": "NON_REACTIVE", "VDRL": "NON_REACTIVE", "Malaria": "NEGATIVE"},
+            storage_requirement="1°C to 6°C Monitored Refrigerator",
+            storage_location_ref="Disposal-Holding / Bin-99",
+            storage_temp_current=4.5,
+            storage_excursion_detected=False,
+            special_attributes=["AWAITING_INCINERATION_DISPOSAL"],
+            can_reserve=False,
+            last_verified_at="1 hour ago"
+        )
+    ],
+    requests=[
+        BloodRequestOrder(
+            request_id="REQ-BLD-8910",
+            timestamp="14 mins ago",
+            patient_id="PT-101",
+            patient_name_or_alias="Patient PT-101 (Hemorrhagic Shock)",
+            patient_blood_group="O-",
+            requested_abo="O",
+            requested_rh="NEGATIVE",
+            component_type="PRBC",
+            units_requested=2,
+            units_allocated=2,
+            urgency="EMERGENCY_STAT",
+            clinical_indication="Massive Hemorrhage Protocol (MHP) activated following blast trauma. Systolic BP 68 mmHg.",
+            requesting_hospital="Forward Surgical Team Alpha (FST-A)",
+            target_blood_bank_id="BB-AFTC-01",
+            target_blood_bank_name="Armed Forces Transfusion Centre",
+            status="ACCEPTED_RESERVED",
+            authorized_clinician="Maj. Dr. A. Sharma, Trauma Team Lead",
+            allocated_unit_ids=["W0421-26-981240-A", "W0421-26-981244-A"],
+            clinical_safeguard_acknowledged=True
+        ),
+        BloodRequestOrder(
+            request_id="REQ-BLD-8911",
+            timestamp="32 mins ago",
+            patient_id="PT-204",
+            patient_name_or_alias="Patient PT-204 (Severe Coagulopathy)",
+            patient_blood_group="AB+",
+            requested_abo="AB",
+            requested_rh="POSITIVE",
+            component_type="FFP",
+            units_requested=2,
+            units_allocated=2,
+            urgency="URGENT",
+            clinical_indication="Trauma-Induced Coagulopathy (TIC). INR 2.8, Fibrinogen 95 mg/dL.",
+            requesting_hospital="Forward Surgical Team Alpha (FST-A)",
+            target_blood_bank_id="BB-AFTC-01",
+            target_blood_bank_name="Armed Forces Transfusion Centre",
+            status="DISPATCHED",
+            authorized_clinician="Flight Nurse Roy, Emergency Resus",
+            allocated_unit_ids=["W0421-26-981300-A", "W0421-26-981301-A"],
+            transfer_id="TRF-BLD-204",
+            clinical_safeguard_acknowledged=True
+        ),
+        BloodRequestOrder(
+            request_id="REQ-BLD-8912",
+            timestamp="50 mins ago",
+            patient_id="PT-309",
+            patient_name_or_alias="Patient PT-309 (OR-2 Thoracic Prep)",
+            patient_blood_group="B+",
+            requested_abo="B",
+            requested_rh="POSITIVE",
+            component_type="PRBC",
+            units_requested=2,
+            units_allocated=0,
+            urgency="ROUTINE",
+            clinical_indication="Pre-operative blood standby for open thoracic wound exploration.",
+            requesting_hospital="Base Hospital 03 Complex",
+            target_blood_bank_id="BB-RC-02",
+            target_blood_bank_name="Indian Red Cross Society",
+            status="SUBMITTED",
+            authorized_clinician="Dr. Vikram Seth, Surgical Lead",
+            allocated_unit_ids=[],
+            clinical_safeguard_acknowledged=True
+        )
+    ],
+    transfers=[
+        BloodTransferManifest(
+            transfer_id="TRF-BLD-204",
+            request_id="REQ-BLD-8911",
+            source_blood_bank_id="BB-AFTC-01",
+            source_name="Armed Forces Transfusion Centre",
+            destination_facility_id="FST-ALPHA",
+            destination_name="Forward Surgical Team Alpha (FST-A)",
+            allocated_units=["W0421-26-981300-A", "W0421-26-981301-A"],
+            component_type="FFP & Cryoprecipitate",
+            transport_container_id="COLDBOX-TACTICAL-04",
+            data_logger_id="TEMP-LOGGER-982",
+            current_transit_temp_c=3.2,
+            dispatch_timestamp="25 mins ago",
+            estimated_arrival_timestamp="In 5 mins (ETA 12:45 UTC)",
+            courier_callsign="Medic-1 Rapid Transit",
+            courier_contact="VHF 142.85 MHz / Ext 104",
+            transfer_status="DISPATCHED_IN_TRANSIT",
+            chain_of_custody_events=[
+                {"time": "25m ago", "event": "Released by AFTC Blood Bank Officer Maj. V. Nair", "temp": "3.0°C"},
+                {"time": "22m ago", "event": "Secured into Tactical Insulated ColdBox #04 with dual PCM ice packs", "temp": "3.1°C"},
+                {"time": "15m ago", "event": "En-route checkpoint Sector-2 corridor cleared by Medic-1", "temp": "3.2°C"}
+            ]
+        )
+    ],
+    audit_log=[
+        BloodAuditEntry(
+            audit_id="AUD-BLD-01",
+            timestamp="14 mins ago",
+            event_type="RESERVATION_LOCKED",
+            unit_id="W0421-26-981240-A",
+            request_id="REQ-BLD-8910",
+            actor="Maj. Dr. A. Sharma (Trauma Lead)",
+            facility="FST Alpha",
+            details="Locked 2 units O- PRBC for immediate damage control resuscitation (PT-101). Cross-match sample sent to lab.",
+            digital_signature_hash="sha256:4a8b89c7d34190e2fa51c890"
+        ),
+        BloodAuditEntry(
+            audit_id="AUD-BLD-02",
+            timestamp="25 mins ago",
+            event_type="DISPATCH_AUTHORIZED",
+            unit_id="W0421-26-981300-A",
+            request_id="REQ-BLD-8911",
+            actor="Col. R. K. Mukherjee (AFTC Director)",
+            facility="AFTC Depot",
+            details="Authorized rapid dispatch of Universal AB+ FFP via Medic-1 cold box transport. Temp logger active.",
+            digital_signature_hash="sha256:77f19b22a01948cebb243e88"
+        ),
+        BloodAuditEntry(
+            audit_id="AUD-BLD-03",
+            timestamp="42 mins ago",
+            event_type="UNIT_QUARANTINED",
+            unit_id="W0421-26-981245-A",
+            actor="Sgt. K. Pillai (Quality Assurance NCO)",
+            facility="AFTC Depot",
+            details="Unit placed in quarantine after transit logger recorded transient +7.4°C spike during transfer. Pending medical officer review.",
+            digital_signature_hash="sha256:912ef34c9019b8812fa4e871"
+        )
+    ]
+)
+
 
 async def telemetry_ticker():
     while True:
@@ -1529,6 +2139,194 @@ async def handle_pharmacy_action(req: PharmacyActionRequest):
     await broadcast_ws("PHARMACY_UPDATE", pharmaceutical_network_state.model_dump())
     return pharmaceutical_network_state
 
+# --- Blood Bank & Transfusion Network Endpoints ---
+@app.get("/api/bloodbank")
+def get_blood_bank_state():
+    return blood_bank_state
+
+@app.post("/api/bloodbank/action")
+async def handle_blood_bank_action(req: BloodBankActionRequest):
+    global blood_bank_state
+    blood_bank_state.last_updated = time.time()
+
+    if req.action == "CREATE_REQUEST":
+        req_id = f"REQ-BLD-{int(time.time()) % 10000}"
+        target_bank = next((b for b in blood_bank_state.facilities if b.bank_id == req.bank_id), blood_bank_state.facilities[0])
+        new_req = BloodRequestOrder(
+            request_id=req_id,
+            timestamp="Just now",
+            patient_id=req.patient_id or "PT-101",
+            patient_name_or_alias=req.patient_name_or_alias or f"Emergency Casualty ({req.patient_id or 'PT-101'})",
+            patient_blood_group=f"{req.abo or 'O'}{'-' if req.rh == 'NEGATIVE' else '+'}",
+            requested_abo=req.abo or "O",
+            requested_rh=req.rh or "NEGATIVE",
+            component_type=req.component_type or "PRBC",
+            units_requested=req.units_requested or 1,
+            units_allocated=0,
+            urgency=req.urgency or "EMERGENCY_STAT",
+            clinical_indication=req.clinical_indication or "Emergency damage control resuscitation request.",
+            requesting_hospital=req.destination_facility or "Forward Surgical Team Alpha (FST-A)",
+            target_blood_bank_id=target_bank.bank_id,
+            target_blood_bank_name=target_bank.name,
+            status="SUBMITTED",
+            authorized_clinician=req.actor_name or "Authorized Trauma Clinician",
+            allocated_unit_ids=[],
+            clinical_safeguard_acknowledged=True
+        )
+        blood_bank_state.requests.insert(0, new_req)
+        blood_bank_state.active_requests_count = len([r for r in blood_bank_state.requests if r.status in ("SUBMITTED", "ACCEPTED_RESERVED", "DISPATCHED", "IN_TRANSIT")])
+
+        audit_entry = BloodAuditEntry(
+            audit_id=f"AUD-BLD-{int(time.time()) % 10000}",
+            timestamp="Just now",
+            event_type="REQUEST_SUBMITTED",
+            request_id=req_id,
+            actor=req.actor_name or "Authorized Trauma Clinician",
+            facility=target_bank.name,
+            details=f"Submitted emergency request {req_id} for {req.units_requested} units of {req.component_type} {req.abo}{'-' if req.rh == 'NEGATIVE' else '+'}.",
+            digital_signature_hash=f"sha256:{hashlib.sha256(req_id.encode()).hexdigest()[:24]}"
+        )
+        blood_bank_state.audit_log.insert(0, audit_entry)
+
+    elif req.action == "ACCEPT_REQUEST":
+        order = next((r for r in blood_bank_state.requests if r.request_id == req.request_id), None)
+        if order:
+            order.status = "ACCEPTED_RESERVED"
+            eligible_units = [
+                u for u in blood_bank_state.inventory 
+                if u.bank_id == order.target_blood_bank_id 
+                and u.abo == order.requested_abo 
+                and u.rh == order.requested_rh 
+                and u.component_type == order.component_type
+                and u.status == "AVAILABLE_RELEASED"
+                and u.days_until_expiry > 0
+            ]
+            allocated = eligible_units[:order.units_requested]
+            for u in allocated:
+                u.status = "RESERVED"
+                u.can_reserve = False
+                u.reservation_id = order.request_id
+            order.units_allocated = len(allocated)
+            order.allocated_unit_ids = [u.unit_id for u in allocated]
+
+            audit_entry = BloodAuditEntry(
+                audit_id=f"AUD-BLD-{int(time.time()) % 10000}",
+                timestamp="Just now",
+                event_type="RESERVATION_LOCKED",
+                request_id=order.request_id,
+                actor=req.actor_name or "Blood Bank Officer",
+                facility=order.target_blood_bank_name,
+                details=f"Blood bank accepted request {order.request_id} and locked units {order.allocated_unit_ids}.",
+                digital_signature_hash=f"sha256:{hashlib.sha256(order.request_id.encode()).hexdigest()[:24]}"
+            )
+            blood_bank_state.audit_log.insert(0, audit_entry)
+
+    elif req.action == "DISPATCH_TRANSFER":
+        order = next((r for r in blood_bank_state.requests if r.request_id == req.request_id), None)
+        if order:
+            order.status = "DISPATCHED"
+            trf_id = f"TRF-BLD-{int(time.time()) % 10000}"
+            order.transfer_id = trf_id
+            for uid in order.allocated_unit_ids:
+                u = next((unit for unit in blood_bank_state.inventory if unit.unit_id == uid), None)
+                if u:
+                    u.status = "DISPATCHED"
+
+            manifest = BloodTransferManifest(
+                transfer_id=trf_id,
+                request_id=order.request_id,
+                source_blood_bank_id=order.target_blood_bank_id,
+                source_name=order.target_blood_bank_name,
+                destination_facility_id=order.requesting_hospital,
+                destination_name=order.requesting_hospital,
+                allocated_units=order.allocated_unit_ids,
+                component_type=order.component_type,
+                transport_container_id=f"COLDBOX-TACTICAL-{int(time.time()) % 100}",
+                data_logger_id=f"LOGGER-{int(time.time()) % 1000}",
+                current_transit_temp_c=3.4,
+                dispatch_timestamp="Just now",
+                estimated_arrival_timestamp="ETA ~15 mins",
+                courier_callsign="Medic Transit Alpha",
+                courier_contact="VHF 142.85 MHz",
+                transfer_status="DISPATCHED_IN_TRANSIT",
+                chain_of_custody_events=[
+                    {"time": "Just now", "event": "Released by Blood Bank Custodian and verified sealed", "temp": "3.4°C"}
+                ]
+            )
+            blood_bank_state.transfers.insert(0, manifest)
+            blood_bank_state.in_transit_transfers_count = len([t for t in blood_bank_state.transfers if t.transfer_status == "DISPATCHED_IN_TRANSIT"])
+
+            audit_entry = BloodAuditEntry(
+                audit_id=f"AUD-BLD-{int(time.time()) % 10000}",
+                timestamp="Just now",
+                event_type="DISPATCH_AUTHORIZED",
+                request_id=order.request_id,
+                actor=req.actor_name or "Logistics Coordinator",
+                facility=order.target_blood_bank_name,
+                details=f"Dispatched manifest {trf_id} containing units {order.allocated_unit_ids} via tactical courier.",
+                digital_signature_hash=f"sha256:{hashlib.sha256(trf_id.encode()).hexdigest()[:24]}"
+            )
+            blood_bank_state.audit_log.insert(0, audit_entry)
+
+    elif req.action == "CONFIRM_RECEIPT":
+        transfer = next((t for t in blood_bank_state.transfers if t.transfer_id == req.transfer_id), None)
+        if transfer:
+            transfer.transfer_status = "DELIVERED_RECEIVED"
+            transfer.actual_arrival_timestamp = "Arrived & Verified"
+            transfer.receipt_confirmed_by = req.actor_name or "Receiving Triage Nurse"
+            transfer.receipt_notes = req.reason_or_notes or "Temperature verified 3.4°C upon arrival. Crossmatch lock maintained."
+
+            for uid in transfer.allocated_units:
+                u = next((unit for unit in blood_bank_state.inventory if unit.unit_id == uid), None)
+                if u:
+                    u.status = "RECEIVED"
+
+            order = next((r for r in blood_bank_state.requests if r.request_id == transfer.request_id), None)
+            if order:
+                order.status = "RECEIVED"
+
+            blood_bank_state.in_transit_transfers_count = len([t for t in blood_bank_state.transfers if t.transfer_status == "DISPATCHED_IN_TRANSIT"])
+
+            audit_entry = BloodAuditEntry(
+                audit_id=f"AUD-BLD-{int(time.time()) % 10000}",
+                timestamp="Just now",
+                event_type="RECEIPT_ACKNOWLEDGED",
+                request_id=transfer.request_id,
+                actor=req.actor_name or "Receiving Clinical Officer",
+                facility=transfer.destination_name,
+                details=f"Confirmed delivery of units {transfer.allocated_units}. Integrity intact.",
+                digital_signature_hash=f"sha256:{hashlib.sha256(transfer.transfer_id.encode()).hexdigest()[:24]}"
+            )
+            blood_bank_state.audit_log.insert(0, audit_entry)
+
+    elif req.action == "QUARANTINE_UNIT":
+        unit = next((u for u in blood_bank_state.inventory if u.unit_id == req.unit_id), None)
+        if unit:
+            unit.status = "QUARANTINED"
+            unit.can_reserve = False
+            unit.storage_excursion_detected = True
+
+            audit_entry = BloodAuditEntry(
+                audit_id=f"AUD-BLD-{int(time.time()) % 10000}",
+                timestamp="Just now",
+                event_type="UNIT_QUARANTINED",
+                unit_id=unit.unit_id,
+                actor=req.actor_name or "Transfusion Safety Officer",
+                facility=unit.bank_name,
+                details=f"Unit {unit.unit_id} quarantined. Reason: {req.reason_or_notes or 'Temperature excursion review'}",
+                digital_signature_hash=f"sha256:{hashlib.sha256(unit.unit_id.encode()).hexdigest()[:24]}"
+            )
+            blood_bank_state.audit_log.insert(0, audit_entry)
+
+    # Recompute KPI summaries
+    blood_bank_state.total_available_released_units = len([u for u in blood_bank_state.inventory if u.status == "AVAILABLE_RELEASED" and u.days_until_expiry > 0])
+    blood_bank_state.total_o_negative_emergency_units = len([u for u in blood_bank_state.inventory if u.status == "AVAILABLE_RELEASED" and u.blood_group_display == "O-" and u.days_until_expiry > 0])
+    blood_bank_state.units_near_expiry_count = len([u for u in blood_bank_state.inventory if 0 < u.days_until_expiry <= 3])
+    blood_bank_state.units_quarantined_count = len([u for u in blood_bank_state.inventory if u.status in ("QUARANTINED", "STORAGE_EXCURSION_REVIEW")])
+
+    await broadcast_ws("BLOODBANK_UPDATE", blood_bank_state.model_dump())
+    return blood_bank_state
+
 # --- WebSocket Channel ---
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -1542,7 +2340,8 @@ async def websocket_endpoint(websocket: WebSocket):
                 "patients_count": len(merge_engine.get_all_patients()),
                 "capacity": hospital_capacity_state.model_dump(),
                 "dispatch": ambulance_dispatch_state.model_dump(),
-                "pharmacy": pharmaceutical_network_state.model_dump()
+                "pharmacy": pharmaceutical_network_state.model_dump(),
+                "bloodbank": blood_bank_state.model_dump()
             }
         }))
         while True:

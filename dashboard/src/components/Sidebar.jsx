@@ -2,7 +2,7 @@ import React from 'react';
 import { 
   LayoutGrid, Users, Activity, MapPin, 
   Zap, Eye, GitMerge, FileText, Settings, 
-  ChevronRight, Radio, ShieldCheck, Building2, Pill
+  ChevronRight, Radio, ShieldCheck, Building2, Pill, Droplet
 } from 'lucide-react';
 
 export default function Sidebar({ activeTab, onSelectTab }) {
@@ -13,6 +13,7 @@ export default function Sidebar({ activeTab, onSelectTab }) {
         { id: 'overview', label: 'Overview', icon: LayoutGrid },
         { id: 'capacity', label: 'Hospital Capacity', icon: Building2, badge: 'SURGE' },
         { id: 'pharma', label: 'Pharmaceutical Network', icon: Pill, badge: 'RX' },
+        { id: 'bloodbank', label: 'Blood Bank Network', icon: Droplet, badge: 'HEMO' },
         { id: 'patients', label: 'Patients', icon: Users },
         { id: 'triage', label: 'Triage Queue', icon: Activity, badge: 'AUTO' },
         { id: 'map', label: 'GPS Radar', icon: MapPin },
