@@ -4,7 +4,7 @@ import {
   RefreshCw, Cpu, Activity, Clock 
 } from 'lucide-react';
 
-export default function NetworkBar({ networkStatus, onSimulateNetwork, isOnline }) {
+export default function NetworkBar({ networkStatus, onSimulateNetwork, isOnline, mqttStatus }) {
   const [loadingAction, setLoadingAction] = useState(false);
 
   const state = networkStatus?.active_state || 'PORT_A_ACTIVE';
@@ -81,6 +81,24 @@ export default function NetworkBar({ networkStatus, onSimulateNetwork, isOnline 
             className="w-full bg-white text-xs text-slate-700 placeholder-slate-400 rounded-full pl-9 pr-4 py-2.5 border border-slate-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.03)] focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
           />
         </div>
+
+        {/* MQTT Status Pill */}
+        {mqttStatus && (
+          <div className={`status-pill flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold shadow-sm transition-all ${
+            mqttStatus === 'Connected' 
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+              : mqttStatus === 'Connecting...' || mqttStatus === 'Reconnecting...'
+              ? 'bg-amber-50 text-amber-700 border-amber-200' 
+              : 'bg-rose-50 text-rose-700 border-rose-200'
+          }`}>
+            <span className={`w-2 h-2 rounded-full ${
+              mqttStatus === 'Connected' ? 'bg-emerald-500 animate-ping' :
+              mqttStatus === 'Connecting...' ? 'bg-amber-500 animate-pulse' : 'bg-rose-500'
+            }`} style={{ animationDuration: '2s' }} />
+            <Radio className="w-3.5 h-3.5 text-current" />
+            <span>MQTT: {mqttStatus}</span>
+          </div>
+        )}
 
         {/* Network State Pill Badge */}
         <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold shadow-sm ${config.badgeClass}`}>
