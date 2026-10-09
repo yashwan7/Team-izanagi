@@ -11,13 +11,14 @@ export default function PatientDetailModal({
   onSimulateGaze, 
   onReevaluateTriage 
 }) {
+  const [triggeringGaze, setTriggeringGaze] = useState(false);
+  const [tamperCheckbox, setTamperCheckbox] = useState(false);
+  const [gazeCmd, setGazeCmd] = useState('CALL_NURSE');
+
   if (!patient) return null;
 
   const p = patient.capsule;
   const evaluation = patient.evaluation;
-  const [triggeringGaze, setTriggeringGaze] = useState(false);
-  const [tamperCheckbox, setTamperCheckbox] = useState(false);
-  const [gazeCmd, setGazeCmd] = useState('CALL_NURSE');
 
   const isAcute = p.time_to_help <= 0.5;
   const isPFC = p.time_to_help >= 24.0;

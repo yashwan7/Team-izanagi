@@ -13,6 +13,7 @@ import SettingsView from './components/SettingsView';
 import HospitalCapacity from './components/HospitalCapacity';
 import FailoverTinyMLView from './components/FailoverTinyMLView';
 import EOGSecurityView from './components/EOGSecurityView';
+import CDCPipelineView from './components/CDCPipelineView';
 import { 
   HeartPulse, ShieldAlert, RefreshCw, 
   Sparkles, Stethoscope, Activity, FileText, Zap, Eye 
@@ -29,7 +30,7 @@ export default function App() {
   const [incidentTimeline, setIncidentTimeline] = useState([]);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [wsConnected, setWsConnected] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'capacity' | 'patients' | 'triage' | 'map' | 'timeline' | 'reports' | 'settings'
+  const [activeTab, setActiveTab] = useState('overview');
   const [capacityData, setCapacityData] = useState(null);
   const [dispatchData, setDispatchData] = useState(null);
   const wsRef = useRef(null);
@@ -360,6 +361,10 @@ export default function App() {
 
         {activeTab === 'eog' && (
           <EOGSecurityView />
+        )}
+
+        {activeTab === 'cdc' && (
+          <CDCPipelineView />
         )}
 
         {activeTab === 'timeline' && (

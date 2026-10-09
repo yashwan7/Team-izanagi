@@ -7,10 +7,13 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
+    "test:cdc": "node scripts/cdcTraceVerification.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
     "clsx": "^2.1.1",
+    "hyparquet": "^1.31.3",
+    "hyparquet-writer": "^0.16.11",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.53.0",
     "mqtt": "^5.10.4",
