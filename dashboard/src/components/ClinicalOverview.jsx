@@ -360,10 +360,27 @@ export default function ClinicalOverview({
             </div>
           </div>
 
-          <div className="text-[11px] text-slate-400 pt-3 border-t border-slate-100 flex items-center justify-between">
-            <span>Hospital Telemetry Protocol &bull; Dual-Port Active</span>
+          <div className="text-[11px] text-slate-400 pt-3 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <span>MQTT Telemetry:</span>
+              <span className="font-mono text-slate-700 font-semibold">
+                Force: {sensorData?.force_n !== undefined ? Number(sensorData.force_n).toFixed(1) : '0.0'}N
+              </span>
+              <span>&bull;</span>
+              <span className="font-mono text-slate-700 font-semibold">
+                Gyro: {sensorData?.gyro_z !== undefined ? (sensorData.gyro_z >= 0 ? '+' : '') + Number(sensorData.gyro_z).toFixed(2) : '+0.00'} rad/s
+              </span>
+              <span>&bull;</span>
+              <span className="font-mono text-slate-700 font-semibold">
+                RFID: {sensorData?.rfid || 'NONE'}
+              </span>
+              <span>&bull;</span>
+              <span className="font-mono text-slate-700 font-semibold">
+                GPS: {sensorData?.lat ? Number(sensorData.lat).toFixed(4) : '12.8718'}°, {sensorData?.lng ? Number(sensorData.lng).toFixed(4) : '77.5769'}°
+              </span>
+            </div>
             <span className="text-emerald-600 font-semibold flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5" /> Verified
+              <ShieldCheck className="w-3.5 h-3.5" /> Synchronized
             </span>
           </div>
 

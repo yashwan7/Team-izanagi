@@ -2,18 +2,19 @@ import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import { MapPin, Navigation, Radio, Layers } from 'lucide-react';
 
-export default function TriageMap({ patients = [], selectedPatientId, onSelectPatient }) {
+export default function TriageMap({ patients = [], selectedPatientId, onSelectPatient, sensorData }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const tileLayerRef = useRef(null);
   const markersRef = useRef({});
+  const mqttMarkerRef = useRef(null);
 
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyC6AaQ9mU-hfC7aLE-G1mXoiBixf-UG1-s';
   const [mapType, setMapType] = useState('google-hybrid'); // 'google-hybrid' | 'google-roads' | 'tactical-dark'
 
-  // Focal Tracking Coordinates
-  const FOCAL_LAT = 12.871773;
-  const FOCAL_LNG = 77.576856;
+  // Focal Tracking Coordinates (defaults updated dynamically via MQTT lat/lng)
+  const FOCAL_LAT = (sensorData?.lat && typeof sensorData.lat === 'number') ? sensorData.lat : 12.871773;
+  const FOCAL_LNG = (sensorData?.lng && typeof sensorData.lng === 'number') ? sensorData.lng : 77.576856;
 
   // Initialize Map
   useEffect(() => {
@@ -214,6 +215,47 @@ export default function TriageMap({ patients = [], selectedPatientId, onSelectPa
 
   }, [patients, selectedPatientId, onSelectPatient, FOCAL_LAT, FOCAL_LNG]);
 
+  // Zero UI freeze real-time update of MQTT sensor telemetry marker
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map || !sensorData?.lat || !sensorData?.lng) return;
+
+    const lat = Number(sensorData.lat);
+    const lng = Number(sensorData.lng);
+    if (isNaN(lat) || isNaN(lng)) return;
+
+    if (!mqttMarkerRef.current) {
+      const liveIconHtml = `
+        <div style="position: relative; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+          <div style="position: absolute; width: 36px; height: 36px; border-radius: 50%; background: #06b6d4; opacity: 0.4; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
+          <div style="position: absolute; width: 26px; height: 26px; border-radius: 50%; background: #0284c7; border: 2px solid #ffffff; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 12px #06b6d4;">
+            <span style="font-size: 11px;">📍</span>
+          </div>
+        </div>
+      `;
+      const liveIcon = L.divIcon({
+        html: liveIconHtml,
+        className: 'mqtt-live-tracking-pin',
+        iconSize: [38, 38],
+        iconAnchor: [19, 19]
+      });
+
+      const marker = L.marker([lat, lng], { icon: liveIcon }).addTo(map);
+      marker.bindPopup(`
+        <div style="font-family: -apple-system, sans-serif; font-size: 12px; color: #fff;">
+          <div style="font-weight: 800; color: #38bdf8; margin-bottom: 2px;">⚡ LIVE MQTT SENSOR NODE</div>
+          <div style="font-family: monospace; font-size: 11px; color: #94a3b8; margin-bottom: 4px;">
+            GPS: ${lat.toFixed(6)}, ${lng.toFixed(6)}
+          </div>
+          <div style="font-size: 10px; color: #10b981;">Active Route Matrix Online</div>
+        </div>
+      `);
+      mqttMarkerRef.current = marker;
+    } else {
+      mqttMarkerRef.current.setLatLng([lat, lng]);
+    }
+  }, [sensorData?.lat, sensorData?.lng]);
+
   const handleRecenter = () => {
     if (mapInstanceRef.current) {
       mapInstanceRef.current.flyTo([FOCAL_LAT, FOCAL_LNG], 16, { duration: 0.7 });
@@ -227,9 +269,13 @@ export default function TriageMap({ patients = [], selectedPatientId, onSelectPa
         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
         <span className="text-slate-200 font-semibold tracking-wide">SURVEILLANCE RADAR ACTIVE</span>
         <span className="text-slate-600">|</span>
-        <span className="text-sky-400 font-mono font-semibold">12.8718° N, 77.5769° E</span>
+        <span id="map-gps-coords" className="text-sky-400 font-mono font-semibold">
+          {FOCAL_LAT.toFixed(4)}° N, {FOCAL_LNG.toFixed(4)}° E
+        </span>
         <span className="text-slate-600">|</span>
-        <span className="text-slate-400 font-mono">{patients.length} Nodes in Perimeter</span>
+        <span className="text-emerald-400 font-mono text-[11px] font-bold">ROUTE MATRIX SYNCED</span>
+        <span className="text-slate-600">|</span>
+        <span className="text-slate-400 font-mono">{patients.length} Nodes</span>
       </div>
 
       {/* Layer Switcher & Recenter */}

@@ -18,8 +18,16 @@ import {
   Sparkles, Stethoscope, Activity, FileText, Zap, Eye 
 } from 'lucide-react';
 
+import mqtt from 'mqtt';
 import { connectMQTT } from './mqttService';
-import SensorWidgetsGrid, { PulseCard, ForceGauge, RFIDBadge } from './components/SensorWidgets';
+import SensorWidgetsGrid, { 
+  PulseCard, 
+  ForceGauge, 
+  BedForceCard, 
+  PatientMotionIndicator, 
+  RFIDBadge, 
+  ActiveRouteMatrixCard 
+} from './components/SensorWidgets';
 
 const API_BASE = '/api';
 
@@ -36,21 +44,33 @@ export default function App() {
   const [capacityData, setCapacityData] = useState(null);
   const wsRef = useRef(null);
 
-  // MQTT Real-time Sensor State
+  // MQTT Real-time Sensor State with all 5 telemetry bindings
   const [sensorData, setSensorData] = useState({
-    rfid: 'NONE',
     pulse_bpm: 0,
     force_n: 0,
-    pressure_kpa: 0,
-    temp_c: 0,
+    gyro_z: 0.0,
+    mpu_ok: true,
+    rfid: 'NONE',
+    lat: 12.871773,
+    lng: 77.576856,
+    pressure_kpa: 101.3,
+    temp_c: 36.8,
   });
   const [connectionStatus, setConnectionStatus] = useState('Connecting...');
 
-  // MQTT Connection Lifecycle
+  // MQTT Connection Lifecycle - Auto-reconnecting with RAF zero-freeze updates
   useEffect(() => {
     const client = connectMQTT(
       (newData) => {
         setSensorData(prev => ({ ...prev, ...newData }));
+
+        // If an RFID tag is detected, automatically match and select patient
+        if (newData.rfid && newData.rfid !== 'NONE' && newData.rfid !== 'NO_TAG') {
+          const match = patients.find(p => p.capsule.patient_id === newData.rfid);
+          if (match) {
+            setSelectedPatientId(match.capsule.patient_id);
+          }
+        }
       },
       (status) => setConnectionStatus(status)
     );
@@ -60,7 +80,7 @@ export default function App() {
         client.end();
       }
     };
-  }, []);
+  }, [patients]);
 
   const fetchAllData = async () => {
     try {
@@ -258,7 +278,8 @@ export default function App() {
         {/* Real-Time MQTT Sensors Telemetry Widget Grid */}
         <SensorWidgetsGrid 
           sensorData={sensorData} 
-          connectionStatus={connectionStatus} 
+          connectionStatus={connectionStatus}
+          networkStatus={networkStatus}
         />
 
         {/* Demo Quick Simulator Pills */}
@@ -356,6 +377,7 @@ export default function App() {
               patients={patients}
               selectedPatientId={selectedPatientId}
               onSelectPatient={handleSelectPatient}
+              sensorData={sensorData}
             />
           </div>
         )}

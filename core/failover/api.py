@@ -1019,9 +1019,9 @@ def index_dashboard():
         </div>
 
         <!-- Real-Time MQTT Live Sensors Telemetry Row -->
-        <div class="kpi-row" style="grid-template-columns: repeat(4, 1fr); margin-top: 4px;">
-          <!-- PulseCard -->
-          <div class="kpi-card">
+        <div class="kpi-row" style="grid-template-columns: repeat(5, 1fr); margin-top: 4px;">
+          <!-- 1. Pulse Rate (BPM) card -->
+          <div class="kpi-card" id="pulse_card">
             <div>
               <div class="kpi-title">Pulse Rate (BPM)</div>
               <div class="kpi-value" id="mqtt_pulse_val" style="color: #ef4444;">--</div>
@@ -1030,11 +1030,13 @@ def index_dashboard():
             <div class="kpi-icon-circle" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">💓</div>
           </div>
 
-          <!-- ForceGauge -->
-          <div class="kpi-card">
+          <!-- 2. Bed Force / Patient Weight readout -->
+          <div class="kpi-card" id="force_card">
             <div>
-              <div class="kpi-title">Force Strain (N)</div>
-              <div class="kpi-value" id="mqtt_force_val" style="color: #3b82f6;">0.0</div>
+              <div class="kpi-title">Bed Force / Weight</div>
+              <div class="kpi-value" style="color: #3b82f6; font-size: 20px;">
+                <span id="mqtt_force_val">0.0</span> N &bull; <span id="mqtt_weight_val" style="font-size: 14px; color: var(--text-muted);">~0.0 kg</span>
+              </div>
               <div class="bar-track" style="height: 6px; margin-top: 8px;">
                 <div class="bar-fill fill-blue" id="mqtt_force_bar" style="width: 0%;"></div>
               </div>
@@ -1042,17 +1044,30 @@ def index_dashboard():
             <div class="kpi-icon-circle blue">⚖️</div>
           </div>
 
-          <!-- RFIDBadge -->
-          <div class="kpi-card">
+          <!-- 3. Patient Motion / Gyroscope indicator -->
+          <div class="kpi-card" id="motion_card">
+            <div>
+              <div class="kpi-title">Patient Motion / Gyro</div>
+              <div class="kpi-value" id="mqtt_gyro_val" style="color: #0d9488; font-size: 20px;">+0.00 rad/s</div>
+              <div class="kpi-trend" id="mqtt_motion_trend">
+                <span id="mqtt_mpu_status" style="font-weight: 700; color: #10b981;">MPU OK</span> &bull; 
+                <span id="mqtt_motion_status">RESTING</span>
+              </div>
+            </div>
+            <div class="kpi-icon-circle" style="background: rgba(13, 148, 136, 0.15); color: #0d9488;">🧭</div>
+          </div>
+
+          <!-- 4. RFID Patient Tag card (NONE vs Tag ID) -->
+          <div class="kpi-card" id="rfid_card">
             <div>
               <div class="kpi-title">RFID Patient Tag</div>
-              <div class="kpi-value" id="mqtt_rfid_val" style="font-size: 18px; color: #8b5cf6;">NONE</div>
-              <div class="kpi-trend purple"><span>🏷️</span> Scanner Ready</div>
+              <div class="kpi-value" id="mqtt_rfid_val" style="font-size: 18px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">NONE</div>
+              <div class="kpi-trend purple" id="mqtt_rfid_trend"><span>🏷️</span> Scanner Ready</div>
             </div>
             <div class="kpi-icon-circle purple">💳</div>
           </div>
 
-          <!-- Temp & Pressure -->
+          <!-- 5. Bio-Environment (Temp & Pressure) -->
           <div class="kpi-card">
             <div>
               <div class="kpi-title">Bio-Environment</div>
@@ -1951,7 +1966,7 @@ def index_dashboard():
     // MQTT Connection to HiveMQ WebSocket Broker
     function connectMQTT() {
       const BROKER_URL = 'wss://broker.hivemq.com:8084/mqtt';
-      const TOPIC = 'antigravity/sensors/data';
+      const TOPIC = 'izanagi/sensors/data';
       const statusPill = document.getElementById('mqttStatusPill');
       const statusText = document.getElementById('mqttStatusText');
 
@@ -1960,13 +1975,99 @@ def index_dashboard():
         return;
       }
 
-      console.log('[MQTT] Connecting to ' + BROKER_URL + '...');
+      console.log('[MQTT] Connecting to ' + BROKER_URL + ' on topic ' + TOPIC + '...');
       const client = mqtt.connect(BROKER_URL, {
-        clientId: 'AntiGravity_UI_' + Math.random().toString(16).substring(2, 8),
+        clientId: 'Izanagi_API_' + Math.random().toString(16).substring(2, 8),
         clean: true,
-        connectTimeout: 4000,
+        connectTimeout: 5000,
         reconnectPeriod: 2000
       });
+
+      let pendingMqtt = null;
+      let mqttRaf = null;
+
+      function flushMqttUi() {
+        mqttRaf = null;
+        if (!pendingMqtt) return;
+        const data = pendingMqtt;
+        pendingMqtt = null;
+
+        // 1. pulse_bpm -> Updates Pulse Rate (BPM) card
+        if (data.pulse_bpm !== undefined) {
+          const el = document.getElementById('mqtt_pulse_val');
+          if (el) el.innerText = data.pulse_bpm > 0 ? data.pulse_bpm : '--';
+        }
+
+        // 2. force_n -> Updates Bed Force / Patient Weight readout
+        if (data.force_n !== undefined) {
+          const force = typeof data.force_n === 'number' ? data.force_n : parseFloat(data.force_n) || 0;
+          const elForce = document.getElementById('mqtt_force_val');
+          if (elForce) elForce.innerText = force.toFixed(1);
+          const elWeight = document.getElementById('mqtt_weight_val');
+          if (elWeight) elWeight.innerText = force >= 2.0 ? `~${(force * 1.8 + 25.0).toFixed(1)} kg` : '--';
+          const bar = document.getElementById('mqtt_force_bar');
+          if (bar) bar.style.width = Math.min(100, (force / 50.0) * 100) + '%';
+        }
+
+        // 3. gyro_z & mpu_ok -> Updates Patient Motion / Gyroscope indicator
+        if (data.gyro_z !== undefined || data.mpu_ok !== undefined) {
+          if (data.gyro_z !== undefined) {
+            const z = typeof data.gyro_z === 'number' ? data.gyro_z : parseFloat(data.gyro_z) || 0;
+            const elGyro = document.getElementById('mqtt_gyro_val');
+            if (elGyro) elGyro.innerText = (z >= 0 ? '+' : '') + z.toFixed(2) + ' rad/s';
+
+            const elMotion = document.getElementById('mqtt_motion_status');
+            if (elMotion) {
+              const absZ = Math.abs(z);
+              elMotion.innerText = absZ >= 0.8 ? 'AGITATED' : absZ >= 0.15 ? 'IN-BED MOTION' : 'RESTING';
+              elMotion.style.color = absZ >= 0.8 ? '#ef4444' : absZ >= 0.15 ? '#f59e0b' : '#10b981';
+            }
+          }
+
+          if (data.mpu_ok !== undefined) {
+            const ok = data.mpu_ok === true || data.mpu_ok === 1 || data.mpu_ok === 'true';
+            const elMpu = document.getElementById('mqtt_mpu_status');
+            if (elMpu) {
+              elMpu.innerText = ok ? 'MPU OK' : 'MPU FAULT';
+              elMpu.style.color = ok ? '#10b981' : '#ef4444';
+            }
+          }
+        }
+
+        // 4. rfid -> Updates RFID Patient Tag card (NONE vs Tag ID)
+        if (data.rfid !== undefined) {
+          const el = document.getElementById('mqtt_rfid_val');
+          const isNone = !data.rfid || data.rfid === 'NONE' || data.rfid === 'NO_TAG';
+          if (el) {
+            el.innerText = isNone ? 'NONE' : data.rfid;
+            el.style.color = isNone ? 'var(--text-muted)' : '#a855f7';
+          }
+          const tagTrend = document.getElementById('mqtt_rfid_trend');
+          if (tagTrend) {
+            tagTrend.innerHTML = isNone ? '<span>🏷️</span> Scanner Ready' : '<span style="color:#10b981;">✓</span> Tag Identified';
+          }
+        }
+
+        // 5. lat & lng -> Updates GPS Location / Active Route Matrix
+        if (data.lat !== undefined && data.lng !== undefined) {
+          const lat = typeof data.lat === 'number' ? data.lat : parseFloat(data.lat);
+          const lng = typeof data.lng === 'number' ? data.lng : parseFloat(data.lng);
+          const elCoords = document.getElementById('mqtt_gps_coords');
+          if (elCoords) elCoords.innerText = `${lat.toFixed(4)}° N, ${lng.toFixed(4)}° E`;
+          const elRouteGps = document.getElementById('mqtt_route_gps');
+          if (elRouteGps) elRouteGps.innerText = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+        }
+
+        // Environmental readouts
+        if (data.temp_c !== undefined) {
+          const el = document.getElementById('mqtt_temp_val');
+          if (el) el.innerText = data.temp_c + ' °C';
+        }
+        if (data.pressure_kpa !== undefined) {
+          const el = document.getElementById('mqtt_press_val');
+          if (el) el.innerText = data.pressure_kpa + ' kPa';
+        }
+      }
 
       client.on('connect', () => {
         console.log('[MQTT] Connected to HiveMQ broker!');
@@ -1984,31 +2085,11 @@ def index_dashboard():
       client.on('message', (topic, message) => {
         try {
           const data = JSON.parse(message.toString());
-          // 1. Update Pulse Card
-          if (data.pulse_bpm !== undefined) {
-            const el = document.getElementById('mqtt_pulse_val');
-            if (el) el.innerText = data.pulse_bpm > 0 ? data.pulse_bpm : '--';
-          }
-          // 2. Update Force Gauge
-          if (data.force_n !== undefined) {
-            const el = document.getElementById('mqtt_force_val');
-            if (el) el.innerText = typeof data.force_n === 'number' ? data.force_n.toFixed(1) : data.force_n;
-            const bar = document.getElementById('mqtt_force_bar');
-            if (bar) bar.style.width = Math.min(100, (data.force_n / 50.0) * 100) + '%';
-          }
-          // 3. Update RFID Badge
-          if (data.rfid !== undefined) {
-            const el = document.getElementById('mqtt_rfid_val');
-            if (el) el.innerText = data.rfid || 'NONE';
-          }
-          // 4. Update Temp & Pressure
-          if (data.temp_c !== undefined) {
-            const el = document.getElementById('mqtt_temp_val');
-            if (el) el.innerText = data.temp_c + ' °C';
-          }
-          if (data.pressure_kpa !== undefined) {
-            const el = document.getElementById('mqtt_press_val');
-            if (el) el.innerText = data.pressure_kpa + ' kPa';
+          pendingMqtt = pendingMqtt ? { ...pendingMqtt, ...data } : data;
+          if (!mqttRaf && window.requestAnimationFrame) {
+            mqttRaf = window.requestAnimationFrame(flushMqttUi);
+          } else if (!mqttRaf) {
+            flushMqttUi();
           }
         } catch(e) {}
       });
@@ -2019,6 +2100,14 @@ def index_dashboard():
           statusPill.style.background = 'var(--amber-light)';
           statusPill.style.color = 'var(--amber)';
         }
+      });
+
+      client.on('close', () => {
+        if (statusText) statusText.innerText = 'MQTT: Disconnected';
+      });
+
+      client.on('offline', () => {
+        if (statusText) statusText.innerText = 'MQTT: Offline';
       });
 
       client.on('error', (err) => {
