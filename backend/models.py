@@ -119,3 +119,4 @@ class CapacityUpdateRequest(BaseModel):
     resource_id: Optional[str] = None
     delta: Optional[float] = None
     target_status: Optional[str] = None
+    rationing_mode: Optional[bool] = None

@@ -1,6 +1,7 @@
 import os
 import json
 import asyncio
+from contextlib import asynccontextmanager
 from typing import List, Dict, Any, Optional
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -22,10 +23,18 @@ from .network_engine import network_engine
 from .mock_generator import seed_initial_mock_data
 from .security import sign_capsule, verify_capsule
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    seed_initial_mock_data()
+    ticker_task = asyncio.create_task(telemetry_ticker())
+    yield
+    ticker_task.cancel()
+
 app = FastAPI(
     title="Kshitij Offline Sync & Merge Service",
-    description="Python service receiving incoming real-time and queued offline Case Capsules via WebSockets/REST with deduplication, conflict resolution, and Ollama incident timeline synthesis.",
-    version="1.1.0"
+    description="Python service receiving incoming real-time and queued offline Case Capsules via WebSockets/REST with deduplication, conflict resolution, and Nirantara clinical AI synthesis.",
+    version="1.1.0",
+    lifespan=lifespan
 )
 
 app.add_middleware(
@@ -212,11 +221,6 @@ hospital_capacity_state = HospitalCapacityData(
     ]
 )
 
-@app.on_event("startup")
-async def startup_event():
-    seed_initial_mock_data()
-    asyncio.create_task(telemetry_ticker())
-
 async def telemetry_ticker():
     while True:
         try:
@@ -386,7 +390,10 @@ async def update_hospital_capacity(req: CapacityUpdateRequest):
     hospital_capacity_state.last_updated = time.time()
     
     if req.action == "TOGGLE_RATIONING":
-        hospital_capacity_state.rationing_mode = not hospital_capacity_state.rationing_mode
+        if req.rationing_mode is not None:
+            hospital_capacity_state.rationing_mode = req.rationing_mode
+        else:
+            hospital_capacity_state.rationing_mode = not hospital_capacity_state.rationing_mode
         multiplier = 0.65 if hospital_capacity_state.rationing_mode else 1.538
         for res in hospital_capacity_state.critical_resources:
             res.burn_rate_per_hour = round(res.burn_rate_per_hour * multiplier, 2)
