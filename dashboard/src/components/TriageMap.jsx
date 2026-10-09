@@ -1,11 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
-import L from 'leaflet';
+import React, { useEffect, useRef, useState } from "react";
+import L from "leaflet";
 import { 
   MapPin, Navigation, Radio, Layers, Truck, Building2, 
   Clock, AlertTriangle, CheckCircle2, Compass, ShieldAlert, 
   ArrowRight, Route, RefreshCw, Wifi, WifiOff, Copy, Check, 
   Activity, ExternalLink, ChevronRight, Fuel, UserCheck, Flame
-} from 'lucide-react';
+} from "lucide-react";
 
 export default function TriageMap({ 
   patients = [], 
@@ -22,15 +22,14 @@ export default function TriageMap({
   const polylineRef = useRef({});
   const circleRef = useRef({});
 
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyC6AaQ9mU-hfC7aLE-G1mXoiBixf-UG1-s';
-  const [mapType, setMapType] = useState('google-hybrid'); // 'google-hybrid' | 'google-roads' | 'tactical-dark'
-  const [activeViewMode, setActiveViewMode] = useState('split'); // 'split' | 'map-only' | 'fleet-deck'
-  const [selectedAmbulanceId, setSelectedAmbulanceId] = useState('MEDEVAC-01');
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyC6AaQ9mU-hfC7aLE-G1mXoiBixf-UG1-s";
+  const [mapType, setMapType] = useState("google-hybrid");
+  const [activeViewMode, setActiveViewMode] = useState("split");
+  const [selectedAmbulanceId, setSelectedAmbulanceId] = useState("MEDEVAC-01");
   const [copiedScript, setCopiedScript] = useState(false);
-  const [manualGridInput, setManualGridInput] = useState('43R EK 284 195');
+  const [manualGridInput, setManualGridInput] = useState("43R EK 284 195");
   const [actionLoading, setActionLoading] = useState(false);
 
-  // Fallback state if dispatchData not yet loaded
   const data = dispatchData || {
     system_status: "OPERATIONAL",
     gps_satellite_lock: "LOCK_OPTIMAL",
@@ -211,10 +210,8 @@ export default function TriageMap({
     ]
   };
 
-  // Initialize Map
   useEffect(() => {
     if (!mapContainerRef.current) return;
-
     if (!mapInstanceRef.current) {
       const map = L.map(mapContainerRef.current, {
         center: [28.6189, 77.2150],
@@ -222,12 +219,10 @@ export default function TriageMap({
         zoomControl: true,
         attributionControl: false
       });
-
       mapInstanceRef.current = map;
     }
   }, []);
 
-  // Update Tile Layer
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map) return;
@@ -236,60 +231,55 @@ export default function TriageMap({
       tileLayerRef.current.remove();
     }
 
-    let tileUrl = '';
+    let tileUrl = "";
     let options = {};
 
-    if (mapType === 'google-hybrid') {
-      tileUrl = `https://mt{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key=${apiKey}`;
-      options = { maxZoom: 20, subdomains: ['0', '1', '2', '3'] };
-    } else if (mapType === 'google-roads') {
-      tileUrl = `https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${apiKey}`;
-      options = { maxZoom: 20, subdomains: ['0', '1', '2', '3'] };
+    if (mapType === "google-hybrid") {
+      tileUrl = "https://mt{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key=" + apiKey;
+      options = { maxZoom: 20, subdomains: ["0", "1", "2", "3"] };
+    } else if (mapType === "google-roads") {
+      tileUrl = "https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=" + apiKey;
+      options = { maxZoom: 20, subdomains: ["0", "1", "2", "3"] };
     } else {
-      tileUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-      options = { maxZoom: 19, subdomains: 'abcd' };
+      tileUrl = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
+      options = { maxZoom: 19, subdomains: "abcd" };
     }
 
     tileLayerRef.current = L.tileLayer(tileUrl, options).addTo(map);
   }, [mapType, apiKey]);
 
-  // Update Markers, Polylines, Dead-Reckoning Circles
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map) return;
 
-    // Clean old markers
     Object.values(markersRef.current).forEach(m => m.remove());
     markersRef.current = {};
 
-    // Clean old polylines
     Object.values(polylineRef.current).forEach(p => p.remove());
     polylineRef.current = {};
 
-    // Clean old circles
     Object.values(circleRef.current).forEach(c => c.remove());
     circleRef.current = {};
 
-    // 1. Render Patient Markers
     patients.forEach(item => {
       const p = item.capsule;
       const lat = p.gps?.lat || 28.6189;
       const lng = p.gps?.lng || 77.2150;
-      const badge = item.triage_badge || 'YELLOW';
+      const badge = item.triage_badge || "YELLOW";
       const isSelected = p.patient_id === selectedPatientId;
 
       const colorMap = {
-        RED: '#ef4444',
-        YELLOW: '#f59e0b',
-        GREEN: '#10b981',
-        BLACK: '#6b7280'
+        RED: "#ef4444",
+        YELLOW: "#f59e0b",
+        GREEN: "#10b981",
+        BLACK: "#6b7280"
       };
-      const pinColor = colorMap[badge] || '#f59e0b';
+      const pinColor = colorMap[badge] || "#f59e0b";
 
       const iconHtml = `
         <div style="position: relative; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-          <div style="position: absolute; width: ${isSelected ? '38px' : '28px'}; height: ${isSelected ? '38px' : '28px'}; border-radius: 50%; background: ${pinColor}; opacity: ${isSelected ? '0.5' : '0.25'}; animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
-          <div style="position: absolute; width: ${isSelected ? '26px' : '22px'}; height: ${isSelected ? '26px' : '22px'}; border-radius: 50%; background: #0b1328; border: 2px solid ${pinColor}; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 ${isSelected ? '14px' : '8px'} ${pinColor};">
+          <div style="position: absolute; width: ${isSelected ? "38px" : "28px"}; height: ${isSelected ? "38px" : "28px"}; border-radius: 50%; background: ${pinColor}; opacity: ${isSelected ? "0.5" : "0.25"}; animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
+          <div style="position: absolute; width: ${isSelected ? "26px" : "22px"}; height: ${isSelected ? "26px" : "22px"}; border-radius: 50%; background: #0b1328; border: 2px solid ${pinColor}; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 ${isSelected ? "14px" : "8px"} ${pinColor};">
             <span style="font-size: 9px; font-weight: 800; color: ${pinColor}; font-family: monospace;">${badge[0]}</span>
           </div>
         </div>
@@ -297,7 +287,7 @@ export default function TriageMap({
 
       const customIcon = L.divIcon({
         html: iconHtml,
-        className: 'custom-triage-pin',
+        className: "custom-triage-pin",
         iconSize: [34, 34],
         iconAnchor: [17, 17],
       });
@@ -311,25 +301,24 @@ export default function TriageMap({
               ${badge}
             </span>
           </div>
-          <div style="font-weight: 600; color: #334155; margin-bottom: 4px;">${p.patient_name || 'Field Patient'}</div>
+          <div style="font-weight: 600; color: #334155; margin-bottom: 4px;">${p.patient_name || "Field Patient"}</div>
           <div style="font-size: 11px; color: #64748b; margin-bottom: 6px;">
-            Vitals: HR <strong>${p.vitals?.heart_rate || '--'}</strong> &bull; SpO2 <strong>${p.vitals?.spo2 || '--'}%</strong>
+            Vitals: HR <strong>${p.vitals?.heart_rate || "--"}</strong> &bull; SpO2 <strong>${p.vitals?.spo2 || "--"}%</strong>
           </div>
           <div style="font-size: 11px; color: #3b82f6; font-weight: 600;">Click to select in CAD deck</div>
         </div>
       `);
 
-      marker.on('click', () => {
+      marker.on("click", () => {
         if (onSelectPatient) onSelectPatient(p.patient_id);
       });
 
-      markersRef.current[`patient_${p.patient_id}`] = marker;
+      markersRef.current["patient_" + p.patient_id] = marker;
     });
 
-    // 2. Render Receiving Hospital Markers
     data.hospitals.forEach(hosp => {
       const isFull = hosp.icu_beds_free === 0;
-      const hospBg = isFull ? '#ef4444' : '#2563eb';
+      const hospBg = isFull ? "#ef4444" : "#2563eb";
 
       const hospHtml = `
         <div style="position: relative; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
@@ -342,7 +331,7 @@ export default function TriageMap({
 
       const hospIcon = L.divIcon({
         html: hospHtml,
-        className: 'custom-hosp-pin',
+        className: "custom-hosp-pin",
         iconSize: [36, 36],
         iconAnchor: [18, 18],
       });
@@ -352,7 +341,7 @@ export default function TriageMap({
         <div style="font-family: -apple-system, sans-serif; font-size: 12px; min-width: 220px; padding: 4px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
             <strong style="color: #0f172a; font-size: 12px;">${hosp.name}</strong>
-            <span style="background: ${isFull ? '#fee2e2' : '#dbeafe'}; color: ${isFull ? '#b91c1c' : '#1d4ed8'}; padding: 1px 6px; border-radius: 999px; font-size: 9px; font-weight: 800;">
+            <span style="background: ${isFull ? "#fee2e2" : "#dbeafe"}; color: ${isFull ? "#b91c1c" : "#1d4ed8"}; padding: 1px 6px; border-radius: 999px; font-size: 9px; font-weight: 800;">
               ${hosp.trauma_level}
             </span>
           </div>
@@ -360,7 +349,7 @@ export default function TriageMap({
             Distance: <strong>${hosp.distance_km} km</strong> &bull; Travel Time: <strong>${hosp.travel_time_mins} min</strong>
           </div>
           <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px; font-size: 11px; margin-bottom: 6px;">
-            <div>ICU Beds Free: <strong style="color: ${isFull ? '#ef4444' : '#16a34a'};">${hosp.icu_beds_free}</strong></div>
+            <div>ICU Beds Free: <strong style="color: ${isFull ? "#ef4444" : "#16a34a"};">${hosp.icu_beds_free}</strong></div>
             <div>Trauma Bays Free: <strong>${hosp.trauma_bays_free}</strong></div>
             <div>Total Load: <strong>${hosp.total_occupancy_pct}%</strong></div>
           </div>
@@ -370,35 +359,31 @@ export default function TriageMap({
         </div>
       `);
 
-      markersRef.current[`hospital_${hosp.hospital_id}`] = marker;
+      markersRef.current["hospital_" + hosp.hospital_id] = marker;
     });
 
-    // 3. Render Ambulances with live heading and siren beacon
     data.ambulances.forEach(amb => {
       const isSelected = amb.unit_id === selectedAmbulanceId;
-      const isFallback = amb.gps_quality === 'LOST_DEAD_RECKONING';
-      const ambColor = isFallback ? '#f59e0b' : amb.status === 'TRANSPORTING' ? '#ef4444' : amb.status === 'DISPATCHED' ? '#3b82f6' : '#10b981';
+      const isFallback = amb.gps_quality === "LOST_DEAD_RECKONING";
+      const ambColor = isFallback ? "#f59e0b" : amb.status === "TRANSPORTING" ? "#ef4444" : amb.status === "DISPATCHED" ? "#3b82f6" : "#10b981";
 
       const ambHtml = `
         <div style="position: relative; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-          <!-- Siren Flash Beacon -->
-          <div style="position: absolute; width: ${isSelected ? '44px' : '34px'}; height: ${isSelected ? '44px' : '34px'}; border-radius: 50%; background: ${ambColor}; opacity: ${isFallback ? '0.6' : '0.35'}; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
+          <div style="position: absolute; width: ${isSelected ? "44px" : "34px"}; height: ${isSelected ? "44px" : "34px"}; border-radius: 50%; background: ${ambColor}; opacity: ${isFallback ? "0.6" : "0.35"}; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
           
-          <!-- Vehicle Hull -->
           <div style="position: absolute; width: 30px; height: 30px; border-radius: 8px; background: #0f172a; border: 2px solid ${ambColor}; box-shadow: 0 4px 14px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; transform: rotate(${amb.heading_deg || 0}deg);">
             <span style="font-size: 13px;">🚑</span>
           </div>
 
-          <!-- Callsign Tag -->
           <div style="position: absolute; top: -14px; background: #0f172a; color: #ffffff; border: 1px solid ${ambColor}; border-radius: 4px; padding: 0 4px; font-size: 8px; font-weight: 800; font-family: monospace; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
-            ${amb.callsign.split(' ')[0]}
+            ${amb.callsign.split(" ")[0]}
           </div>
         </div>
       `;
 
       const ambIcon = L.divIcon({
         html: ambHtml,
-        className: 'custom-amb-pin',
+        className: "custom-amb-pin",
         iconSize: [38, 38],
         iconAnchor: [19, 19],
       });
@@ -416,69 +401,66 @@ export default function TriageMap({
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: #f8fafc; padding: 6px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 11px; margin-bottom: 6px;">
             <div>Speed: <strong>${amb.speed_kmh} km/h</strong></div>
             <div>Fuel/Bat: <strong>${amb.battery_or_fuel_pct}%</strong></div>
-            <div>GPS: <strong style="color: ${isFallback ? '#d97706' : '#16a34a'};">${amb.gps_quality}</strong></div>
-            <div>Assigned: <strong>${amb.assigned_patient_id || 'None'}</strong></div>
+            <div>GPS: <strong style="color: ${isFallback ? "#d97706" : "#16a34a"};">${amb.gps_quality}</strong></div>
+            <div>Assigned: <strong>${amb.assigned_patient_id || "None"}</strong></div>
           </div>
-          <div style="font-size: 10px; color: #94a3b8;">Equipment: ${amb.equipment.join(', ')}</div>
+          <div style="font-size: 10px; color: #94a3b8;">Equipment: ${amb.equipment.join(", ")}</div>
         </div>
       `);
 
-      marker.on('click', () => {
+      marker.on("click", () => {
         setSelectedAmbulanceId(amb.unit_id);
       });
 
-      markersRef.current[`amb_${amb.unit_id}`] = marker;
+      markersRef.current["amb_" + amb.unit_id] = marker;
 
-      // 4. Dead Reckoning Circle when GPS is lost
       if (isFallback) {
         const circle = L.circle([amb.gps_lat, amb.gps_lng], {
           radius: 350,
-          color: '#f59e0b',
+          color: "#f59e0b",
           weight: 2,
-          dashArray: '6, 6',
-          fillColor: '#fef3c7',
+          dashArray: "6, 6",
+          fillColor: "#fef3c7",
           fillOpacity: 0.25
         }).addTo(map);
-        circleRef.current[`dr_${amb.unit_id}`] = circle;
+        circleRef.current["dr_" + amb.unit_id] = circle;
       }
     });
 
-    // 5. Render Mission Route Polylines
     data.missions.forEach(mission => {
       if (mission.route && mission.route.waypoints && mission.route.waypoints.length >= 2) {
-        const isDelayed = mission.route.status === 'DELAYED_CONGESTION' || mission.route.status === 'DETOUR_APPLIED';
-        const routeColor = isDelayed ? '#f59e0b' : '#3b82f6';
+        const isDelayed = mission.route.status === "DELAYED_CONGESTION" || mission.route.status === "DETOUR_APPLIED";
+        const routeColor = isDelayed ? "#f59e0b" : "#3b82f6";
 
         const poly = L.polyline(mission.route.waypoints, {
           color: routeColor,
           weight: 4,
           opacity: 0.85,
-          dashArray: isDelayed ? '8, 8' : undefined
+          dashArray: isDelayed ? "8, 8" : undefined
         }).addTo(map);
 
         poly.bindPopup(`
           <div style="font-family: -apple-system, sans-serif; font-size: 12px; padding: 4px;">
             <strong>${mission.route.route_name}</strong>
-            <div style="color: ${isDelayed ? '#d97706' : '#16a34a'}; font-weight: 700; margin-top: 2px;">
+            <div style="color: ${isDelayed ? "#d97706" : "#16a34a"}; font-weight: 700; margin-top: 2px;">
               ${mission.route.status} &bull; ETA ${mission.route.estimated_arrival_eta_mins} mins
             </div>
-            ${mission.route.route_change_reason ? `<div style="font-size: 11px; color: #ef4444; margin-top: 4px;">${mission.route.route_change_reason}</div>` : ''}
+            ${mission.route.route_change_reason ? `<div style="font-size: 11px; color: #ef4444; margin-top: 4px;">${mission.route.route_change_reason}</div>` : ""}
           </div>
         `);
 
-        polylineRef.current[`mission_${mission.mission_id}`] = poly;
+        polylineRef.current["mission_" + mission.mission_id] = poly;
       }
     });
 
   }, [patients, selectedPatientId, data, selectedAmbulanceId, onSelectPatient]);
 
-  // Handler functions
   const handleToggleFallback = async () => {
     if (!onDispatchAction) return;
     setActionLoading(true);
     try {
       await onDispatchAction({
-        action: 'TOGGLE_FALLBACK',
+        action: "TOGGLE_FALLBACK",
         fallback_enabled: !data.fallback_protocol_enabled
       });
     } finally {
@@ -490,15 +472,15 @@ export default function TriageMap({
     if (!onDispatchAction) return;
     setActionLoading(true);
     const stageFlow = {
-      DISPATCHED: 'ON_SCENE',
-      ON_SCENE: 'TRANSPORTING',
-      TRANSPORTING: 'ARRIVED',
-      ARRIVED: 'AVAILABLE'
+      DISPATCHED: "ON_SCENE",
+      ON_SCENE: "TRANSPORTING",
+      TRANSPORTING: "ARRIVED",
+      ARRIVED: "AVAILABLE"
     };
-    const next = stageFlow[mission.stage] || 'ARRIVED';
+    const next = stageFlow[mission.stage] || "ARRIVED";
     try {
       await onDispatchAction({
-        action: 'UPDATE_MILESTONE',
+        action: "UPDATE_MILESTONE",
         mission_id: mission.mission_id,
         next_stage: next
       });
@@ -512,7 +494,7 @@ export default function TriageMap({
     setActionLoading(true);
     try {
       await onDispatchAction({
-        action: 'INJECT_ROUTE_DELAY',
+        action: "INJECT_ROUTE_DELAY",
         mission_id: mission.mission_id,
         delay_minutes: 6,
         route_change_reason: "Congestion on main artery — Detour via Ring Expressway applied (+6 min)"
@@ -527,7 +509,7 @@ export default function TriageMap({
     setActionLoading(true);
     try {
       await onDispatchAction({
-        action: 'ASSIGN_DISPATCH',
+        action: "ASSIGN_DISPATCH",
         ambulance_id: mission.ambulance_id,
         patient_id: mission.patient_id,
         hospital_id: hospitalId
@@ -542,7 +524,7 @@ export default function TriageMap({
     setActionLoading(true);
     try {
       await onDispatchAction({
-        action: 'UPDATE_MGRS',
+        action: "UPDATE_MGRS",
         mission_id: mission.mission_id,
         mgrs_grid: manualGridInput
       });
@@ -554,7 +536,7 @@ export default function TriageMap({
   const copyVhfScript = (mission) => {
     const amb = data.ambulances.find(a => a.unit_id === mission.ambulance_id);
     const hosp = data.hospitals.find(h => h.hospital_id === mission.assigned_hospital_id);
-    const script = `DISPATCH-1 TO ${amb?.callsign || 'UNIT'}: GPS BLACKOUT ACTIVE IN SECTOR. PROCEED VIA MGRS GRID ${manualGridInput}. DESTINATION: ${hosp?.name || 'FIELD SURGICAL TEAM'}. ESTIMATED TRANSIT: ${mission.route?.estimated_arrival_eta_mins || 15} MINS. ACKNOWLEDGE VIA VHF FREQ 142.85. OVER.`;
+    const script = `DISPATCH-1 TO ${amb?.callsign || "UNIT"}: GPS BLACKOUT ACTIVE IN SECTOR. PROCEED VIA MGRS GRID ${manualGridInput}. DESTINATION: ${hosp?.name || "FIELD SURGICAL TEAM"}. ESTIMATED TRANSIT: ${mission.route?.estimated_arrival_eta_mins || 15} MINS. ACKNOWLEDGE VIA VHF FREQ 142.85. OVER.`;
     navigator.clipboard.writeText(script);
     setCopiedScript(true);
     setTimeout(() => setCopiedScript(false), 3000);
@@ -565,11 +547,8 @@ export default function TriageMap({
 
   return (
     <div className="space-y-4">
-
-      {/* ================= TOP OPERATIONAL CAD CONTROL BAR ================= */}
+      {/* TOP OPERATIONAL CAD CONTROL BAR */}
       <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.03)] flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        
-        {/* Left: Section Title & Real-Time Status */}
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-md">
             <Truck className="w-6 h-6" />
@@ -581,8 +560,8 @@ export default function TriageMap({
               </h2>
               <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border flex items-center gap-1.5 ${
                 data.fallback_protocol_enabled
-                  ? 'bg-amber-50 text-amber-700 border-amber-300'
-                  : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  ? "bg-amber-50 text-amber-700 border-amber-300"
+                  : "bg-emerald-50 text-emerald-700 border-emerald-200"
               }`}>
                 {data.fallback_protocol_enabled ? (
                   <>
@@ -603,55 +582,51 @@ export default function TriageMap({
           </div>
         </div>
 
-        {/* Right Controls: View Mode & Fallback Simulator */}
         <div className="flex items-center gap-2.5 flex-wrap">
-          
-          {/* View Mode Buttons */}
           <div className="flex bg-slate-100 p-1 rounded-2xl border border-slate-200">
             <button
-              onClick={() => setActiveViewMode('split')}
+              onClick={() => setActiveViewMode("split")}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                activeViewMode === 'split' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+                activeViewMode === "split" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
               }`}
             >
               Split CAD View
             </button>
             <button
-              onClick={() => setActiveViewMode('map-only')}
+              onClick={() => setActiveViewMode("map-only")}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                activeViewMode === 'map-only' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+                activeViewMode === "map-only" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
               }`}
             >
               Expanded Map
             </button>
             <button
-              onClick={() => setActiveViewMode('fleet-deck')}
+              onClick={() => setActiveViewMode("fleet-deck")}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                activeViewMode === 'fleet-deck' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+                activeViewMode === "fleet-deck" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
               }`}
             >
               Fleet & Hospital Deck
             </button>
           </div>
 
-          {/* GPS Fallback Toggle Button */}
           <button
             onClick={handleToggleFallback}
             disabled={actionLoading}
             className={`px-3.5 py-2 rounded-2xl text-xs font-bold border transition-all flex items-center gap-1.5 shadow-xs ${
               data.fallback_protocol_enabled
-                ? 'bg-amber-600 text-white border-amber-600 hover:bg-amber-700'
-                : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
+                ? "bg-amber-600 text-white border-amber-600 hover:bg-amber-700"
+                : "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
             }`}
             title="Simulate loss of GPS signal and trigger dead-reckoning / MGRS fallback workflow"
           >
-            <Compass className={`w-3.5 h-3.5 ${data.fallback_protocol_enabled ? 'animate-spin' : ''}`} />
-            <span>{data.fallback_protocol_enabled ? 'Restore Normal GPS' : 'Simulate GPS Blackout'}</span>
+            <Compass className={`w-3.5 h-3.5 ${data.fallback_protocol_enabled ? "animate-spin" : ""}`} />
+            <span>{data.fallback_protocol_enabled ? "Restore Normal GPS" : "Simulate GPS Blackout"}</span>
           </button>
         </div>
       </div>
 
-      {/* ================= DISTINCT LOGISTICS ADVISORY BANNER ================= */}
+      {/* DISTINCT LOGISTICS ADVISORY BANNER */}
       <div className="bg-blue-50/80 border border-blue-200 rounded-2xl p-3 px-4 flex items-center justify-between gap-3 text-xs text-blue-900 shadow-xs">
         <div className="flex items-center gap-2.5">
           <ShieldAlert className="w-4 h-4 text-blue-600 shrink-0" />
@@ -667,25 +642,22 @@ export default function TriageMap({
         </span>
       </div>
 
-      {/* ================= MAIN SPLIT OR EXPANDED WORKSPACE ================= */}
+      {/* MAIN SPLIT OR EXPANDED WORKSPACE */}
       <div className={`grid gap-4 ${
-        activeViewMode === 'split' 
-          ? 'grid-cols-1 lg:grid-cols-12' 
-          : activeViewMode === 'map-only' 
-          ? 'grid-cols-1' 
-          : 'hidden'
+        activeViewMode === "split" 
+          ? "grid-cols-1 lg:grid-cols-12" 
+          : activeViewMode === "map-only" 
+          ? "grid-cols-1" 
+          : "hidden"
       }`}>
-
-        {/* ================= LEFT / TOP: INTERACTIVE LEAFLET DISPATCH MAP ================= */}
+        {/* INTERACTIVE LEAFLET DISPATCH MAP */}
         <div className={`rounded-3xl overflow-hidden border border-slate-200 shadow-lg relative bg-[#0b1328] ${
-          activeViewMode === 'split' ? 'lg:col-span-7 h-[680px]' : 'h-[780px]'
+          activeViewMode === "split" ? "lg:col-span-7 h-[680px]" : "h-[780px]"
         }`}>
-          
-          {/* Map Top Floating Overlay HUD */}
           <div className="absolute top-3 left-3 z-[400] flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#080d1c]/90 border border-[#1b284a] backdrop-blur-md text-xs shadow-lg">
-            <span className={`w-2 h-2 rounded-full ${data.fallback_protocol_enabled ? 'bg-amber-400 animate-ping' : 'bg-emerald-400 animate-pulse'}`} />
+            <span className={`w-2 h-2 rounded-full ${data.fallback_protocol_enabled ? "bg-amber-400 animate-ping" : "bg-emerald-400 animate-pulse"}`} />
             <span className="text-slate-200 font-semibold tracking-wide">
-              {data.fallback_protocol_enabled ? 'DEAD-RECKONING RADAR ACTIVE' : 'TACTICAL GPS RADAR'}
+              {data.fallback_protocol_enabled ? "DEAD-RECKONING RADAR ACTIVE" : "TACTICAL GPS RADAR"}
             </span>
             <span className="text-slate-600">|</span>
             <span className="text-slate-400 font-mono">
@@ -693,35 +665,33 @@ export default function TriageMap({
             </span>
           </div>
 
-          {/* Map Tile Layer Switcher */}
           <div className="absolute top-3 right-3 z-[400] flex items-center gap-1 bg-[#080d1c]/90 border border-[#1b284a] rounded-xl p-1 backdrop-blur-md text-xs shadow-md">
             <button
-              onClick={() => setMapType('google-hybrid')}
+              onClick={() => setMapType("google-hybrid")}
               className={`px-2.5 py-1 rounded-lg transition-all text-[11px] font-semibold ${
-                mapType === 'google-hybrid' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'
+                mapType === "google-hybrid" ? "bg-blue-600 text-white shadow" : "text-slate-400 hover:text-slate-200"
               }`}
             >
               🛰️ Satellite
             </button>
             <button
-              onClick={() => setMapType('google-roads')}
+              onClick={() => setMapType("google-roads")}
               className={`px-2.5 py-1 rounded-lg transition-all text-[11px] font-semibold ${
-                mapType === 'google-roads' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'
+                mapType === "google-roads" ? "bg-blue-600 text-white shadow" : "text-slate-400 hover:text-slate-200"
               }`}
             >
               🗺️ Roads
             </button>
             <button
-              onClick={() => setMapType('tactical-dark')}
+              onClick={() => setMapType("tactical-dark")}
               className={`px-2.5 py-1 rounded-lg transition-all text-[11px] font-semibold ${
-                mapType === 'tactical-dark' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'
+                mapType === "tactical-dark" ? "bg-blue-600 text-white shadow" : "text-slate-400 hover:text-slate-200"
               }`}
             >
               🌌 Tactical
             </button>
           </div>
 
-          {/* Map Bottom HUD Pill: Active Corridor */}
           {activeMission && (
             <div className="absolute bottom-4 left-4 right-4 z-[400] bg-[#0b1328]/90 border border-slate-700/80 backdrop-blur-md rounded-2xl p-3 px-4 flex items-center justify-between gap-3 text-xs text-slate-200 shadow-xl">
               <div className="flex items-center gap-3">
@@ -730,12 +700,12 @@ export default function TriageMap({
                 </div>
                 <div>
                   <div className="font-semibold text-white">
-                    {activeMission.route?.route_name || 'En Route Corridor'}
+                    {activeMission.route?.route_name || "En Route Corridor"}
                   </div>
                   <div className="text-[11px] text-slate-400 flex items-center gap-2">
                     <span>ETA: <strong className="text-sky-400">{activeMission.route?.estimated_arrival_eta_mins} mins</strong></span>
                     <span>&bull;</span>
-                    <span className={activeMission.route?.status === 'NOMINAL' ? 'text-emerald-400' : 'text-amber-400'}>
+                    <span className={activeMission.route?.status === "NOMINAL" ? "text-emerald-400" : "text-amber-400"}>
                       {activeMission.route?.status}
                     </span>
                   </div>
@@ -753,18 +723,14 @@ export default function TriageMap({
             </div>
           )}
 
-          {/* Leaflet Mount Node */}
           <div ref={mapContainerRef} className="w-full h-full" />
         </div>
 
-        {/* ================= RIGHT: CAD DISPATCH CONTROL CONSOLE ================= */}
-        {activeViewMode === 'split' && (
+        {/* CAD DISPATCH CONTROL CONSOLE */}
+        {activeViewMode === "split" && (
           <div className="lg:col-span-5 space-y-4 max-h-[680px] overflow-y-auto pr-1">
-
-            {/* --- CARD 1: ACTIVE MISSION MILESTONE TRACKER --- */}
             {activeMission ? (
               <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.03)] space-y-4">
-                
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <div>
                     <span className="font-mono text-[10px] text-slate-400 block font-bold">ACTIVE CAD MISSION</span>
@@ -774,11 +740,11 @@ export default function TriageMap({
                   </div>
                   <div className="flex items-center gap-1.5">
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold border ${
-                      activeMission.clinical_urgency === 'IMMEDIATE_RED' 
-                        ? 'bg-rose-50 text-rose-700 border-rose-200' 
-                        : 'bg-amber-50 text-amber-700 border-amber-200'
+                      activeMission.clinical_urgency === "IMMEDIATE_RED" 
+                        ? "bg-rose-50 text-rose-700 border-rose-200" 
+                        : "bg-amber-50 text-amber-700 border-amber-200"
                     }`}>
-                      {activeMission.clinical_urgency.replace('_', ' ')}
+                      {activeMission.clinical_urgency.replace("_", " ")}
                     </span>
                     <button
                       onClick={() => onOpenChart && onOpenChart(activeMission.patient_id)}
@@ -789,7 +755,6 @@ export default function TriageMap({
                   </div>
                 </div>
 
-                {/* Assigned Ambulance and Destination */}
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div className="p-2.5 rounded-2xl bg-slate-50 border border-slate-100">
                     <span className="text-[10px] text-slate-400 block">Unit Assigned</span>
@@ -799,85 +764,76 @@ export default function TriageMap({
                   <div className="p-2.5 rounded-2xl bg-blue-50/60 border border-blue-100">
                     <span className="text-[10px] text-blue-500 block">Target Hospital</span>
                     <strong className="text-blue-900 font-bold">
-                      {data.hospitals.find(h => h.hospital_id === activeMission.assigned_hospital_id)?.name || 'Field Team'}
+                      {data.hospitals.find(h => h.hospital_id === activeMission.assigned_hospital_id)?.name || "Field Team"}
                     </strong>
                     <span className="text-[10px] text-blue-600 block">ETA: {activeMission.route?.estimated_arrival_eta_mins} mins</span>
                   </div>
                 </div>
 
-                {/* 5-Step Milestone Timeline Progress */}
                 <div>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
                     Dispatch Milestones & Timestamps
                   </span>
 
                   <div className="relative pl-6 border-l-2 border-slate-200 space-y-3 text-xs">
-                    
-                    {/* Milestone 1: Dispatched */}
                     <div className="relative">
                       <div className="absolute -left-[31px] top-0.5 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center text-white text-[8px] font-bold">✓</div>
                       <div className="flex items-center justify-between">
                         <strong className="text-slate-700">1. Unit Dispatched</strong>
-                        <span className="font-mono text-[11px] text-slate-500">{activeMission.milestones.dispatched_at || '--:--'}</span>
+                        <span className="font-mono text-[11px] text-slate-500">{activeMission.milestones.dispatched_at || "--:--"}</span>
                       </div>
                     </div>
 
-                    {/* Milestone 2: En Route */}
                     <div className="relative">
                       <div className={`absolute -left-[31px] top-0.5 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center text-white text-[8px] font-bold ${
-                        activeMission.milestones.en_route_at ? 'bg-emerald-500' : 'bg-slate-300'
+                        activeMission.milestones.en_route_at ? "bg-emerald-500" : "bg-slate-300"
                       }`}>
-                        {activeMission.milestones.en_route_at ? '✓' : '2'}
+                        {activeMission.milestones.en_route_at ? "✓" : "2"}
                       </div>
                       <div className="flex items-center justify-between">
                         <strong className="text-slate-700">2. En Route to Scene</strong>
-                        <span className="font-mono text-[11px] text-slate-500">{activeMission.milestones.en_route_at || '--:--'}</span>
+                        <span className="font-mono text-[11px] text-slate-500">{activeMission.milestones.en_route_at || "--:--"}</span>
                       </div>
                     </div>
 
-                    {/* Milestone 3: On Scene */}
                     <div className="relative">
                       <div className={`absolute -left-[31px] top-0.5 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center text-white text-[8px] font-bold ${
-                        activeMission.milestones.on_scene_at ? 'bg-emerald-500' : 'bg-slate-300'
+                        activeMission.milestones.on_scene_at ? "bg-emerald-500" : "bg-slate-300"
                       }`}>
-                        {activeMission.milestones.on_scene_at ? '✓' : '3'}
+                        {activeMission.milestones.on_scene_at ? "✓" : "3"}
                       </div>
                       <div className="flex items-center justify-between">
                         <strong className="text-slate-700">3. On Scene with Patient</strong>
-                        <span className="font-mono text-[11px] text-slate-500">{activeMission.milestones.on_scene_at || 'Pending'}</span>
+                        <span className="font-mono text-[11px] text-slate-500">{activeMission.milestones.on_scene_at || "Pending"}</span>
                       </div>
                     </div>
 
-                    {/* Milestone 4: Patient Loaded */}
                     <div className="relative">
                       <div className={`absolute -left-[31px] top-0.5 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center text-white text-[8px] font-bold ${
-                        activeMission.milestones.patient_loaded_at ? 'bg-emerald-500' : 'bg-slate-300'
+                        activeMission.milestones.patient_loaded_at ? "bg-emerald-500" : "bg-slate-300"
                       }`}>
-                        {activeMission.milestones.patient_loaded_at ? '✓' : '4'}
+                        {activeMission.milestones.patient_loaded_at ? "✓" : "4"}
                       </div>
                       <div className="flex items-center justify-between">
                         <strong className="text-slate-700">4. Patient Loaded & In Transit</strong>
-                        <span className="font-mono text-[11px] text-slate-500">{activeMission.milestones.patient_loaded_at || 'Pending'}</span>
+                        <span className="font-mono text-[11px] text-slate-500">{activeMission.milestones.patient_loaded_at || "Pending"}</span>
                       </div>
                     </div>
 
-                    {/* Milestone 5: Hospital Arrival */}
                     <div className="relative">
                       <div className={`absolute -left-[31px] top-0.5 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center text-white text-[8px] font-bold ${
-                        activeMission.milestones.hospital_arrived_at?.startsWith('ETA') ? 'bg-blue-500' : activeMission.milestones.hospital_arrived_at ? 'bg-emerald-500' : 'bg-slate-300'
+                        activeMission.milestones.hospital_arrived_at?.startsWith("ETA") ? "bg-blue-500" : activeMission.milestones.hospital_arrived_at ? "bg-emerald-500" : "bg-slate-300"
                       }`}>
-                        {activeMission.milestones.hospital_arrived_at?.startsWith('ETA') ? '•' : activeMission.milestones.hospital_arrived_at ? '✓' : '5'}
+                        {activeMission.milestones.hospital_arrived_at?.startsWith("ETA") ? "•" : activeMission.milestones.hospital_arrived_at ? "✓" : "5"}
                       </div>
                       <div className="flex items-center justify-between">
                         <strong className="text-slate-700">5. Receiving Hospital Arrival</strong>
-                        <span className="font-mono text-[11px] font-bold text-blue-600">{activeMission.milestones.hospital_arrived_at || 'ETA 11:15'}</span>
+                        <span className="font-mono text-[11px] font-bold text-blue-600">{activeMission.milestones.hospital_arrived_at || "ETA 11:15"}</span>
                       </div>
                     </div>
-
                   </div>
                 </div>
 
-                {/* Milestone Advance Action Button */}
                 <div className="pt-1 flex items-center gap-2">
                   <button
                     onClick={() => handleAdvanceMilestone(activeMission)}
@@ -888,7 +844,6 @@ export default function TriageMap({
                     <span>Advance Mission Stage ({activeMission.stage})</span>
                   </button>
                 </div>
-
               </div>
             ) : (
               <div className="bg-white rounded-3xl p-5 border border-slate-100 text-center text-slate-400 text-xs">
@@ -896,7 +851,7 @@ export default function TriageMap({
               </div>
             )}
 
-            {/* --- CARD 2: RECEIVING HOSPITAL CAPACITY SUGGESTIONS --- */}
+            {/* SUGGESTED RECEIVING HOSPITALS */}
             <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.03)] space-y-3">
               <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                 <div>
@@ -911,17 +866,17 @@ export default function TriageMap({
               <div className="space-y-2">
                 {data.hospitals.map(hosp => {
                   const isAssigned = activeMission && activeMission.assigned_hospital_id === hosp.hospital_id;
-                  const isDivert = hosp.recommendation_tier === 'DIVERT' || hosp.icu_beds_free === 0;
+                  const isDivert = hosp.recommendation_tier === "DIVERT" || hosp.icu_beds_free === 0;
 
                   return (
                     <div 
                       key={hosp.hospital_id}
                       className={`p-3 rounded-2xl border transition-all ${
                         isAssigned 
-                          ? 'bg-blue-50/70 border-blue-300 shadow-xs' 
+                          ? "bg-blue-50/70 border-blue-300 shadow-xs" 
                           : isDivert 
-                          ? 'bg-rose-50/50 border-rose-200' 
-                          : 'bg-slate-50 hover:bg-slate-100/70 border-slate-200'
+                          ? "bg-rose-50/50 border-rose-200" 
+                          : "bg-slate-50 hover:bg-slate-100/70 border-slate-200"
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2 mb-1.5">
@@ -932,32 +887,30 @@ export default function TriageMap({
                           </div>
                           <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border inline-block mt-0.5 ${
                             isDivert 
-                              ? 'bg-rose-100 text-rose-700 border-rose-300' 
-                              : 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                              ? "bg-rose-100 text-rose-700 border-rose-300" 
+                              : "bg-emerald-100 text-emerald-800 border-emerald-300"
                           }`}>
                             {hosp.recommendation_tier} &bull; {hosp.travel_time_mins}m Transit
                           </span>
                         </div>
 
-                        {/* Assign Button */}
                         {activeMission && (
                           <button
                             onClick={() => handleAssignHospital(activeMission, hosp.hospital_id)}
                             disabled={isAssigned || actionLoading}
                             className={`px-2.5 py-1 rounded-xl text-[10px] font-bold transition-all ${
                               isAssigned 
-                                ? 'bg-blue-600 text-white cursor-default' 
-                                : 'bg-white hover:bg-slate-200 text-slate-700 border border-slate-300'
+                                ? "bg-blue-600 text-white cursor-default" 
+                                : "bg-white hover:bg-slate-200 text-slate-700 border border-slate-300"
                             }`}
                           >
-                            {isAssigned ? 'Assigned' : 'Select'}
+                            {isAssigned ? "Assigned" : "Select"}
                           </button>
                         )}
                       </div>
 
-                      {/* Capacity metrics */}
                       <div className="grid grid-cols-3 gap-1.5 text-[10px] text-slate-600 bg-white/80 p-1.5 rounded-xl border border-slate-100">
-                        <div>ICU Free: <strong className={hosp.icu_beds_free === 0 ? 'text-rose-600' : 'text-emerald-700'}>{hosp.icu_beds_free}</strong></div>
+                        <div>ICU Free: <strong className={hosp.icu_beds_free === 0 ? "text-rose-600" : "text-emerald-700"}>{hosp.icu_beds_free}</strong></div>
                         <div>Trauma Bays: <strong>{hosp.trauma_bays_free}</strong></div>
                         <div>Load: <strong>{hosp.total_occupancy_pct}%</strong></div>
                       </div>
@@ -971,7 +924,7 @@ export default function TriageMap({
               </div>
             </div>
 
-            {/* --- CARD 3: AUSTERE GPS FALLBACK & RADIO SCRIPT WORKFLOW --- */}
+            {/* AUSTERE GPS FALLBACK & RADIO SCRIPT WORKFLOW */}
             {data.fallback_protocol_enabled && (
               <div className="bg-amber-50 rounded-3xl p-5 border border-amber-200 shadow-sm space-y-3">
                 <div className="flex items-center gap-2 text-amber-900 font-bold text-xs">
@@ -983,7 +936,6 @@ export default function TriageMap({
                   GPS lock is compromised. Use dead-reckoning vectors and relay manual grid coordinates to crew via tactical radio.
                 </p>
 
-                {/* Manual MGRS Input */}
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
@@ -1000,7 +952,6 @@ export default function TriageMap({
                   </button>
                 </div>
 
-                {/* Synthesized Voice Relay Protocol Script */}
                 {activeMission && (
                   <div className="bg-white/90 p-3 rounded-2xl border border-amber-200 text-xs space-y-2">
                     <div className="flex items-center justify-between text-[10px] font-bold text-amber-900 uppercase">
@@ -1010,26 +961,24 @@ export default function TriageMap({
                         className="text-amber-700 hover:text-amber-900 font-bold flex items-center gap-1"
                       >
                         {copiedScript ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                        <span>{copiedScript ? 'Copied' : 'Copy VHF Script'}</span>
+                        <span>{copiedScript ? "Copied" : "Copy VHF Script"}</span>
                       </button>
                     </div>
 
                     <div className="font-mono text-[11px] bg-slate-900 text-emerald-400 p-2.5 rounded-xl border border-slate-800 leading-relaxed">
-                      "DISPATCH-1 TO {activeAmbulance.callsign}: GPS BLACKOUT CONFIRMED. REROUTE VIA MGRS {manualGridInput}. DESTINATION: {data.hospitals.find(h => h.hospital_id === activeMission.assigned_hospital_id)?.name || 'FST-A'}. ETA {activeMission.route?.estimated_arrival_eta_mins} MINS. OVER."
+                      {"DISPATCH-1 TO " + activeAmbulance.callsign + ": GPS BLACKOUT CONFIRMED. REROUTE VIA MGRS " + manualGridInput + ". DESTINATION: " + (data.hospitals.find(h => h.hospital_id === activeMission.assigned_hospital_id)?.name || "FST-A") + ". ETA " + (activeMission.route?.estimated_arrival_eta_mins || 15) + " MINS. OVER."}
                     </div>
                   </div>
                 )}
               </div>
             )}
-
           </div>
         )}
-
       </div>
 
-      {/* ================= BOTTOM FLEET & CAPACITY DECK (Always visible in Deck mode or below Split) ================= */}
+      {/* BOTTOM FLEET & CAPACITY DECK */}
       <div className={`bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.03)] space-y-5 ${
-        activeViewMode === 'map-only' ? 'hidden' : 'block'
+        activeViewMode === "map-only" ? "hidden" : "block"
       }`}>
         <div className="flex items-center justify-between border-b border-slate-100 pb-3 flex-wrap gap-2">
           <div>
@@ -1048,26 +997,25 @@ export default function TriageMap({
                 onClick={() => setSelectedAmbulanceId(a.unit_id)}
                 className={`px-3 py-1 rounded-xl text-xs font-bold transition-all ${
                   selectedAmbulanceId === a.unit_id 
-                    ? 'bg-blue-600 text-white shadow-xs' 
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    ? "bg-blue-600 text-white shadow-xs" 
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                 }`}
               >
-                {a.callsign.split(' ')[0]}
+                {a.callsign.split(" ")[0]}
               </button>
             ))}
           </div>
         </div>
 
-        {/* 4 Ambulance Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {data.ambulances.map(amb => {
             const isSelected = amb.unit_id === selectedAmbulanceId;
-            const isFallback = amb.gps_quality === 'LOST_DEAD_RECKONING';
-            const statusBg = amb.status === 'AVAILABLE' 
-              ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
-              : amb.status === 'TRANSPORTING' 
-              ? 'bg-rose-50 text-rose-700 border-rose-200' 
-              : 'bg-blue-50 text-blue-700 border-blue-200';
+            const isFallback = amb.gps_quality === "LOST_DEAD_RECKONING";
+            const statusBg = amb.status === "AVAILABLE" 
+              ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
+              : amb.status === "TRANSPORTING" 
+              ? "bg-rose-50 text-rose-700 border-rose-200" 
+              : "bg-blue-50 text-blue-700 border-blue-200";
 
             return (
               <div 
@@ -1075,8 +1023,8 @@ export default function TriageMap({
                 onClick={() => setSelectedAmbulanceId(amb.unit_id)}
                 className={`p-4 rounded-3xl border transition-all cursor-pointer ${
                   isSelected 
-                    ? 'bg-blue-50/50 border-blue-400 ring-2 ring-blue-500/20 shadow-md' 
-                    : 'bg-slate-50/70 hover:bg-slate-100/80 border-slate-200/80'
+                    ? "bg-blue-50/50 border-blue-400 ring-2 ring-blue-500/20 shadow-md" 
+                    : "bg-slate-50/70 hover:bg-slate-100/80 border-slate-200/80"
                 }`}
               >
                 <div className="flex items-start justify-between mb-3">
@@ -1094,7 +1042,6 @@ export default function TriageMap({
                   </span>
                 </div>
 
-                {/* Details */}
                 <div className="space-y-1.5 text-xs text-slate-600 mb-3">
                   <div className="flex items-center justify-between text-[11px]">
                     <span className="text-slate-400">Crew:</span>
@@ -1106,7 +1053,7 @@ export default function TriageMap({
                   </div>
                   <div className="flex items-center justify-between text-[11px]">
                     <span className="text-slate-400">GPS Signal:</span>
-                    <strong className={isFallback ? 'text-amber-600 font-bold' : 'text-emerald-600 font-semibold'}>
+                    <strong className={isFallback ? "text-amber-600 font-bold" : "text-emerald-600 font-semibold"}>
                       {amb.gps_quality}
                     </strong>
                   </div>
@@ -1116,7 +1063,6 @@ export default function TriageMap({
                   </div>
                 </div>
 
-                {/* Equipment Pills */}
                 <div className="pt-2 border-t border-slate-200/60 flex flex-wrap gap-1">
                   {amb.equipment.slice(0, 3).map((eq, i) => (
                     <span key={i} className="px-1.5 py-0.5 rounded-md bg-white border border-slate-200 text-[9px] text-slate-500 font-medium">
@@ -1134,7 +1080,6 @@ export default function TriageMap({
           })}
         </div>
       </div>
-
     </div>
   );
 }

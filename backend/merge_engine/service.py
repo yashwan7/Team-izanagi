@@ -36,7 +36,18 @@ from core.failover.models import PortId
 from ml.network_anomaly.inference import AnomalyInferenceWrapper
 from sensors.eog_dsp.pipeline import EOGDSPPipeline
 from sensors.eog_dsp.simulator import EOGSimulator
-from security.capsule.delta import DeltaEncoder, DEFAULT_BASELINE
+try:
+    from security.capsule.delta import DeltaEncoder, DEFAULT_BASELINE
+except (ImportError, ModuleNotFoundError):
+    import sys
+    from pathlib import Path
+    _repo_root = str(Path(__file__).resolve().parents[2])
+    if _repo_root in sys.path:
+        sys.path.remove(_repo_root)
+    sys.path.insert(0, _repo_root)
+    if "security" in sys.modules and not hasattr(sys.modules["security"], "capsule"):
+        del sys.modules["security"]
+    from security.capsule.delta import DeltaEncoder, DEFAULT_BASELINE
 
 # Subsystem singletons
 failover_engine = FailoverEngine()
