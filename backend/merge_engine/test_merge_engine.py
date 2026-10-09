@@ -223,3 +223,60 @@ def test_ambulance_dispatch_intelligence_and_fallback():
     assert a1.heading_deg is not None
 
 
+@pytest.mark.asyncio
+async def test_pharmaceutical_network_models_and_actions():
+    from backend.merge_engine.models import (
+        MedicineItem,
+        PharmacyDepot,
+        MedicineBatch,
+        ReservationOrder,
+        PharmacyPartner,
+        PharmaceuticalNetworkData,
+        PharmacyActionRequest
+    )
+    from backend.merge_engine.service import (
+        pharmaceutical_network_state,
+        handle_pharmacy_action
+    )
+
+    # Verify initial state contains all required entities
+    assert len(pharmaceutical_network_state.medicines) >= 8
+    assert len(pharmaceutical_network_state.depots) >= 4
+    assert len(pharmaceutical_network_state.batches) >= 5
+    assert len(pharmaceutical_network_state.partners) >= 3
+    assert pharmaceutical_network_state.cold_chain_compliance_pct > 95.0
+
+    # Verify critical medicines like TXA and Whole Blood
+    txa = next((m for m in pharmaceutical_network_state.medicines if m.med_id == "MED-TXA-01"), None)
+    assert txa is not None
+    assert txa.category == "HEMOSTATIC"
+    assert txa.stock_available > 0
+    assert "Aminocaproic Acid" in txa.active_substitutes
+
+    # Test CREATE_RESERVATION action
+    initial_avail = txa.stock_available
+    res_req = PharmacyActionRequest(
+        action="CREATE_RESERVATION",
+        med_id="MED-TXA-01",
+        quantity=5,
+        reserved_for="Ambulance MEDEVAC-01 (Urgent Trauma)",
+        depot_id="PHARM-FST-01",
+        urgency="EMERGENCY_STAT"
+    )
+    res_result = await handle_pharmacy_action(res_req)
+    assert res_result.medicines[0].stock_available == initial_avail - 5
+    assert res_result.reservations[0].med_id == "MED-TXA-01"
+    assert res_result.reservations[0].quantity == 5
+
+    # Test QUARANTINE_BATCH action
+    batch_req = PharmacyActionRequest(
+        action="QUARANTINE_BATCH",
+        batch_id="BATCH-TXA-26A"
+    )
+    q_result = await handle_pharmacy_action(batch_req)
+    q_batch = next((b for b in q_result.batches if b.batch_id == "BATCH-TXA-26A"), None)
+    assert q_batch is not None
+    assert q_batch.status == "QUARANTINED"
+    assert q_batch.cold_chain_breach is True
+
+

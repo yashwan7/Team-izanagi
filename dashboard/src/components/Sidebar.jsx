@@ -2,7 +2,7 @@ import React from 'react';
 import { 
   LayoutGrid, Users, Activity, MapPin, 
   Zap, Eye, GitMerge, FileText, Settings, 
-  ChevronRight, Radio, ShieldCheck, Building2
+  ChevronRight, Radio, ShieldCheck, Building2, Pill
 } from 'lucide-react';
 
 export default function Sidebar({ activeTab, onSelectTab }) {
@@ -12,6 +12,7 @@ export default function Sidebar({ activeTab, onSelectTab }) {
       items: [
         { id: 'overview', label: 'Overview', icon: LayoutGrid },
         { id: 'capacity', label: 'Hospital Capacity', icon: Building2, badge: 'SURGE' },
+        { id: 'pharma', label: 'Pharmaceutical Network', icon: Pill, badge: 'RX' },
         { id: 'patients', label: 'Patients', icon: Users },
         { id: 'triage', label: 'Triage Queue', icon: Activity, badge: 'AUTO' },
         { id: 'map', label: 'GPS Radar', icon: MapPin },
@@ -35,7 +36,7 @@ export default function Sidebar({ activeTab, onSelectTab }) {
   ];
 
   return (
-    <aside className="w-64 bg-gradient-to-b from-[#14284b] via-[#1a3666] to-[#204482] text-white flex flex-col justify-between p-5 shrink-0 min-h-screen select-none shadow-2xl border-r border-blue-900/30">
+    <aside className="w-64 bg-gradient-to-b from-[#14284b] via-[#1a3666] to-[#204482] text-white flex flex-col justify-between p-5 shrink-0 min-h-screen max-h-screen overflow-y-auto sticky top-0 select-none shadow-2xl border-r border-blue-900/30">
       
       {/* Top Profile / Brand */}
       <div>

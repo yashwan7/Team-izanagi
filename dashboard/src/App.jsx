@@ -11,11 +11,12 @@ import PatientDetailModal from './components/PatientDetailModal';
 import AIReports from './components/AIReports';
 import SettingsView from './components/SettingsView';
 import HospitalCapacity from './components/HospitalCapacity';
+import PharmaceuticalNetwork from './components/PharmaceuticalNetwork';
 import FailoverTinyMLView from './components/FailoverTinyMLView';
 import EOGSecurityView from './components/EOGSecurityView';
 import { 
   HeartPulse, ShieldAlert, RefreshCw, 
-  Sparkles, Stethoscope, Activity, FileText, Zap, Eye 
+  Sparkles, Stethoscope, Activity, FileText, Zap, Eye, Pill 
 } from 'lucide-react';
 
 const API_BASE = '/api';
@@ -29,19 +30,21 @@ export default function App() {
   const [incidentTimeline, setIncidentTimeline] = useState([]);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [wsConnected, setWsConnected] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'capacity' | 'patients' | 'triage' | 'map' | 'timeline' | 'reports' | 'settings'
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'capacity' | 'pharma' | 'patients' | 'triage' | 'map' | 'timeline' | 'reports' | 'settings'
   const [capacityData, setCapacityData] = useState(null);
   const [dispatchData, setDispatchData] = useState(null);
+  const [pharmacyData, setPharmacyData] = useState(null);
   const wsRef = useRef(null);
 
   const fetchAllData = async () => {
     try {
-      const [resNet, resPat, resTime, resCap, resDisp] = await Promise.all([
+      const [resNet, resPat, resTime, resCap, resDisp, resPharm] = await Promise.all([
         fetch(`${API_BASE}/network-state`).then(r => r.json()),
         fetch(`${API_BASE}/patients`).then(r => r.json()),
         fetch(`${API_BASE}/timeline`).then(r => r.json()),
         fetch(`${API_BASE}/hospital-capacity`).then(r => r.json()).catch(() => null),
-        fetch(`${API_BASE}/dispatch`).then(r => r.json()).catch(() => null)
+        fetch(`${API_BASE}/dispatch`).then(r => r.json()).catch(() => null),
+        fetch(`${API_BASE}/pharmacy`).then(r => r.json()).catch(() => null)
       ]);
       setNetworkStatus(resNet);
       setPatients(resPat);
@@ -51,6 +54,9 @@ export default function App() {
       }
       if (resDisp) {
         setDispatchData(resDisp);
+      }
+      if (resPharm) {
+        setPharmacyData(resPharm);
       }
 
       if (resPat.length > 0 && !selectedPatientId) {
@@ -112,12 +118,17 @@ export default function App() {
             setCapacityData(msg.payload);
           } else if (msg.type === 'DISPATCH_UPDATE') {
             setDispatchData(msg.payload);
+          } else if (msg.type === 'PHARMACY_UPDATE') {
+            setPharmacyData(msg.payload);
           } else if (msg.type === 'INIT_STATE') {
             if (msg.payload && msg.payload.capacity) {
               setCapacityData(msg.payload.capacity);
             }
             if (msg.payload && msg.payload.dispatch) {
               setDispatchData(msg.payload.dispatch);
+            }
+            if (msg.payload && msg.payload.pharmacy) {
+              setPharmacyData(msg.payload.pharmacy);
             }
           }
         } catch (e) {
@@ -236,6 +247,23 @@ export default function App() {
     }
   };
 
+  const handlePharmacyAction = async (payload) => {
+    try {
+      const res = await fetch(`${API_BASE}/pharmacy/action`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPharmacyData(data);
+        return data;
+      }
+    } catch (err) {
+      console.error('Failed pharmacy action:', err);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#eef2f7] flex font-sans selection:bg-blue-500 selection:text-white">
       
@@ -315,6 +343,16 @@ export default function App() {
             onUpdateCapacity={handleUpdateCapacity}
             onSelectPatient={(id) => handleSelectPatient(id, true)}
             patients={patients}
+          />
+        )}
+
+        {activeTab === 'pharma' && (
+          <PharmaceuticalNetwork 
+            pharmacyData={pharmacyData}
+            onPharmacyAction={handlePharmacyAction}
+            patients={patients}
+            dispatchData={dispatchData}
+            onSelectPatient={handleSelectPatient}
           />
         )}
 

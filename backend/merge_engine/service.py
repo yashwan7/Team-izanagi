@@ -1,5 +1,6 @@
 import os
 import json
+import time
 import asyncio
 from contextlib import asynccontextmanager
 from typing import List, Dict, Any, Optional
@@ -22,7 +23,14 @@ from .models import (
     RouteTelemetry,
     DispatchMission,
     AmbulanceDispatchData,
-    DispatchActionRequest
+    DispatchActionRequest,
+    MedicineItem,
+    PharmacyDepot,
+    MedicineBatch,
+    ReservationOrder,
+    PharmacyPartner,
+    PharmaceuticalNetworkData,
+    PharmacyActionRequest
 )
 from .prompt_engine import evaluate_clinical_triage, calculate_clinical_metrics
 from .engine import merge_engine
@@ -463,6 +471,417 @@ ambulance_dispatch_state = AmbulanceDispatchData(
         )
     ],
     fallback_protocol_enabled=False
+)
+
+pharmaceutical_network_state = PharmaceuticalNetworkData(
+    system_status="OPERATIONAL",
+    total_skus=9,
+    total_inventory_units=3968,
+    cold_chain_compliance_pct=99.2,
+    low_stock_critical_count=2,
+    active_reservations_count=4,
+    medicines=[
+        MedicineItem(
+            med_id="MED-TXA-01",
+            name="Tranexamic Acid (TXA)",
+            generic_name="Tranexamic Acid",
+            category="HEMOSTATIC",
+            form="1000mg / 10ml Injectable Vial",
+            dosage="1g IV over 10 min, followed by 1g over 8 hours",
+            stock_total=450,
+            stock_available=390,
+            stock_reserved=60,
+            unit="vials",
+            min_threshold=100,
+            temperature_requirement="15-25°C Controlled Room Temp",
+            is_cold_chain=False,
+            schedule="Rx",
+            active_substitutes=["Aminocaproic Acid", "Aprotinin"],
+            criticality="CRITICAL"
+        ),
+        MedicineItem(
+            med_id="MED-EPI-02",
+            name="Epinephrine HCl",
+            generic_name="Adrenaline / Epinephrine",
+            category="RESUSCITATION",
+            form="1mg / 1ml (1:1000) Ampoule & Auto-Injector",
+            dosage="0.3mg - 0.5mg IM for Anaphylaxis; 1mg IV for Cardiac Arrest",
+            stock_total=320,
+            stock_available=280,
+            stock_reserved=40,
+            unit="ampoules",
+            min_threshold=80,
+            temperature_requirement="20-25°C Protect from Light",
+            is_cold_chain=False,
+            schedule="Rx",
+            active_substitutes=["Norepinephrine", "Vasopressin"],
+            criticality="CRITICAL"
+        ),
+        MedicineItem(
+            med_id="MED-KET-03",
+            name="Ketamine Hydrochloride",
+            generic_name="Ketamine HCl",
+            category="ANESTHETIC",
+            form="500mg / 10ml Multi-Dose Vial",
+            dosage="1-2 mg/kg IV for Dissociative Anesthesia; 0.25mg/kg for Analgesia",
+            stock_total=180,
+            stock_available=145,
+            stock_reserved=35,
+            unit="vials",
+            min_threshold=50,
+            temperature_requirement="20-25°C Controlled Substance Safe",
+            is_cold_chain=False,
+            schedule="Schedule III",
+            active_substitutes=["Etomidate", "Propofol"],
+            criticality="HIGH"
+        ),
+        MedicineItem(
+            med_id="MED-BLD-04",
+            name="Whole Blood O-Negative (LTOWB)",
+            generic_name="Low-Titer O-Neg Whole Blood",
+            category="HEMOSTATIC",
+            form="450ml CPD Anticoagulated Unit",
+            dosage="1-2 Units Rapid Transfusion with In-Line Warmer",
+            stock_total=48,
+            stock_available=36,
+            stock_reserved=12,
+            unit="units",
+            min_threshold=20,
+            temperature_requirement="1-6°C Cold Chain Continuous Monitor",
+            is_cold_chain=True,
+            schedule="Biological Product",
+            active_substitutes=["Lyophilized Plasma (FDP)", "PRBC + FFP (1:1)"],
+            criticality="CRITICAL"
+        ),
+        MedicineItem(
+            med_id="MED-MOR-05",
+            name="Morphine Sulfate",
+            generic_name="Morphine Sulfate",
+            category="ANALGESIC",
+            form="10mg / 1ml Ampoule",
+            dosage="2-5mg IV slow push every 5-10 min titrated to pain",
+            stock_total=210,
+            stock_available=175,
+            stock_reserved=35,
+            unit="ampoules",
+            min_threshold=60,
+            temperature_requirement="15-30°C High-Security Narcotic Locker",
+            is_cold_chain=False,
+            schedule="Schedule II",
+            active_substitutes=["Fentanyl Citrate", "Hydromorphone"],
+            criticality="HIGH"
+        ),
+        MedicineItem(
+            med_id="MED-CEF-06",
+            name="Cefazolin Sodium",
+            generic_name="Cefazolin",
+            category="ANTIBIOTIC",
+            form="2g Powder for Injection Vial",
+            dosage="2g IV within 1 hr of traumatic open wound",
+            stock_total=620,
+            stock_available=540,
+            stock_reserved=80,
+            unit="vials",
+            min_threshold=150,
+            temperature_requirement="20-25°C Controlled Room Temp",
+            is_cold_chain=False,
+            schedule="Rx",
+            active_substitutes=["Ampicillin-Sulbactam", "Ceftriaxone"],
+            criticality="STANDARD"
+        ),
+        MedicineItem(
+            med_id="MED-NAL-07",
+            name="Naloxone HCl (Narcan)",
+            generic_name="Naloxone",
+            category="ANTIDOTE",
+            form="2mg / 2ml Prefilled Syringe",
+            dosage="0.4mg - 2mg IV/IM/IN, repeat q2-3min prn",
+            stock_total=190,
+            stock_available=165,
+            stock_reserved=25,
+            unit="syringes",
+            min_threshold=40,
+            temperature_requirement="15-25°C Protect from Freezing",
+            is_cold_chain=False,
+            schedule="Rx",
+            active_substitutes=["Nalmefene"],
+            criticality="HIGH"
+        ),
+        MedicineItem(
+            med_id="MED-PLAS-08",
+            name="Lyophilized Freeze-Dried Plasma (FDP)",
+            generic_name="Dried Human Plasma",
+            category="HEMOSTATIC",
+            form="200ml Reconstituted Infusion Kit",
+            dosage="Reconstitute with 200ml sterile water, infuse over 15 min",
+            stock_total=85,
+            stock_available=65,
+            stock_reserved=20,
+            unit="kits",
+            min_threshold=30,
+            temperature_requirement="2-8°C Austere Cold Storage",
+            is_cold_chain=True,
+            schedule="Biological Product",
+            active_substitutes=["Fresh Frozen Plasma", "Cryoprecipitate"],
+            criticality="CRITICAL"
+        ),
+        MedicineItem(
+            med_id="MED-RL-09",
+            name="Ringer's Lactate Solution",
+            generic_name="Hartmann's Solution",
+            category="IV_FLUIDS",
+            form="1000ml Infusion Bag",
+            dosage="500ml bolus for hypotensive resuscitation, target SBP > 90",
+            stock_total=1815,
+            stock_available=1620,
+            stock_reserved=195,
+            unit="bags",
+            min_threshold=400,
+            temperature_requirement="15-30°C Ambient",
+            is_cold_chain=False,
+            schedule="Rx",
+            active_substitutes=["Normal Saline 0.9%", "Plasmalyte-A"],
+            criticality="STANDARD"
+        )
+    ],
+    depots=[
+        PharmacyDepot(
+            depot_id="PHARM-FST-01",
+            name="FST Alpha Forward Surgical Central Depot",
+            depot_type="FORWARD_SURGICAL_DEPOT",
+            location="Forward Operating Base Alpha, Bangalore Sector 1",
+            lat=28.6180,
+            lng=77.2150,
+            distance_km=1.8,
+            travel_time_mins=4,
+            status="OPEN_24_7",
+            pharmacist_in_charge="Capt. Priya Sen, PharmD",
+            contact_vhf="142.85 MHz / Ext 104",
+            cold_chain_status="OPTIMAL_STABLE",
+            cold_storage_temp_c=4.2,
+            inventory_count=1240,
+            is_network_partner=True
+        ),
+        PharmacyDepot(
+            depot_id="PHARM-BASE-02",
+            name="Base Hospital 03 Central Pharmacy",
+            depot_type="CENTRAL_HOSPITAL_PHARMACY",
+            location="Base Hospital Complex, Medical Wing B",
+            lat=28.6350,
+            lng=77.2280,
+            distance_km=4.2,
+            travel_time_mins=9,
+            status="OPEN_24_7",
+            pharmacist_in_charge="Dr. Vikram Seth, Lead Pharmacist",
+            contact_vhf="148.10 MHz / Ext 310",
+            cold_chain_status="OPTIMAL_STABLE",
+            cold_storage_temp_c=3.8,
+            inventory_count=2150,
+            is_network_partner=True
+        ),
+        PharmacyDepot(
+            depot_id="PHARM-FSP-03",
+            name="Sector-4 Forward Staging Supply Point",
+            depot_type="TACTICAL_SUPPLY_POINT",
+            location="Tactical Outpost Grid 43R-EK-284",
+            lat=28.5990,
+            lng=77.1950,
+            distance_km=6.5,
+            travel_time_mins=14,
+            status="RAPID_DEPLOY_OPEN",
+            pharmacist_in_charge="Sgt. Arjun Reddy, Logistics NCO",
+            contact_vhf="143.40 MHz / Ch 6",
+            cold_chain_status="BATTERY_BACKUP_ACTIVE",
+            cold_storage_temp_c=4.8,
+            inventory_count=420,
+            is_network_partner=True
+        ),
+        PharmacyDepot(
+            depot_id="PHARM-CIV-04",
+            name="Apollo Tactical Partner Depot (Civilian)",
+            depot_type="CIVILIAN_STRATEGIC_PARTNER",
+            location="Apollo Apex Trauma Center Ground Floor",
+            lat=28.5850,
+            lng=77.2400,
+            distance_km=8.9,
+            travel_time_mins=19,
+            status="OPEN_24_7",
+            pharmacist_in_charge="Dr. Meenakshi Sundaram, RPh",
+            contact_vhf="155.65 MHz / Phone: +91-80-2441-9988",
+            cold_chain_status="CERTIFIED_SURGE_SUPPLIER",
+            cold_storage_temp_c=3.9,
+            inventory_count=3580,
+            is_network_partner=True
+        )
+    ],
+    batches=[
+        MedicineBatch(
+            batch_id="BATCH-TXA-26A",
+            med_id="MED-TXA-01",
+            med_name="Tranexamic Acid (TXA)",
+            manufacturer="Cadila Healthcare Tactical Pharma",
+            manufacture_date="2025-06-10",
+            expiry_date="2027-06-10",
+            days_until_expiry=609,
+            quantity=250,
+            location_depot_id="PHARM-FST-01",
+            cold_chain_breach=False,
+            status="ACTIVE",
+            fefo_priority=1
+        ),
+        MedicineBatch(
+            batch_id="BATCH-BLD-09F",
+            med_id="MED-BLD-04",
+            med_name="Whole Blood O-Negative (LTOWB)",
+            manufacturer="Armed Forces Transfusion Centre",
+            manufacture_date="2026-09-25",
+            expiry_date="2026-10-30",
+            days_until_expiry=21,
+            quantity=18,
+            location_depot_id="PHARM-FST-01",
+            cold_chain_breach=False,
+            status="NEAR_EXPIRY",
+            fefo_priority=1
+        ),
+        MedicineBatch(
+            batch_id="BATCH-EPI-44C",
+            med_id="MED-EPI-02",
+            med_name="Epinephrine HCl",
+            manufacturer="Sun Pharma Defense Division",
+            manufacture_date="2025-01-15",
+            expiry_date="2027-01-15",
+            days_until_expiry=463,
+            quantity=140,
+            location_depot_id="PHARM-BASE-02",
+            cold_chain_breach=False,
+            status="ACTIVE",
+            fefo_priority=2
+        ),
+        MedicineBatch(
+            batch_id="BATCH-KET-12B",
+            med_id="MED-KET-03",
+            med_name="Ketamine Hydrochloride",
+            manufacturer="Troikaa Tactical Healthcare",
+            manufacture_date="2024-11-20",
+            expiry_date="2026-11-20",
+            days_until_expiry=42,
+            quantity=45,
+            location_depot_id="PHARM-FST-01",
+            cold_chain_breach=False,
+            status="NEAR_EXPIRY",
+            fefo_priority=1
+        ),
+        MedicineBatch(
+            batch_id="BATCH-CEF-88D",
+            med_id="MED-CEF-06",
+            med_name="Cefazolin Sodium",
+            manufacturer="Cipla Tactical Health",
+            manufacture_date="2025-04-10",
+            expiry_date="2027-04-10",
+            days_until_expiry=548,
+            quantity=300,
+            location_depot_id="PHARM-BASE-02",
+            cold_chain_breach=False,
+            status="ACTIVE",
+            fefo_priority=3
+        ),
+        MedicineBatch(
+            batch_id="BATCH-MOR-03A",
+            med_id="MED-MOR-05",
+            med_name="Morphine Sulfate",
+            manufacturer="Govt Opium & Alkaloid Works",
+            manufacture_date="2024-03-01",
+            expiry_date="2026-03-01",
+            days_until_expiry=-222,
+            quantity=15,
+            location_depot_id="PHARM-FSP-03",
+            cold_chain_breach=False,
+            status="EXPIRED",
+            fefo_priority=99
+        )
+    ],
+    reservations=[
+        ReservationOrder(
+            order_id="RES-901",
+            timestamp="12 mins ago",
+            med_id="MED-TXA-01",
+            med_name="Tranexamic Acid (TXA)",
+            quantity=4,
+            reserved_for="Ambulance MEDEVAC-01 (PT-101 Hemorrhagic Shock)",
+            destination_depot_id="PHARM-FST-01",
+            urgency="EMERGENCY_STAT",
+            status="DISPATCHED",
+            requester="Tactical Dispatch Command"
+        ),
+        ReservationOrder(
+            order_id="RES-902",
+            timestamp="28 mins ago",
+            med_id="MED-BLD-04",
+            med_name="Whole Blood O-Negative",
+            quantity=2,
+            reserved_for="Trauma Bay 1 (FST Alpha Resuscitation)",
+            destination_depot_id="PHARM-FST-01",
+            urgency="EMERGENCY_STAT",
+            status="FULFILLED",
+            requester="Capt. Priya Sen, PharmD"
+        ),
+        ReservationOrder(
+            order_id="RES-903",
+            timestamp="6 mins ago",
+            med_id="MED-KET-03",
+            med_name="Ketamine Hydrochloride",
+            quantity=2,
+            reserved_for="Ambulance MEDEVAC-02 (PT-204 Blast Trauma)",
+            destination_depot_id="PHARM-BASE-02",
+            urgency="URGENT",
+            status="PENDING",
+            requester="Flight Nurse Roy"
+        ),
+        ReservationOrder(
+            order_id="RES-904",
+            timestamp="45 mins ago",
+            med_id="MED-CEF-06",
+            med_name="Cefazolin Sodium",
+            quantity=6,
+            reserved_for="Surgical Field Team Sterile Pack Prep",
+            destination_depot_id="PHARM-BASE-02",
+            urgency="ROUTINE",
+            status="DISPATCHED",
+            requester="Central OR Desk"
+        )
+    ],
+    partners=[
+        PharmacyPartner(
+            partner_id="PARTNER-01",
+            name="Apollo Emergency Strategic Logistics",
+            tier="LEVEL_1_TRAUMA_SUPPLIER",
+            compliance_score=99.4,
+            avg_fulfillment_mins=18,
+            mesh_api_status="SYNCED_ONLINE",
+            authorized_stock_types=["Whole Blood Cold-Chain", "Schedule II Narcotics", "Freeze-Dried Plasma"],
+            contact_officer="Dr. Rajesh Varma, Director of Pharmacy"
+        ),
+        PharmacyPartner(
+            partner_id="PARTNER-02",
+            name="Defense Medical Logistics Reserve (DMLR)",
+            tier="DEFENSE_LOGISTICS_AGENCY",
+            compliance_score=99.8,
+            avg_fulfillment_mins=24,
+            mesh_api_status="SYNCED_ONLINE",
+            authorized_stock_types=["CBRN Antidote Kits", "Combat Hemostatics", "Tactical IV Fluids"],
+            contact_officer="Col. Sanjeev Nair, Supply Corps"
+        ),
+        PharmacyPartner(
+            partner_id="PARTNER-03",
+            name="State Disaster Health Logistics Hub",
+            tier="STATE_DISASTER_RESERVE",
+            compliance_score=97.6,
+            avg_fulfillment_mins=35,
+            mesh_api_status="SYNCED_ONLINE",
+            authorized_stock_types=["Emergency Antibiotics", "Burn Resuscitation Kits", "Tetanus Toxoid"],
+            contact_officer="Dr. Ananya Ray, State Director"
+        )
+    ]
 )
 
 
@@ -1014,6 +1433,102 @@ async def handle_dispatch_action(req: DispatchActionRequest):
     await broadcast_ws("DISPATCH_UPDATE", ambulance_dispatch_state.model_dump())
     return ambulance_dispatch_state
 
+# --- Pharmaceutical Network Endpoints ---
+@app.get("/api/pharmacy")
+def get_pharmacy_state():
+    return pharmaceutical_network_state
+
+@app.post("/api/pharmacy/action")
+async def handle_pharmacy_action(req: PharmacyActionRequest):
+    global pharmaceutical_network_state
+    pharmaceutical_network_state.last_updated = time.time()
+    
+    if req.action == "CREATE_RESERVATION":
+        med = next((m for m in pharmaceutical_network_state.medicines if m.med_id == req.med_id), None)
+        qty = req.quantity or 1
+        if med:
+            if med.stock_available >= qty:
+                med.stock_available -= qty
+                med.stock_reserved += qty
+            new_res = ReservationOrder(
+                order_id=f"RES-{int(time.time()) % 10000}",
+                timestamp="Just now",
+                med_id=med.med_id,
+                med_name=med.name,
+                quantity=qty,
+                reserved_for=req.reserved_for or "Tactical Emergency Resupply",
+                destination_depot_id=req.depot_id or "PHARM-FST-01",
+                urgency=req.urgency or "EMERGENCY_STAT",
+                status="DISPATCHED",
+                requester="Tactical Dispatch Command"
+            )
+            pharmaceutical_network_state.reservations.insert(0, new_res)
+            pharmaceutical_network_state.active_reservations_count = len(
+                [r for r in pharmaceutical_network_state.reservations if r.status in ("PENDING", "DISPATCHED")]
+            )
+
+    elif req.action == "PROCURE_STOCK":
+        med = next((m for m in pharmaceutical_network_state.medicines if m.med_id == req.med_id), None)
+        qty = req.quantity or 50
+        if med:
+            med.stock_total += qty
+            med.stock_available += qty
+            pharmaceutical_network_state.total_inventory_units += qty
+            new_b = MedicineBatch(
+                batch_id=f"BATCH-PRC-{int(time.time()) % 10000}",
+                med_id=med.med_id,
+                med_name=med.name,
+                manufacturer="Emergency Surge Procurement",
+                manufacture_date=time.strftime("%Y-%m-%d"),
+                expiry_date="2027-12-31",
+                days_until_expiry=450,
+                quantity=qty,
+                location_depot_id=req.depot_id or "PHARM-FST-01",
+                cold_chain_breach=False,
+                status="ACTIVE",
+                fefo_priority=2
+            )
+            pharmaceutical_network_state.batches.insert(0, new_b)
+
+    elif req.action == "TRANSFER_STOCK":
+        med = next((m for m in pharmaceutical_network_state.medicines if m.med_id == req.med_id), None)
+        qty = req.quantity or 10
+        src = next((d for d in pharmaceutical_network_state.depots if d.depot_id == req.depot_id), None)
+        dst = next((d for d in pharmaceutical_network_state.depots if d.depot_id == req.target_depot_id), None)
+        if src and dst:
+            src.inventory_count = max(0, src.inventory_count - qty)
+            dst.inventory_count += qty
+            new_res = ReservationOrder(
+                order_id=f"TRF-{int(time.time()) % 10000}",
+                timestamp="In Transit",
+                med_id=med.med_id if med else "MED-SUPPLY",
+                med_name=med.name if med else "Critical Medical Supplies",
+                quantity=qty,
+                reserved_for=f"Inter-Depot Transfer: {src.name} -> {dst.name}",
+                destination_depot_id=dst.depot_id,
+                urgency=req.urgency or "URGENT",
+                status="DISPATCHED",
+                requester="Central Logistics Desk"
+            )
+            pharmaceutical_network_state.reservations.insert(0, new_res)
+
+    elif req.action == "QUARANTINE_BATCH":
+        batch = next((b for b in pharmaceutical_network_state.batches if b.batch_id == req.batch_id), None)
+        if batch:
+            batch.status = "QUARANTINED"
+            batch.cold_chain_breach = True
+            med = next((m for m in pharmaceutical_network_state.medicines if m.med_id == batch.med_id), None)
+            if med:
+                med.stock_available = max(0, med.stock_available - batch.quantity)
+                med.stock_total = max(0, med.stock_total - batch.quantity)
+
+    # Recompute low stock count
+    low_crit = len([m for m in pharmaceutical_network_state.medicines if m.stock_available <= m.min_threshold])
+    pharmaceutical_network_state.low_stock_critical_count = low_crit
+
+    await broadcast_ws("PHARMACY_UPDATE", pharmaceutical_network_state.model_dump())
+    return pharmaceutical_network_state
+
 # --- WebSocket Channel ---
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -1026,7 +1541,8 @@ async def websocket_endpoint(websocket: WebSocket):
                 "network": network_engine.get_status().model_dump(),
                 "patients_count": len(merge_engine.get_all_patients()),
                 "capacity": hospital_capacity_state.model_dump(),
-                "dispatch": ambulance_dispatch_state.model_dump()
+                "dispatch": ambulance_dispatch_state.model_dump(),
+                "pharmacy": pharmaceutical_network_state.model_dump()
             }
         }))
         while True:

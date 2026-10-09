@@ -206,3 +206,99 @@ class DispatchActionRequest(BaseModel):
     mgrs_grid: Optional[str] = None
     fallback_enabled: Optional[bool] = None
 
+class MedicineItem(BaseModel):
+    med_id: str
+    name: str
+    generic_name: str
+    category: str # "HEMOSTATIC", "ANALGESIC", "ANESTHETIC", "ANTIBIOTIC", "RESUSCITATION", "IV_FLUIDS", "ANTIDOTE"
+    form: str
+    dosage: str
+    stock_total: int
+    stock_available: int
+    stock_reserved: int
+    unit: str
+    min_threshold: int
+    temperature_requirement: str
+    is_cold_chain: bool = False
+    schedule: str = "Rx"
+    active_substitutes: List[str] = Field(default_factory=list)
+    criticality: str = "HIGH"
+
+class PharmacyDepot(BaseModel):
+    depot_id: str
+    name: str
+    depot_type: str
+    location: str
+    lat: float
+    lng: float
+    distance_km: float
+    travel_time_mins: int
+    status: str = "OPEN_24_7"
+    pharmacist_in_charge: str
+    contact_vhf: str
+    cold_chain_status: str = "OPTIMAL_STABLE"
+    cold_storage_temp_c: float = 4.2
+    inventory_count: int = 1200
+    is_network_partner: bool = True
+
+class MedicineBatch(BaseModel):
+    batch_id: str
+    med_id: str
+    med_name: str
+    manufacturer: str
+    manufacture_date: str
+    expiry_date: str
+    days_until_expiry: int
+    quantity: int
+    location_depot_id: str
+    cold_chain_breach: bool = False
+    status: str = "ACTIVE"
+    fefo_priority: int = 1
+
+class ReservationOrder(BaseModel):
+    order_id: str
+    timestamp: str
+    med_id: str
+    med_name: str
+    quantity: int
+    reserved_for: str
+    destination_depot_id: str
+    urgency: str = "EMERGENCY_STAT"
+    status: str = "DISPATCHED"
+    requester: str = "Tactical Dispatch Command"
+
+class PharmacyPartner(BaseModel):
+    partner_id: str
+    name: str
+    tier: str
+    compliance_score: float = 99.4
+    avg_fulfillment_mins: int = 18
+    mesh_api_status: str = "SYNCED_ONLINE"
+    authorized_stock_types: List[str] = Field(default_factory=list)
+    contact_officer: str
+
+class PharmaceuticalNetworkData(BaseModel):
+    system_status: str = "OPERATIONAL"
+    total_skus: int = 42
+    total_inventory_units: int = 14580
+    cold_chain_compliance_pct: float = 99.2
+    low_stock_critical_count: int = 3
+    active_reservations_count: int = 8
+    medicines: List[MedicineItem] = Field(default_factory=list)
+    depots: List[PharmacyDepot] = Field(default_factory=list)
+    batches: List[MedicineBatch] = Field(default_factory=list)
+    reservations: List[ReservationOrder] = Field(default_factory=list)
+    partners: List[PharmacyPartner] = Field(default_factory=list)
+    last_updated: float = Field(default_factory=time.time)
+
+class PharmacyActionRequest(BaseModel):
+    action: str
+    med_id: Optional[str] = None
+    batch_id: Optional[str] = None
+    depot_id: Optional[str] = None
+    target_depot_id: Optional[str] = None
+    quantity: Optional[int] = 1
+    reserved_for: Optional[str] = None
+    urgency: Optional[str] = "EMERGENCY_STAT"
+    notes: Optional[str] = None
+
