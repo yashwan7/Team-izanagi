@@ -1,8 +1,16 @@
 // mqttService.js (For Web/React UI using WebSockets)
-import * as mqttLib from 'mqtt';
+import mqtt from 'mqtt';
 
 // Support both ESM import and browser global fallback
-const mqtt = (typeof window !== 'undefined' && window.mqtt) ? window.mqtt : (mqttLib.default || mqttLib);
+const getConnectFn = () => {
+  if (typeof window !== 'undefined' && window.mqtt && typeof window.mqtt.connect === 'function') {
+    return window.mqtt.connect.bind(window.mqtt);
+  }
+  if (mqtt && typeof mqtt.connect === 'function') {
+    return mqtt.connect.bind(mqtt);
+  }
+  return null;
+};
 
 const BROKER_URL = 'wss://broker.hivemq.com:8084/mqtt'; // Public WebSocket Port
 const TOPIC = 'antigravity/sensors/data';
@@ -16,15 +24,23 @@ const TOPIC = 'antigravity/sensors/data';
 export const connectMQTT = (onDataReceived, onStatusChange) => {
   if (onStatusChange) onStatusChange('Connecting...');
 
+  const connectFn = getConnectFn();
+  if (!connectFn) {
+    console.warn('[MQTT] MQTT connect function not available. Running in standalone mode.');
+    if (onStatusChange) onStatusChange('Standby');
+    return { end: () => {} };
+  }
+
   const clientId = 'AntiGravity_UI_' + Math.random().toString(16).substring(2, 8);
   console.log(`[MQTT] Initializing client connection (${clientId}) to ${BROKER_URL}...`);
 
-  const client = mqtt.connect(BROKER_URL, {
-    clientId: clientId,
-    clean: true,
-    connectTimeout: 4000,
-    reconnectPeriod: 2000,
-  });
+  try {
+    const client = connectFn(BROKER_URL, {
+      clientId: clientId,
+      clean: true,
+      connectTimeout: 4000,
+      reconnectPeriod: 2000,
+    });
 
   client.on('connect', () => {
     console.log('[MQTT] Connected successfully to HiveMQ broker!');
@@ -71,6 +87,11 @@ export const connectMQTT = (onDataReceived, onStatusChange) => {
   });
 
   return client;
+} catch (err) {
+  console.error('[MQTT] Connection initialization failed:', err);
+  if (onStatusChange) onStatusChange('Standby');
+  return { end: () => {} };
+}
 };
 
 export default connectMQTT;
