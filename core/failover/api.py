@@ -12,7 +12,10 @@ from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
-import paho.mqtt.client as paho_mqtt
+try:
+    import paho.mqtt.client as paho_mqtt
+except ImportError:
+    paho_mqtt = None
 
 from .engine import FailoverEngine
 from .models import PortId, SystemState
@@ -58,6 +61,9 @@ mqtt_bridge_client: Optional[Any] = None
 def start_mqtt_bridge():
     """Background TCP bridge to HiveMQ broker on port 1883 to bypass browser WebSocket port blocks."""
     global mqtt_bridge_client
+    if paho_mqtt is None:
+        print("[MQTT Bridge] paho-mqtt not installed, bridge disabled.")
+        return
     try:
         def on_connect(client, userdata, flags, rc, properties=None):
             status_code = rc if isinstance(rc, int) else getattr(rc, "value", 0)
