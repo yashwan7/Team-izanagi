@@ -1,12 +1,14 @@
 import React from 'react';
 import { 
   LayoutGrid, Users, Calendar, MessageSquare, 
-  FileText, Activity, Settings, MapPin, GitMerge, ChevronRight 
+  FileText, Activity, Settings, MapPin, GitMerge, ChevronRight,
+  Building2 
 } from 'lucide-react';
 
 export default function Sidebar({ activeTab, onSelectTab }) {
   const menuItems = [
     { id: 'overview', label: 'Overview', icon: LayoutGrid },
+    { id: 'capacity', label: 'Hospital Capacity', icon: Building2 },
     { id: 'patients', label: 'Patients', icon: Users },
     { id: 'triage', label: 'Triage Queue', icon: Activity },
     { id: 'map', label: 'GPS Map', icon: MapPin },

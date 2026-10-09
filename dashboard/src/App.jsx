@@ -10,6 +10,7 @@ import EyeGazeAlertModal from './components/EyeGazeAlertModal';
 import PatientDetailModal from './components/PatientDetailModal';
 import AIReports from './components/AIReports';
 import SettingsView from './components/SettingsView';
+import HospitalCapacity from './components/HospitalCapacity';
 import { 
   HeartPulse, ShieldAlert, RefreshCw, 
   Sparkles, Stethoscope, Activity, FileText 
@@ -26,19 +27,24 @@ export default function App() {
   const [incidentTimeline, setIncidentTimeline] = useState([]);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [wsConnected, setWsConnected] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'patients' | 'triage' | 'map' | 'timeline' | 'reports' | 'settings'
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'capacity' | 'patients' | 'triage' | 'map' | 'timeline' | 'reports' | 'settings'
+  const [capacityData, setCapacityData] = useState(null);
   const wsRef = useRef(null);
 
   const fetchAllData = async () => {
     try {
-      const [resNet, resPat, resTime] = await Promise.all([
+      const [resNet, resPat, resTime, resCap] = await Promise.all([
         fetch(`${API_BASE}/network-state`).then(r => r.json()),
         fetch(`${API_BASE}/patients`).then(r => r.json()),
-        fetch(`${API_BASE}/timeline`).then(r => r.json())
+        fetch(`${API_BASE}/timeline`).then(r => r.json()),
+        fetch(`${API_BASE}/hospital-capacity`).then(r => r.json()).catch(() => null)
       ]);
       setNetworkStatus(resNet);
       setPatients(resPat);
       setIncidentTimeline(resTime);
+      if (resCap) {
+        setCapacityData(resCap);
+      }
 
       if (resPat.length > 0 && !selectedPatientId) {
         setSelectedPatientId(resPat[0].capsule.patient_id);
@@ -95,6 +101,12 @@ export default function App() {
             fetchAllData();
           } else if (msg.type === 'CAPSULE_UPDATE') {
             fetchAllData();
+          } else if (msg.type === 'CAPACITY_UPDATE') {
+            setCapacityData(msg.payload);
+          } else if (msg.type === 'INIT_STATE') {
+            if (msg.payload && msg.payload.capacity) {
+              setCapacityData(msg.payload.capacity);
+            }
           }
         } catch (e) {
           console.error(e);
@@ -178,6 +190,23 @@ export default function App() {
     fetchAllData();
   };
 
+  const handleUpdateCapacity = async (payload) => {
+    try {
+      const res = await fetch(`${API_BASE}/hospital-capacity/reallocate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCapacityData(data);
+        return data;
+      }
+    } catch (err) {
+      console.error('Failed to update capacity:', err);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#eef2f7] flex font-sans selection:bg-blue-500 selection:text-white">
       
@@ -248,6 +277,15 @@ export default function App() {
             selectedPatientId={selectedPatientId}
             onSelectPatient={handleSelectPatient}
             networkStatus={networkStatus}
+          />
+        )}
+
+        {activeTab === 'capacity' && (
+          <HospitalCapacity 
+            capacityData={capacityData}
+            onUpdateCapacity={handleUpdateCapacity}
+            onSelectPatient={(id) => handleSelectPatient(id, true)}
+            patients={patients}
           />
         )}
 
