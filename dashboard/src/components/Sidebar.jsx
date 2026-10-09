@@ -2,7 +2,7 @@ import React from 'react';
 import { 
   LayoutGrid, Users, Activity, MapPin, 
   Zap, Eye, GitMerge, FileText, Settings, 
-  ChevronRight, Radio, ShieldCheck
+  ChevronRight, Radio, ShieldCheck, Building2
 } from 'lucide-react';
 
 export default function Sidebar({ activeTab, onSelectTab }) {
@@ -11,6 +11,7 @@ export default function Sidebar({ activeTab, onSelectTab }) {
       heading: 'CLINICAL COMMAND',
       items: [
         { id: 'overview', label: 'Overview', icon: LayoutGrid },
+        { id: 'capacity', label: 'Hospital Capacity', icon: Building2, badge: 'SURGE' },
         { id: 'patients', label: 'Patients', icon: Users },
         { id: 'triage', label: 'Triage Queue', icon: Activity, badge: 'AUTO' },
         { id: 'map', label: 'GPS Radar', icon: MapPin },

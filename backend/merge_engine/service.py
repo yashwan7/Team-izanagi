@@ -10,7 +10,11 @@ from .models import (
     CaseCapsule, 
     TriageEvaluationResponse, 
     NetworkStatus, 
-    TimelineIncident
+    TimelineIncident,
+    BedUnit,
+    CriticalResource,
+    HospitalCapacityData,
+    CapacityUpdateRequest
 )
 from .prompt_engine import evaluate_clinical_triage, calculate_clinical_metrics
 from .engine import merge_engine
@@ -68,6 +72,168 @@ async def broadcast_ws(event_type: str, data: Any):
     for ws in disconnected:
         if ws in active_websockets:
             active_websockets.remove(ws)
+
+hospital_capacity_state = HospitalCapacityData(
+    facility_name="Forward Surgical Team Alpha (FST-A)",
+    operational_status="SURGE_ELEVATED",
+    occupancy_pct=78.5,
+    rationing_mode=False,
+    resupply_drone_eta_mins=45,
+    bed_units=[
+        BedUnit(
+            unit_id="ICU-CC",
+            unit_name="Intensive Care & Resuscitation",
+            category="ICU",
+            total_beds=12,
+            occupied_beds=10,
+            ventilators_total=10,
+            ventilators_active=8,
+            critical_reserve=2
+        ),
+        BedUnit(
+            unit_id="TRAUMA-BAY",
+            unit_name="Acute Trauma Resuscitation Bays",
+            category="TRAUMA_RESUS",
+            total_beds=6,
+            occupied_beds=5,
+            ventilators_total=6,
+            ventilators_active=4,
+            critical_reserve=1
+        ),
+        BedUnit(
+            unit_id="STEP-DOWN",
+            unit_name="Intermediate & Step-Down Ward",
+            category="STEP_DOWN",
+            total_beds=24,
+            occupied_beds=18,
+            ventilators_total=4,
+            ventilators_active=2,
+            critical_reserve=4
+        ),
+        BedUnit(
+            unit_id="AUSTERE-LITTER",
+            unit_name="Austere Surge & Field Holding Litters",
+            category="AUSTERE_SURGE",
+            total_beds=30,
+            occupied_beds=22,
+            ventilators_total=2,
+            ventilators_active=1,
+            critical_reserve=6
+        ),
+    ],
+    critical_resources=[
+        CriticalResource(
+            resource_id="O2-LIQUID",
+            name="Medical Oxygen (LOX & Concentrators)",
+            category="OXYGEN",
+            current_level=860.0,
+            max_capacity=1200.0,
+            unit="Liters",
+            burn_rate_per_hour=48.0,
+            hours_remaining=17.9,
+            status="NOMINAL"
+        ),
+        CriticalResource(
+            resource_id="BLOOD-ONEG",
+            name="O-Negative Packed RBCs (Universal)",
+            category="BLOOD_BANK",
+            current_level=7.0,
+            max_capacity=20.0,
+            unit="Units",
+            burn_rate_per_hour=0.8,
+            hours_remaining=8.75,
+            status="CRITICAL_RATIONING"
+        ),
+        CriticalResource(
+            resource_id="BLOOD-OPOS",
+            name="O-Positive Packed RBCs",
+            category="BLOOD_BANK",
+            current_level=14.0,
+            max_capacity=25.0,
+            unit="Units",
+            burn_rate_per_hour=0.5,
+            hours_remaining=28.0,
+            status="NOMINAL"
+        ),
+        CriticalResource(
+            resource_id="BLOOD-PLASMA",
+            name="Fresh Frozen Plasma & Platelets",
+            category="BLOOD_BANK",
+            current_level=11.0,
+            max_capacity=24.0,
+            unit="Units",
+            burn_rate_per_hour=0.6,
+            hours_remaining=18.3,
+            status="ELEVATED_BURN"
+        ),
+        CriticalResource(
+            resource_id="MED-TXA",
+            name="Tranexamic Acid (TXA 1g IV)",
+            category="MEDICATIONS",
+            current_level=28.0,
+            max_capacity=50.0,
+            unit="Vials",
+            burn_rate_per_hour=1.2,
+            hours_remaining=23.3,
+            status="NOMINAL"
+        ),
+        CriticalResource(
+            resource_id="MED-KETAMINE",
+            name="Ketamine HCL (50mg/mL)",
+            category="MEDICATIONS",
+            current_level=62.0,
+            max_capacity=100.0,
+            unit="Vials",
+            burn_rate_per_hour=2.0,
+            hours_remaining=31.0,
+            status="NOMINAL"
+        ),
+        CriticalResource(
+            resource_id="MED-MORPHINE",
+            name="Morphine Sulfate (10mg/mL)",
+            category="MEDICATIONS",
+            current_level=38.0,
+            max_capacity=80.0,
+            unit="Ampules",
+            burn_rate_per_hour=1.5,
+            hours_remaining=25.3,
+            status="NOMINAL"
+        ),
+        CriticalResource(
+            resource_id="FLUID-LR",
+            name="Ringer's Lactate Crystalloid",
+            category="IV_FLUIDS",
+            current_level=115.0,
+            max_capacity=200.0,
+            unit="Liters",
+            burn_rate_per_hour=4.5,
+            hours_remaining=25.5,
+            status="NOMINAL"
+        ),
+        CriticalResource(
+            resource_id="SURG-MARCH",
+            name="MARCH Hemorrhage Trauma Packs",
+            category="SURGICAL_KITS",
+            current_level=18.0,
+            max_capacity=30.0,
+            unit="Kits",
+            burn_rate_per_hour=0.9,
+            hours_remaining=20.0,
+            status="NOMINAL"
+        ),
+        CriticalResource(
+            resource_id="SURG-CHEST",
+            name="Thoracostomy & Chest Tube Kits",
+            category="SURGICAL_KITS",
+            current_level=8.0,
+            max_capacity=15.0,
+            unit="Kits",
+            burn_rate_per_hour=0.4,
+            hours_remaining=20.0,
+            status="NOMINAL"
+        ),
+    ]
+)
 
 @app.on_event("startup")
 async def startup_event():
@@ -486,6 +652,47 @@ async def inject_chaos_scenario(req: ChaosInjectRequest):
         "security": security_audit_stats
     }
 
+# --- Hospital Capacity Endpoints ---
+@app.get("/api/hospital-capacity", response_model=HospitalCapacityData)
+def get_hospital_capacity():
+    return hospital_capacity_state
+
+@app.post("/api/hospital-capacity/reallocate")
+async def update_hospital_capacity(req: CapacityUpdateRequest):
+    import time
+    hospital_capacity_state.last_updated = time.time()
+    
+    if req.action == "TOGGLE_RATIONING":
+        hospital_capacity_state.rationing_mode = not hospital_capacity_state.rationing_mode
+        multiplier = 0.65 if hospital_capacity_state.rationing_mode else 1.538
+        for res in hospital_capacity_state.critical_resources:
+            res.burn_rate_per_hour = round(res.burn_rate_per_hour * multiplier, 2)
+            if res.burn_rate_per_hour > 0:
+                res.hours_remaining = round(res.current_level / res.burn_rate_per_hour, 1)
+        hospital_capacity_state.operational_status = "CRITICAL_RATIONING_PFC" if hospital_capacity_state.rationing_mode else "SURGE_ELEVATED"
+
+    elif req.action == "REQUEST_RESUPPLY":
+        hospital_capacity_state.resupply_drone_eta_mins = 25
+        for res in hospital_capacity_state.critical_resources:
+            if res.status == "CRITICAL_RATIONING" or res.current_level < res.max_capacity * 0.5:
+                res.current_level = min(res.max_capacity, res.current_level + 10.0)
+                res.status = "NOMINAL"
+                if res.burn_rate_per_hour > 0:
+                    res.hours_remaining = round(res.current_level / res.burn_rate_per_hour, 1)
+
+    elif req.action == "REALLOCATE_BED" and req.unit_id:
+        for unit in hospital_capacity_state.bed_units:
+            if unit.unit_id == req.unit_id:
+                delta_val = req.delta if req.delta is not None else 1
+                unit.occupied_beds = max(0, min(unit.total_beds, int(unit.occupied_beds + delta_val)))
+
+    total_beds = sum(u.total_beds for u in hospital_capacity_state.bed_units)
+    total_occupied = sum(u.occupied_beds for u in hospital_capacity_state.bed_units)
+    hospital_capacity_state.occupancy_pct = round((total_occupied / total_beds) * 100, 1) if total_beds > 0 else 0.0
+
+    await broadcast_ws("CAPACITY_UPDATE", hospital_capacity_state.model_dump())
+    return hospital_capacity_state
+
 # --- WebSocket Channel ---
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -496,7 +703,8 @@ async def websocket_endpoint(websocket: WebSocket):
             "type": "INIT_STATE",
             "payload": {
                 "network": network_engine.get_status().model_dump(),
-                "patients_count": len(merge_engine.get_all_patients())
+                "patients_count": len(merge_engine.get_all_patients()),
+                "capacity": hospital_capacity_state.model_dump()
             }
         }))
         while True:

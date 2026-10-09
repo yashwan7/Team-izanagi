@@ -151,3 +151,47 @@ async def test_clubbed_chaos_injection_endpoint():
     res_reset = await inject_chaos_scenario(req_reset)
     assert res_reset["action"] == "RESET_ALL"
 
+def test_hospital_capacity_models_and_reallocation():
+    from backend.merge_engine.models import BedUnit, CriticalResource, HospitalCapacityData, CapacityUpdateRequest
+    from backend.merge_engine.service import hospital_capacity_state
+
+    # Verify initial capacity state
+    assert hospital_capacity_state.facility_name == "Forward Surgical Team Alpha (FST-A)"
+    assert len(hospital_capacity_state.bed_units) >= 4
+    assert len(hospital_capacity_state.critical_resources) >= 10
+
+    # Test BedUnit model validation
+    bed = BedUnit(
+        unit_id="TEST-ICU",
+        unit_name="Test ICU",
+        category="ICU",
+        total_beds=10,
+        occupied_beds=8,
+        ventilators_total=8,
+        ventilators_active=6,
+        critical_reserve=2
+    )
+    assert bed.occupied_beds == 8
+
+    # Test CriticalResource model
+    res = CriticalResource(
+        resource_id="TEST-O2",
+        name="Oxygen",
+        category="OXYGEN",
+        current_level=500.0,
+        max_capacity=1000.0,
+        unit="Liters",
+        burn_rate_per_hour=25.0,
+        hours_remaining=20.0,
+        status="NOMINAL"
+    )
+    assert res.hours_remaining == 20.0
+
+    # Test CapacityUpdateRequest
+    req = CapacityUpdateRequest(
+        action="REALLOCATE_BED",
+        unit_id="ICU-CC",
+        delta=1
+    )
+    assert req.delta == 1
+

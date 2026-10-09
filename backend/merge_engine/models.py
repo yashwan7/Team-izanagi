@@ -81,3 +81,41 @@ class TimelineIncident(BaseModel):
     details: str
     conflict_detected: bool = False
     resolution: Optional[str] = None
+
+class BedUnit(BaseModel):
+    unit_id: str
+    unit_name: str
+    category: str # "ICU", "TRAUMA_RESUS", "STEP_DOWN", "AUSTERE_SURGE"
+    total_beds: int
+    occupied_beds: int
+    ventilators_total: int
+    ventilators_active: int
+    critical_reserve: int
+
+class CriticalResource(BaseModel):
+    resource_id: str
+    name: str
+    category: str # "OXYGEN", "BLOOD_BANK", "MEDICATIONS", "SURGICAL_KITS", "IV_FLUIDS"
+    current_level: float
+    max_capacity: float
+    unit: str
+    burn_rate_per_hour: float
+    hours_remaining: float
+    status: str # "NOMINAL", "ELEVATED_BURN", "CRITICAL_RATIONING"
+
+class HospitalCapacityData(BaseModel):
+    facility_name: str = "Forward Surgical Team Alpha (FST-A)"
+    operational_status: str = "SURGE_ELEVATED" # "NORMAL", "SURGE_ELEVATED", "MASS_CASUALTY_RED"
+    occupancy_pct: float = 78.5
+    last_updated: float = Field(default_factory=time.time)
+    bed_units: List[BedUnit]
+    critical_resources: List[CriticalResource]
+    rationing_mode: bool = False
+    resupply_drone_eta_mins: Optional[int] = 45
+
+class CapacityUpdateRequest(BaseModel):
+    action: str # "TOGGLE_RATIONING", "REQUEST_RESUPPLY", "REALLOCATE_BED", "UPDATE_STOCK"
+    unit_id: Optional[str] = None
+    resource_id: Optional[str] = None
+    delta: Optional[float] = None
+    target_status: Optional[str] = None
