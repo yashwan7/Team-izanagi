@@ -1,6 +1,7 @@
 import os
 import json
 import asyncio
+from contextlib import asynccontextmanager
 from typing import List, Dict, Any, Optional
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -30,10 +31,41 @@ from sensors.eog_dsp.pipeline import EOGDSPPipeline
 from sensors.eog_dsp.simulator import EOGSimulator
 from security.capsule.delta import DeltaEncoder, DEFAULT_BASELINE
 
+# Subsystem singletons
+failover_engine = FailoverEngine()
+tinyml_wrapper = AnomalyInferenceWrapper()
+eog_pipeline = EOGDSPPipeline()
+eog_simulator = EOGSimulator()
+delta_encoder = DeltaEncoder(DEFAULT_BASELINE)
+
+security_audit_stats = {
+    "verified_count": 142,
+    "tampered_count": 3,
+    "total_full_bytes": 145000,
+    "total_delta_bytes": 18850,
+    "bandwidth_savings_pct": 87.0
+}
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    seed_initial_mock_data()
+    try:
+        failover_engine.start()
+    except Exception as e:
+        print(f"Warning starting failover_engine: {e}")
+    ticker_task = asyncio.create_task(telemetry_ticker())
+    yield
+    ticker_task.cancel()
+    try:
+        failover_engine.stop()
+    except Exception:
+        pass
+
 app = FastAPI(
     title="Kshitij Unified Clinical & Telemetry Command Service",
-    description="Python service receiving incoming real-time and queued offline Case Capsules via WebSockets/REST with deduplication, conflict resolution, Ollama incident timeline synthesis, Dual-Port TinyML Failover, and EOG DSP.",
-    version="2.0.0"
+    description="Python service receiving incoming real-time and queued offline Case Capsules via WebSockets/REST with deduplication, conflict resolution, Nirantara clinical AI synthesis, Dual-Port TinyML Failover, and EOG DSP.",
+    version="2.0.0",
+    lifespan=lifespan
 )
 
 app.add_middleware(
@@ -234,22 +266,6 @@ hospital_capacity_state = HospitalCapacityData(
         ),
     ]
 )
-
-@app.on_event("startup")
-async def startup_event():
-    seed_initial_mock_data()
-    try:
-        failover_engine.start()
-    except Exception as e:
-        print(f"Warning starting failover_engine: {e}")
-    asyncio.create_task(telemetry_ticker())
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    try:
-        failover_engine.stop()
-    except Exception:
-        pass
 
 async def telemetry_ticker():
     while True:
@@ -663,7 +679,10 @@ async def update_hospital_capacity(req: CapacityUpdateRequest):
     hospital_capacity_state.last_updated = time.time()
     
     if req.action == "TOGGLE_RATIONING":
-        hospital_capacity_state.rationing_mode = not hospital_capacity_state.rationing_mode
+        if req.rationing_mode is not None:
+            hospital_capacity_state.rationing_mode = req.rationing_mode
+        else:
+            hospital_capacity_state.rationing_mode = not hospital_capacity_state.rationing_mode
         multiplier = 0.65 if hospital_capacity_state.rationing_mode else 1.538
         for res in hospital_capacity_state.critical_resources:
             res.burn_rate_per_hour = round(res.burn_rate_per_hour * multiplier, 2)
