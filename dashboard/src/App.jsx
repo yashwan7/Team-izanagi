@@ -18,6 +18,9 @@ import {
   Sparkles, Stethoscope, Activity, FileText, Zap, Eye 
 } from 'lucide-react';
 
+import { connectMQTT } from './mqttService';
+import SensorWidgetsGrid, { PulseCard, ForceGauge, RFIDBadge } from './components/SensorWidgets';
+
 const API_BASE = '/api';
 
 export default function App() {
@@ -32,6 +35,32 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'capacity' | 'patients' | 'triage' | 'map' | 'timeline' | 'reports' | 'settings'
   const [capacityData, setCapacityData] = useState(null);
   const wsRef = useRef(null);
+
+  // MQTT Real-time Sensor State
+  const [sensorData, setSensorData] = useState({
+    rfid: 'NONE',
+    pulse_bpm: 0,
+    force_n: 0,
+    pressure_kpa: 0,
+    temp_c: 0,
+  });
+  const [connectionStatus, setConnectionStatus] = useState('Connecting...');
+
+  // MQTT Connection Lifecycle
+  useEffect(() => {
+    const client = connectMQTT(
+      (newData) => {
+        setSensorData(prev => ({ ...prev, ...newData }));
+      },
+      (status) => setConnectionStatus(status)
+    );
+
+    return () => {
+      if (client && client.end) {
+        client.end();
+      }
+    };
+  }, []);
 
   const fetchAllData = async () => {
     try {
@@ -218,11 +247,18 @@ export default function App() {
       {/* ================= MAIN TABLET CONTENT AREA ================= */}
       <div className="flex-1 flex flex-col min-w-0 p-5 md:p-8 max-h-screen overflow-y-auto">
         
-        {/* Top Header & Search Bar */}
+        {/* Top Header & Search Bar with Network and MQTT status */}
         <NetworkBar 
           networkStatus={networkStatus} 
           onSimulateNetwork={handleSimulateNetwork} 
           isOnline={wsConnected}
+          mqttStatus={connectionStatus}
+        />
+
+        {/* Real-Time MQTT Sensors Telemetry Widget Grid */}
+        <SensorWidgetsGrid 
+          sensorData={sensorData} 
+          connectionStatus={connectionStatus} 
         />
 
         {/* Demo Quick Simulator Pills */}
@@ -279,6 +315,7 @@ export default function App() {
             selectedPatientId={selectedPatientId}
             onSelectPatient={handleSelectPatient}
             networkStatus={networkStatus}
+            sensorData={sensorData}
           />
         )}
 

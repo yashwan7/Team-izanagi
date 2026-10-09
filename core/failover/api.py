@@ -245,6 +245,7 @@ def index_dashboard():
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/mqtt@5.10.4/dist/mqtt.min.js"></script>
   <style>
     :root {
       --bg-gradient: radial-gradient(circle at 10% 20%, #e0eafc 0%, #cfdef3 40%, #e4e9f2 100%);
@@ -967,6 +968,11 @@ def index_dashboard():
             <input type="text" placeholder="Search telemetry...">
           </div>
 
+          <div id="mqttStatusPill" class="state-pill" style="background: rgba(99, 102, 241, 0.15); color: #6366f1; border: 1px solid rgba(99, 102, 241, 0.3);">
+            <span class="pulse-dot" style="background: #6366f1;"></span>
+            <span id="mqttStatusText">MQTT: Connecting...</span>
+          </div>
+
           <div id="statePill" class="state-pill state-normal">
             <span class="pulse-dot"></span>
             <span id="stateText">STATE_NORMAL</span>
@@ -1009,6 +1015,53 @@ def index_dashboard():
               <div class="kpi-trend purple" id="kpiTinyMLSub"><span>⚡</span> 99.9% Conf &bull; &lt;0.02ms</div>
             </div>
             <div class="kpi-icon-circle purple">⚡</div>
+          </div>
+        </div>
+
+        <!-- Real-Time MQTT Live Sensors Telemetry Row -->
+        <div class="kpi-row" style="grid-template-columns: repeat(4, 1fr); margin-top: 4px;">
+          <!-- PulseCard -->
+          <div class="kpi-card">
+            <div>
+              <div class="kpi-title">Pulse Rate (BPM)</div>
+              <div class="kpi-value" id="mqtt_pulse_val" style="color: #ef4444;">--</div>
+              <div class="kpi-trend" id="mqtt_pulse_trend"><span>❤️</span> MQTT HiveMQ Stream</div>
+            </div>
+            <div class="kpi-icon-circle" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">💓</div>
+          </div>
+
+          <!-- ForceGauge -->
+          <div class="kpi-card">
+            <div>
+              <div class="kpi-title">Force Strain (N)</div>
+              <div class="kpi-value" id="mqtt_force_val" style="color: #3b82f6;">0.0</div>
+              <div class="bar-track" style="height: 6px; margin-top: 8px;">
+                <div class="bar-fill fill-blue" id="mqtt_force_bar" style="width: 0%;"></div>
+              </div>
+            </div>
+            <div class="kpi-icon-circle blue">⚖️</div>
+          </div>
+
+          <!-- RFIDBadge -->
+          <div class="kpi-card">
+            <div>
+              <div class="kpi-title">RFID Patient Tag</div>
+              <div class="kpi-value" id="mqtt_rfid_val" style="font-size: 18px; color: #8b5cf6;">NONE</div>
+              <div class="kpi-trend purple"><span>🏷️</span> Scanner Ready</div>
+            </div>
+            <div class="kpi-icon-circle purple">💳</div>
+          </div>
+
+          <!-- Temp & Pressure -->
+          <div class="kpi-card">
+            <div>
+              <div class="kpi-title">Bio-Environment</div>
+              <div class="kpi-value" style="font-size: 18px;">
+                <span id="mqtt_temp_val">36.8 °C</span> &bull; <span id="mqtt_press_val" style="color: var(--text-muted); font-size: 14px;">101.3 kPa</span>
+              </div>
+              <div class="kpi-trend"><span>🌡️</span> Thermal & Baro</div>
+            </div>
+            <div class="kpi-icon-circle" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">🌡️</div>
           </div>
         </div>
 
@@ -1895,7 +1948,87 @@ def index_dashboard():
       ws.onerror = () => { ws.close(); };
     }
 
+    // MQTT Connection to HiveMQ WebSocket Broker
+    function connectMQTT() {
+      const BROKER_URL = 'wss://broker.hivemq.com:8084/mqtt';
+      const TOPIC = 'antigravity/sensors/data';
+      const statusPill = document.getElementById('mqttStatusPill');
+      const statusText = document.getElementById('mqttStatusText');
+
+      if (typeof mqtt === 'undefined') {
+        console.warn('[MQTT] Client library not loaded yet');
+        return;
+      }
+
+      console.log('[MQTT] Connecting to ' + BROKER_URL + '...');
+      const client = mqtt.connect(BROKER_URL, {
+        clientId: 'AntiGravity_UI_' + Math.random().toString(16).substring(2, 8),
+        clean: true,
+        connectTimeout: 4000,
+        reconnectPeriod: 2000
+      });
+
+      client.on('connect', () => {
+        console.log('[MQTT] Connected to HiveMQ broker!');
+        if (statusText) statusText.innerText = 'MQTT: Connected';
+        if (statusPill) {
+          statusPill.style.background = 'var(--green-light)';
+          statusPill.style.color = 'var(--green)';
+          statusPill.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+        }
+        client.subscribe(TOPIC, (err) => {
+          if (!err) console.log('[MQTT] Subscribed to ' + TOPIC);
+        });
+      });
+
+      client.on('message', (topic, message) => {
+        try {
+          const data = JSON.parse(message.toString());
+          // 1. Update Pulse Card
+          if (data.pulse_bpm !== undefined) {
+            const el = document.getElementById('mqtt_pulse_val');
+            if (el) el.innerText = data.pulse_bpm > 0 ? data.pulse_bpm : '--';
+          }
+          // 2. Update Force Gauge
+          if (data.force_n !== undefined) {
+            const el = document.getElementById('mqtt_force_val');
+            if (el) el.innerText = typeof data.force_n === 'number' ? data.force_n.toFixed(1) : data.force_n;
+            const bar = document.getElementById('mqtt_force_bar');
+            if (bar) bar.style.width = Math.min(100, (data.force_n / 50.0) * 100) + '%';
+          }
+          // 3. Update RFID Badge
+          if (data.rfid !== undefined) {
+            const el = document.getElementById('mqtt_rfid_val');
+            if (el) el.innerText = data.rfid || 'NONE';
+          }
+          // 4. Update Temp & Pressure
+          if (data.temp_c !== undefined) {
+            const el = document.getElementById('mqtt_temp_val');
+            if (el) el.innerText = data.temp_c + ' °C';
+          }
+          if (data.pressure_kpa !== undefined) {
+            const el = document.getElementById('mqtt_press_val');
+            if (el) el.innerText = data.pressure_kpa + ' kPa';
+          }
+        } catch(e) {}
+      });
+
+      client.on('reconnect', () => {
+        if (statusText) statusText.innerText = 'MQTT: Reconnecting...';
+        if (statusPill) {
+          statusPill.style.background = 'var(--amber-light)';
+          statusPill.style.color = 'var(--amber)';
+        }
+      });
+
+      client.on('error', (err) => {
+        console.error('[MQTT] Connection error:', err);
+        if (statusText) statusText.innerText = 'MQTT: Error';
+      });
+    }
+
     connectWS();
+    setTimeout(connectMQTT, 300);
     setInterval(fetchEvents, 1000);
   </script>
 </body>
