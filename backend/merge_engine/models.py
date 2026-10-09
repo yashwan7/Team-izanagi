@@ -120,3 +120,322 @@ class CapacityUpdateRequest(BaseModel):
     delta: Optional[float] = None
     target_status: Optional[str] = None
     rationing_mode: Optional[bool] = None
+
+class AmbulanceUnit(BaseModel):
+    unit_id: str
+    callsign: str
+    type: str # "ALS", "BLS", "CCT", "TACTICAL_4X4"
+    status: str # "AVAILABLE", "DISPATCHED", "ON_SCENE", "TRANSPORTING", "OFFLINE"
+    gps_lat: float
+    gps_lng: float
+    heading_deg: Optional[float] = 45.0
+    speed_kmh: Optional[float] = 0.0
+    crew: str
+    equipment: List[str] = Field(default_factory=list)
+    assigned_patient_id: Optional[str] = None
+    assigned_hospital_id: Optional[str] = None
+    battery_or_fuel_pct: int = 92
+    gps_quality: str = "HIGH" # "HIGH", "DEGRADED", "LOST_DEAD_RECKONING"
+
+class ReceivingHospital(BaseModel):
+    hospital_id: str
+    name: str
+    gps_lat: float
+    gps_lng: float
+    trauma_level: str # "LEVEL_1", "LEVEL_2", "AUSTERE_SURGICAL"
+    icu_beds_free: int
+    trauma_bays_free: int
+    total_occupancy_pct: float
+    accepting_status: str # "ACCEPTING_ALL", "SELECTIVE_TRAUMA", "DIVERT_OVERCAPACITY"
+    distance_km: float
+    travel_time_mins: int
+    delay_factor_mins: int = 0
+    specialties: List[str] = Field(default_factory=list)
+    recommendation_tier: str = "RECOMMENDED" # "RECOMMENDED", "SECONDARY", "DIVERT"
+    logistics_rationale: str = ""
+
+class DispatchMilestones(BaseModel):
+    dispatched_at: Optional[str] = None
+    en_route_at: Optional[str] = None
+    on_scene_at: Optional[str] = None
+    patient_loaded_at: Optional[str] = None
+    hospital_arrived_at: Optional[str] = None
+
+class RouteTelemetry(BaseModel):
+    route_name: str
+    status: str # "NOMINAL", "DELAYED_CONGESTION", "DETOUR_APPLIED", "OFFLINE_DEAD_RECKONING"
+    estimated_arrival_eta_mins: int
+    delay_added_mins: int = 0
+    route_change_reason: Optional[str] = None
+    waypoints: List[List[float]] = Field(default_factory=list)
+
+class DispatchMission(BaseModel):
+    mission_id: str
+    ambulance_id: str
+    patient_id: str
+    patient_name: str
+    clinical_urgency: str # "IMMEDIATE_RED", "DELAYED_YELLOW", "MINIMAL_GREEN"
+    recommended_hospital_id: str
+    assigned_hospital_id: str
+    stage: str # "DISPATCHED", "ON_SCENE", "TRANSPORTING", "ARRIVED"
+    milestones: DispatchMilestones = Field(default_factory=DispatchMilestones)
+    route: RouteTelemetry
+    fallback_active: bool = False
+    fallback_grid_mgrs: Optional[str] = None
+    fallback_notes: Optional[str] = None
+    routing_advisory: str
+
+class AmbulanceDispatchData(BaseModel):
+    system_status: str = "OPERATIONAL"
+    gps_satellite_lock: str = "LOCK_OPTIMAL"
+    ambulances: List[AmbulanceUnit]
+    hospitals: List[ReceivingHospital]
+    missions: List[DispatchMission]
+    fallback_protocol_enabled: bool = False
+    last_updated: float = Field(default_factory=time.time)
+
+class DispatchActionRequest(BaseModel):
+    action: str # "ASSIGN_DISPATCH", "UPDATE_MILESTONE", "INJECT_ROUTE_DELAY", "TOGGLE_FALLBACK", "UPDATE_MGRS"
+    ambulance_id: Optional[str] = None
+    mission_id: Optional[str] = None
+    patient_id: Optional[str] = None
+    hospital_id: Optional[str] = None
+    next_stage: Optional[str] = None
+    delay_minutes: Optional[int] = None
+    route_change_reason: Optional[str] = None
+    mgrs_grid: Optional[str] = None
+    fallback_enabled: Optional[bool] = None
+
+class MedicineItem(BaseModel):
+    med_id: str
+    name: str
+    generic_name: str
+    category: str # "HEMOSTATIC", "ANALGESIC", "ANESTHETIC", "ANTIBIOTIC", "RESUSCITATION", "IV_FLUIDS", "ANTIDOTE"
+    form: str
+    dosage: str
+    stock_total: int
+    stock_available: int
+    stock_reserved: int
+    unit: str
+    min_threshold: int
+    temperature_requirement: str
+    is_cold_chain: bool = False
+    schedule: str = "Rx"
+    active_substitutes: List[str] = Field(default_factory=list)
+    criticality: str = "HIGH"
+
+class PharmacyDepot(BaseModel):
+    depot_id: str
+    name: str
+    depot_type: str
+    location: str
+    lat: float
+    lng: float
+    distance_km: float
+    travel_time_mins: int
+    status: str = "OPEN_24_7"
+    pharmacist_in_charge: str
+    contact_vhf: str
+    cold_chain_status: str = "OPTIMAL_STABLE"
+    cold_storage_temp_c: float = 4.2
+    inventory_count: int = 1200
+    is_network_partner: bool = True
+
+class MedicineBatch(BaseModel):
+    batch_id: str
+    med_id: str
+    med_name: str
+    manufacturer: str
+    manufacture_date: str
+    expiry_date: str
+    days_until_expiry: int
+    quantity: int
+    location_depot_id: str
+    cold_chain_breach: bool = False
+    status: str = "ACTIVE"
+    fefo_priority: int = 1
+
+class ReservationOrder(BaseModel):
+    order_id: str
+    timestamp: str
+    med_id: str
+    med_name: str
+    quantity: int
+    reserved_for: str
+    destination_depot_id: str
+    urgency: str = "EMERGENCY_STAT"
+    status: str = "DISPATCHED"
+    requester: str = "Tactical Dispatch Command"
+
+class PharmacyPartner(BaseModel):
+    partner_id: str
+    name: str
+    tier: str
+    compliance_score: float = 99.4
+    avg_fulfillment_mins: int = 18
+    mesh_api_status: str = "SYNCED_ONLINE"
+    authorized_stock_types: List[str] = Field(default_factory=list)
+    contact_officer: str
+
+class PharmaceuticalNetworkData(BaseModel):
+    system_status: str = "OPERATIONAL"
+    total_skus: int = 42
+    total_inventory_units: int = 14580
+    cold_chain_compliance_pct: float = 99.2
+    low_stock_critical_count: int = 3
+    active_reservations_count: int = 8
+    medicines: List[MedicineItem] = Field(default_factory=list)
+    depots: List[PharmacyDepot] = Field(default_factory=list)
+    batches: List[MedicineBatch] = Field(default_factory=list)
+    reservations: List[ReservationOrder] = Field(default_factory=list)
+    partners: List[PharmacyPartner] = Field(default_factory=list)
+    last_updated: float = Field(default_factory=time.time)
+
+class PharmacyActionRequest(BaseModel):
+    action: str
+    med_id: Optional[str] = None
+    batch_id: Optional[str] = None
+    depot_id: Optional[str] = None
+    target_depot_id: Optional[str] = None
+    quantity: Optional[int] = 1
+    reserved_for: Optional[str] = None
+    urgency: Optional[str] = "EMERGENCY_STAT"
+    notes: Optional[str] = None
+
+class BloodInventoryUnit(BaseModel):
+    unit_id: str
+    bank_id: str
+    bank_name: str
+    abo: str
+    rh: str
+    blood_group_display: str
+    component_type: str
+    component_name: str
+    volume_ml: int
+    collection_date: str
+    preparation_date: str
+    expiry_date: str
+    days_until_expiry: int
+    status: str
+    screening_status: str = "TESTED_NEGATIVE"
+    screening_tests: Dict[str, str] = Field(default_factory=dict)
+    storage_requirement: str
+    storage_location_ref: str
+    storage_temp_current: float
+    storage_excursion_detected: bool = False
+    special_attributes: List[str] = Field(default_factory=list)
+    can_reserve: bool = True
+    reservation_id: Optional[str] = None
+    last_verified_at: str
+
+class BloodBankFacility(BaseModel):
+    bank_id: str
+    name: str
+    address: str
+    lat: float
+    lng: float
+    distance_km: float
+    travel_time_mins: int
+    contact_phone: str
+    contact_vhf: str
+    operating_status: str
+    license_accreditation: str
+    verified: bool = True
+    transport_available: bool = True
+    walk_in_collection: bool = True
+    total_units_stocked: int
+    available_units_count: int
+    cold_storage_status: str = "OPTIMAL_ONLINE"
+    director: str
+    last_inventory_sync: str
+
+class BloodRequestOrder(BaseModel):
+    request_id: str
+    timestamp: str
+    patient_id: Optional[str] = None
+    patient_name_or_alias: Optional[str] = "Emergency Trauma Casualty"
+    patient_blood_group: str = "O-"
+    requested_abo: str
+    requested_rh: str
+    component_type: str
+    units_requested: int
+    units_allocated: int = 0
+    urgency: str
+    clinical_indication: str
+    requesting_hospital: str = "Forward Surgical Team Alpha (FST-A)"
+    target_blood_bank_id: str
+    target_blood_bank_name: str
+    status: str
+    authorized_clinician: str = "Maj. Dr. A. Sharma, Trauma Team Lead"
+    allocated_unit_ids: List[str] = Field(default_factory=list)
+    transfer_id: Optional[str] = None
+    clinical_safeguard_acknowledged: bool = True
+
+class BloodTransferManifest(BaseModel):
+    transfer_id: str
+    request_id: str
+    source_blood_bank_id: str
+    source_name: str
+    destination_facility_id: str
+    destination_name: str
+    allocated_units: List[str]
+    component_type: str
+    transport_container_id: str
+    data_logger_id: str
+    current_transit_temp_c: float
+    dispatch_timestamp: str
+    estimated_arrival_timestamp: str
+    actual_arrival_timestamp: Optional[str] = None
+    courier_callsign: str
+    courier_contact: str
+    transfer_status: str
+    receipt_confirmed_by: Optional[str] = None
+    receipt_notes: Optional[str] = None
+
+class BloodAuditEntry(BaseModel):
+    audit_id: str
+    timestamp: str
+    event_type: str
+    unit_id: Optional[str] = None
+    request_id: Optional[str] = None
+    actor: str
+    facility: str
+    details: str
+    digital_signature_hash: str
+
+class BloodBankNetworkData(BaseModel):
+    system_status: str = "OPERATIONAL"
+    total_registered_banks: int = 4
+    total_available_released_units: int = 528
+    total_o_negative_emergency_units: int = 42
+    active_requests_count: int = 3
+    pending_reservations_count: int = 2
+    units_near_expiry_count: int = 5
+    units_quarantined_count: int = 2
+    in_transit_transfers_count: int = 1
+    cold_chain_compliance_pct: float = 99.6
+    facilities: List[BloodBankFacility] = Field(default_factory=list)
+    inventory: List[BloodInventoryUnit] = Field(default_factory=list)
+    requests: List[BloodRequestOrder] = Field(default_factory=list)
+    transfers: List[BloodTransferManifest] = Field(default_factory=list)
+    audit_log: List[BloodAuditEntry] = Field(default_factory=list)
+    last_updated: float = Field(default_factory=time.time)
+
+class BloodBankActionRequest(BaseModel):
+    action: str
+    request_id: Optional[str] = None
+    transfer_id: Optional[str] = None
+    unit_id: Optional[str] = None
+    bank_id: Optional[str] = None
+    patient_id: Optional[str] = None
+    patient_name_or_alias: Optional[str] = None
+    component_type: Optional[str] = None
+    abo: Optional[str] = None
+    rh: Optional[str] = None
+    units_requested: Optional[int] = 1
+    urgency: Optional[str] = "EMERGENCY_STAT"
+    clinical_indication: Optional[str] = None
+    destination_facility: Optional[str] = None
+    actor_name: Optional[str] = None
+    reason_or_notes: Optional[str] = None
+

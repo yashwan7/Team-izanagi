@@ -11,11 +11,13 @@ import PatientDetailModal from './components/PatientDetailModal';
 import AIReports from './components/AIReports';
 import SettingsView from './components/SettingsView';
 import HospitalCapacity from './components/HospitalCapacity';
+import PharmaceuticalNetwork from './components/PharmaceuticalNetwork';
+import BloodBankNetwork from './components/BloodBankNetwork';
 import FailoverTinyMLView from './components/FailoverTinyMLView';
 import EOGSecurityView from './components/EOGSecurityView';
 import { 
   HeartPulse, ShieldAlert, RefreshCw, 
-  Sparkles, Stethoscope, Activity, FileText, Zap, Eye 
+  Sparkles, Stethoscope, Activity, FileText, Zap, Eye, Pill, Droplet 
 } from 'lucide-react';
 
 import mqtt from 'mqtt';
@@ -40,8 +42,11 @@ export default function App() {
   const [incidentTimeline, setIncidentTimeline] = useState([]);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [wsConnected, setWsConnected] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'capacity' | 'patients' | 'triage' | 'map' | 'timeline' | 'reports' | 'settings'
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'capacity' | 'pharma' | 'patients' | 'triage' | 'map' | 'timeline' | 'reports' | 'settings'
   const [capacityData, setCapacityData] = useState(null);
+  const [dispatchData, setDispatchData] = useState(null);
+  const [pharmacyData, setPharmacyData] = useState(null);
+  const [bloodBankData, setBloodBankData] = useState(null);
   const wsRef = useRef(null);
 
   // MQTT Real-time Sensor State with all 5 telemetry bindings
@@ -84,17 +89,29 @@ export default function App() {
 
   const fetchAllData = async () => {
     try {
-      const [resNet, resPat, resTime, resCap] = await Promise.all([
+      const [resNet, resPat, resTime, resCap, resDisp, resPharm, resBlood] = await Promise.all([
         fetch(`${API_BASE}/network-state`).then(r => r.json()),
         fetch(`${API_BASE}/patients`).then(r => r.json()),
         fetch(`${API_BASE}/timeline`).then(r => r.json()),
-        fetch(`${API_BASE}/hospital-capacity`).then(r => r.json()).catch(() => null)
+        fetch(`${API_BASE}/hospital-capacity`).then(r => r.json()).catch(() => null),
+        fetch(`${API_BASE}/dispatch`).then(r => r.json()).catch(() => null),
+        fetch(`${API_BASE}/pharmacy`).then(r => r.json()).catch(() => null),
+        fetch(`${API_BASE}/bloodbank`).then(r => r.json()).catch(() => null)
       ]);
       setNetworkStatus(resNet);
       setPatients(resPat);
       setIncidentTimeline(resTime);
       if (resCap) {
         setCapacityData(resCap);
+      }
+      if (resDisp) {
+        setDispatchData(resDisp);
+      }
+      if (resPharm) {
+        setPharmacyData(resPharm);
+      }
+      if (resBlood) {
+        setBloodBankData(resBlood);
       }
 
       if (resPat.length > 0 && !selectedPatientId) {
@@ -154,9 +171,24 @@ export default function App() {
             fetchAllData();
           } else if (msg.type === 'CAPACITY_UPDATE') {
             setCapacityData(msg.payload);
+          } else if (msg.type === 'DISPATCH_UPDATE') {
+            setDispatchData(msg.payload);
+          } else if (msg.type === 'PHARMACY_UPDATE') {
+            setPharmacyData(msg.payload);
+          } else if (msg.type === 'BLOODBANK_UPDATE') {
+            setBloodBankData(msg.payload);
           } else if (msg.type === 'INIT_STATE') {
             if (msg.payload && msg.payload.capacity) {
               setCapacityData(msg.payload.capacity);
+            }
+            if (msg.payload && msg.payload.dispatch) {
+              setDispatchData(msg.payload.dispatch);
+            }
+            if (msg.payload && msg.payload.pharmacy) {
+              setPharmacyData(msg.payload.pharmacy);
+            }
+            if (msg.payload && msg.payload.bloodbank) {
+              setBloodBankData(msg.payload.bloodbank);
             }
           }
         } catch (e) {
@@ -258,6 +290,57 @@ export default function App() {
     }
   };
 
+  const handleDispatchAction = async (payload) => {
+    try {
+      const res = await fetch(`${API_BASE}/dispatch/action`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setDispatchData(data);
+        return data;
+      }
+    } catch (err) {
+      console.error('Failed dispatch action:', err);
+    }
+  };
+
+  const handlePharmacyAction = async (payload) => {
+    try {
+      const res = await fetch(`${API_BASE}/pharmacy/action`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPharmacyData(data);
+        return data;
+      }
+    } catch (err) {
+      console.error('Failed pharmacy action:', err);
+    }
+  };
+
+  const handleBloodBankAction = async (payload) => {
+    try {
+      const res = await fetch(`${API_BASE}/bloodbank/action`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setBloodBankData(data);
+        return data;
+      }
+    } catch (err) {
+      console.error('Failed blood bank action:', err);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#eef2f7] flex font-sans selection:bg-blue-500 selection:text-white">
       
@@ -349,6 +432,25 @@ export default function App() {
           />
         )}
 
+        {activeTab === 'pharma' && (
+          <PharmaceuticalNetwork 
+            pharmacyData={pharmacyData}
+            onPharmacyAction={handlePharmacyAction}
+            patients={patients}
+            dispatchData={dispatchData}
+            onSelectPatient={handleSelectPatient}
+          />
+        )}
+
+        {activeTab === 'bloodbank' && (
+          <BloodBankNetwork 
+            bloodBankData={bloodBankData}
+            onBloodBankAction={handleBloodBankAction}
+            patients={patients}
+            onSelectPatient={handleSelectPatient}
+          />
+        )}
+
         {activeTab === 'patients' && (
           <PatientsRegistry 
             patients={patients}
@@ -372,14 +474,18 @@ export default function App() {
         )}
 
         {activeTab === 'map' && (
-          <div className="h-[calc(100vh-180px)] rounded-3xl overflow-hidden border border-slate-200 shadow-lg">
-            <TriageMap 
-              patients={patients}
-              selectedPatientId={selectedPatientId}
-              onSelectPatient={handleSelectPatient}
-              sensorData={sensorData}
-            />
-          </div>
+          <TriageMap 
+            patients={patients}
+            selectedPatientId={selectedPatientId}
+            onSelectPatient={handleSelectPatient}
+            dispatchData={dispatchData}
+            onDispatchAction={handleDispatchAction}
+            onOpenChart={(id) => {
+              handleSelectPatient(id);
+              setIsDetailOpen(true);
+            }}
+            sensorData={sensorData}
+          />
         )}
 
         {activeTab === 'failover' && (

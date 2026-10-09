@@ -195,3 +195,180 @@ def test_hospital_capacity_models_and_reallocation():
     )
     assert req.delta == 1
 
+
+def test_ambulance_dispatch_intelligence_and_fallback():
+    from backend.merge_engine.models import AmbulanceUnit, ReceivingHospital, DispatchMission, AmbulanceDispatchData
+    from backend.merge_engine.service import ambulance_dispatch_state
+
+    # Verify dispatch system initial state
+    assert len(ambulance_dispatch_state.ambulances) >= 4
+    assert len(ambulance_dispatch_state.hospitals) >= 3
+    assert len(ambulance_dispatch_state.missions) >= 2
+
+    # Check receiving hospital recommendations and capacity separation
+    hosp1 = ambulance_dispatch_state.hospitals[0]
+    assert hosp1.icu_beds_free >= 1
+    assert "RECOMMENDED" in hosp1.recommendation_tier
+    assert len(hosp1.logistics_rationale) > 0
+
+    # Verify mission routing advisory is distinct from clinical triage
+    m1 = ambulance_dispatch_state.missions[0]
+    assert m1.clinical_urgency in ["IMMEDIATE_RED", "DELAYED_YELLOW", "MINIMAL_GREEN"]
+    assert "LOGISTICS ROUTING" in m1.routing_advisory
+
+    # Verify ambulance unit telemetry
+    a1 = ambulance_dispatch_state.ambulances[0]
+    assert a1.gps_quality == "HIGH"
+    assert a1.speed_kmh is not None
+    assert a1.heading_deg is not None
+
+
+@pytest.mark.asyncio
+async def test_pharmaceutical_network_models_and_actions():
+    from backend.merge_engine.models import (
+        MedicineItem,
+        PharmacyDepot,
+        MedicineBatch,
+        ReservationOrder,
+        PharmacyPartner,
+        PharmaceuticalNetworkData,
+        PharmacyActionRequest
+    )
+    from backend.merge_engine.service import (
+        pharmaceutical_network_state,
+        handle_pharmacy_action
+    )
+
+    # Verify initial state contains all required entities
+    assert len(pharmaceutical_network_state.medicines) >= 8
+    assert len(pharmaceutical_network_state.depots) >= 4
+    assert len(pharmaceutical_network_state.batches) >= 5
+    assert len(pharmaceutical_network_state.partners) >= 3
+    assert pharmaceutical_network_state.cold_chain_compliance_pct > 95.0
+
+    # Verify critical medicines like TXA and Whole Blood
+    txa = next((m for m in pharmaceutical_network_state.medicines if m.med_id == "MED-TXA-01"), None)
+    assert txa is not None
+    assert txa.category == "HEMOSTATIC"
+    assert txa.stock_available > 0
+    assert "Aminocaproic Acid" in txa.active_substitutes
+
+    # Test CREATE_RESERVATION action
+    initial_avail = txa.stock_available
+    res_req = PharmacyActionRequest(
+        action="CREATE_RESERVATION",
+        med_id="MED-TXA-01",
+        quantity=5,
+        reserved_for="Ambulance MEDEVAC-01 (Urgent Trauma)",
+        depot_id="PHARM-FST-01",
+        urgency="EMERGENCY_STAT"
+    )
+    res_result = await handle_pharmacy_action(res_req)
+    assert res_result.medicines[0].stock_available == initial_avail - 5
+    assert res_result.reservations[0].med_id == "MED-TXA-01"
+    assert res_result.reservations[0].quantity == 5
+
+    # Test QUARANTINE_BATCH action
+    batch_req = PharmacyActionRequest(
+        action="QUARANTINE_BATCH",
+        batch_id="BATCH-TXA-26A"
+    )
+    q_result = await handle_pharmacy_action(batch_req)
+    q_batch = next((b for b in q_result.batches if b.batch_id == "BATCH-TXA-26A"), None)
+    assert q_batch is not None
+    assert q_batch.status == "QUARANTINED"
+    assert q_batch.cold_chain_breach is True
+
+
+@pytest.mark.asyncio
+async def test_blood_bank_network_models_and_actions():
+    from backend.merge_engine.models import (
+        BloodInventoryUnit,
+        BloodBankFacility,
+        BloodRequestOrder,
+        BloodTransferManifest,
+        BloodAuditEntry,
+        BloodBankNetworkData,
+        BloodBankActionRequest
+    )
+    from backend.merge_engine.service import (
+        blood_bank_state,
+        handle_blood_bank_action
+    )
+
+    # 1. Verify blood bank initial state
+    assert len(blood_bank_state.facilities) >= 4
+    assert len(blood_bank_state.inventory) >= 10
+    assert len(blood_bank_state.requests) >= 3
+    assert len(blood_bank_state.transfers) >= 1
+    assert blood_bank_state.cold_chain_compliance_pct > 98.0
+
+    # 2. Verify clinical safety rule: Expired & Quarantined units cannot be reserved
+    expired_unit = next((u for u in blood_bank_state.inventory if u.status == "EXPIRED"), None)
+    assert expired_unit is not None
+    assert expired_unit.can_reserve is False
+    assert expired_unit.days_until_expiry < 0
+
+    quarantined_unit = next((u for u in blood_bank_state.inventory if u.status == "QUARANTINED"), None)
+    assert quarantined_unit is not None
+    assert quarantined_unit.can_reserve is False
+
+    # 3. Verify universal red cell & plasma units exist
+    o_neg_units = [u for u in blood_bank_state.inventory if u.blood_group_display == "O-" and u.status == "AVAILABLE_RELEASED"]
+    assert len(o_neg_units) >= 2
+
+    ab_plasma = next((u for u in blood_bank_state.inventory if u.blood_group_display == "AB+" and u.component_type == "FFP"), None)
+    assert ab_plasma is not None
+    assert "UNIVERSAL_PLASMA_DONOR" in ab_plasma.special_attributes
+
+    # 4. Test CREATE_REQUEST action
+    req_action = BloodBankActionRequest(
+        action="CREATE_REQUEST",
+        patient_id="PT-TEST-BLOOD",
+        patient_name_or_alias="Test Casualty Severe Trauma",
+        component_type="PRBC",
+        abo="O",
+        rh="NEGATIVE",
+        units_requested=1,
+        urgency="EMERGENCY_STAT",
+        clinical_indication="Test emergency blood request",
+        destination_facility="Forward Surgical Team Alpha",
+        actor_name="Capt. Clinical Medic"
+    )
+    created_res = await handle_blood_bank_action(req_action)
+    created_order = created_res.requests[0]
+    assert created_order.requested_abo == "O"
+    assert created_order.status == "SUBMITTED"
+
+    # 5. Test ACCEPT_REQUEST action (locks unit)
+    accept_action = BloodBankActionRequest(
+        action="ACCEPT_REQUEST",
+        request_id=created_order.request_id,
+        actor_name="AFTC Blood Bank Officer"
+    )
+    accepted_res = await handle_blood_bank_action(accept_action)
+    accepted_order = next((r for r in accepted_res.requests if r.request_id == created_order.request_id), None)
+    assert accepted_order.status == "ACCEPTED_RESERVED"
+    assert accepted_order.units_allocated >= 1
+
+    # 6. Test DISPATCH_TRANSFER action
+    dispatch_action = BloodBankActionRequest(
+        action="DISPATCH_TRANSFER",
+        request_id=created_order.request_id,
+        actor_name="Tactical Courier Desk"
+    )
+    dispatched_res = await handle_blood_bank_action(dispatch_action)
+    assert dispatched_res.transfers[0].request_id == created_order.request_id
+    assert dispatched_res.transfers[0].transfer_status == "DISPATCHED_IN_TRANSIT"
+
+    # 7. Test CONFIRM_RECEIPT action
+    receipt_action = BloodBankActionRequest(
+        action="CONFIRM_RECEIPT",
+        transfer_id=dispatched_res.transfers[0].transfer_id,
+        actor_name="Receiving Trauma Surgeon"
+    )
+    received_res = await handle_blood_bank_action(receipt_action)
+    assert received_res.transfers[0].transfer_status == "DELIVERED_RECEIVED"
+    assert received_res.transfers[0].actual_arrival_timestamp is not None
+
+
