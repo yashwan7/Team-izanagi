@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { 
-  Users, Search, Filter, ShieldCheck, ShieldAlert, 
-  Heart, Wind, Clock, ChevronRight, Stethoscope, 
-  UserCheck, AlertCircle, Plus, FileText, PhoneCall 
+  Users, Search, ShieldCheck, ShieldAlert, 
+  Heart, Wind, Clock, ChevronRight, 
+  FileText
 } from 'lucide-react';
 
 export default function PatientsRegistry({ 
@@ -28,45 +28,45 @@ export default function PatientsRegistry({
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 font-mono select-none text-[#F8FAFC]">
       
       {/* Top Header & Search/Filter Controls */}
-      <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.03)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="nm-flat rounded-2xl p-5 border border-white/[0.04] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 nm-convex rounded-xl border border-[#FF334B]/30 text-[#FF334B] flex items-center justify-center">
               <Users className="w-4 h-4" />
             </div>
-            <h2 className="text-xl font-bold text-slate-800 m-0">Patient Directory & Medical Records</h2>
+            <h2 className="text-sm font-bold text-[#F8FAFC] uppercase tracking-wider m-0">PATIENT DIRECTORY &amp; RECORDS</h2>
           </div>
-          <p className="text-xs text-slate-500 mt-1 m-0">
-            Comprehensive hospital patient registry &bull; {patients.length} admitted records
+          <p className="text-[11px] text-[#94A3B8] mt-1 m-0 font-sans">
+            Field Bio-Capsule Registry &bull; {patients.length} admitted patient nodes
           </p>
         </div>
 
         {/* Search and Filters */}
         <div className="flex items-center gap-3 flex-wrap">
           <div className="relative w-full sm:w-64">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+            <Search className="w-3.5 h-3.5 text-[#94A3B8] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by name, ID, diagnosis..."
-              className="w-full bg-slate-50 text-xs text-slate-700 placeholder-slate-400 rounded-full pl-9 pr-4 py-2 border border-slate-200 focus:outline-none focus:border-blue-400 focus:bg-white transition-all"
+              placeholder="Filter by ID, name, diagnosis..."
+              className="w-full nm-inset rounded-xl text-xs text-[#F8FAFC] placeholder-[#64748B] pl-9 pr-3.5 py-2 border border-white/[0.04] focus:outline-none focus:border-[#FF334B]/40"
             />
           </div>
 
           {/* Filter Pills */}
-          <div className="flex items-center bg-slate-100 p-1 rounded-full text-xs">
+          <div className="flex items-center nm-inset rounded-xl p-1 border border-white/[0.04] text-xs">
             {['ALL', 'RED', 'YELLOW', 'GREEN'].map(category => (
               <button
                 key={category}
                 onClick={() => setFilterBadge(category)}
-                className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all ${
+                className={`px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all ${
                   filterBadge === category
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-800'
+                    ? 'nm-btn-accent text-white shadow-[0_0_12px_rgba(255,51,75,0.4)]'
+                    : 'text-[#94A3B8] hover:text-[#F8FAFC]'
                 }`}
               >
                 {category}
@@ -76,11 +76,11 @@ export default function PatientsRegistry({
         </div>
       </div>
 
-      {/* Patient Directory Table / Card Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {/* Patient Directory Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {filteredPatients.length === 0 ? (
-          <div className="col-span-2 bg-white rounded-3xl p-12 text-center text-slate-400 text-xs border border-slate-100">
-            No patient records found matching your filter criteria.
+          <div className="col-span-2 nm-flat rounded-2xl p-10 text-center text-[#94A3B8] text-xs border border-white/[0.04]">
+            No patient records found matching filter criteria.
           </div>
         ) : (
           filteredPatients.map((item, idx) => {
@@ -90,10 +90,10 @@ export default function PatientsRegistry({
             const badge = item.triage_badge;
 
             const badgeStyles = {
-              RED: 'bg-rose-50 text-rose-600 border-rose-200',
-              YELLOW: 'bg-amber-50 text-amber-700 border-amber-200',
-              GREEN: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-            }[badge] || 'bg-slate-50 text-slate-600 border-slate-200';
+              RED: 'nm-alert-inset text-[#FF334B] border-[#FF334B]/40',
+              YELLOW: 'nm-inset text-[#F59E0B] border-[#F59E0B]/30',
+              GREEN: 'nm-inset text-[#10B981] border-[#10B981]/30',
+            }[badge] || 'nm-inset text-[#94A3B8] border-white/[0.04]';
 
             const wards = [
               'Trauma Resus Bay 01',
@@ -106,114 +106,117 @@ export default function PatientsRegistry({
             return (
               <div
                 key={p.patient_id}
-                className={`bg-white rounded-3xl p-5 border transition-all shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.06)] ${
-                  isSelected ? 'border-blue-400 ring-2 ring-blue-100' : 'border-slate-100'
+                className={`p-4 rounded-2xl border transition-all flex flex-col justify-between ${
+                  isSelected 
+                    ? 'nm-convex border-[#FF334B]/60 shadow-[0_0_15px_rgba(255,51,75,0.15)] ring-1 ring-[#FF334B]/40' 
+                    : 'nm-flat border-white/[0.04] hover:border-[#FF334B]/30'
                 }`}
               >
-                {/* Top Strip */}
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-100 to-indigo-100 text-blue-700 flex items-center justify-center font-bold text-sm shadow-inner">
-                      {p.patient_name ? p.patient_name.split(' ').map(n=>n[0]).join('').slice(0,2) : 'PT'}
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-slate-900 m-0">{p.patient_name}</h3>
-                      <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
-                        <span className="font-mono font-semibold text-blue-600">{p.patient_id}</span>
-                        <span>&bull;</span>
-                        <span>{ward}</span>
+                <div>
+                  {/* Top Strip */}
+                  <div className="flex items-start justify-between gap-3 mb-3 border-b border-white/[0.04] pb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 nm-convex rounded-xl border border-white/[0.04] text-[#FF334B] flex items-center justify-center font-bold text-xs shadow-inner">
+                        {p.patient_name ? p.patient_name.split(' ').map(n=>n[0]).join('').slice(0,2) : 'PT'}
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-[#F8FAFC] m-0">{p.patient_name}</h3>
+                        <div className="flex items-center gap-1.5 text-[11px] text-[#94A3B8] mt-1 font-sans">
+                          <span className="font-mono text-[#FF334B] font-bold">{p.patient_id}</span>
+                          <span>&bull;</span>
+                          <span>{ward}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="flex items-center gap-1.5">
-                    {/* Security Badge */}
-                    {isTampered ? (
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-200 animate-pulse">
-                        <ShieldAlert className="w-3 h-3 text-rose-500" />
-                        TAMPERED
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-600 border border-emerald-200">
-                        <ShieldCheck className="w-3 h-3 text-emerald-500" />
-                        AUTH OK
-                      </span>
-                    )}
-
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${badgeStyles}`}>
-                      {badge} (Score: {item.priority_score.toFixed(1)})
-                    </span>
-                  </div>
-                </div>
-
-                {/* Vitals Summary Strip */}
-                <div className="grid grid-cols-4 gap-2 bg-slate-50/70 p-2.5 rounded-2xl border border-slate-100 text-xs mb-3">
-                  <div>
-                    <span className="text-[10px] text-slate-400 font-semibold flex items-center gap-1">
-                      <Heart className="w-2.5 h-2.5 text-rose-500" /> HR
-                    </span>
-                    <span className="font-bold text-slate-800 text-xs">{p.vitals?.heart_rate || '--'} bpm</span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 font-semibold flex items-center gap-1">
-                      <Wind className="w-2.5 h-2.5 text-blue-500" /> SpO2
-                    </span>
-                    <span className={`font-bold text-xs ${p.vitals?.spo2 < 90 ? 'text-rose-600' : 'text-slate-800'}`}>
-                      {p.vitals?.spo2 || '--'}%
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 font-semibold">BP</span>
-                    <span className="font-bold text-slate-800 text-xs">
-                      {p.vitals?.systolic_bp || '--'}/{p.vitals?.diastolic_bp || '--'}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 font-semibold flex items-center gap-1">
-                      <Clock className="w-2.5 h-2.5 text-amber-500" /> Help ETA
-                    </span>
-                    <span className="font-bold text-blue-600 text-xs">
-                      {p.time_to_help < 1 ? `${Math.round(p.time_to_help * 60)}m` : `${p.time_to_help}h`}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Red Flags & Primary Diagnosis */}
-                <div className="mb-4">
-                  <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
-                    Clinical Diagnosis & Red Flags:
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {p.red_flags && p.red_flags.length > 0 ? (
-                      p.red_flags.map((flag, i) => (
-                        <span key={i} className="px-2 py-0.5 rounded-lg text-[10px] font-medium bg-slate-100 text-slate-700 border border-slate-200">
-                          {flag.replace(/_/g, ' ')}
+                    <div className="flex items-center gap-2">
+                      {isTampered ? (
+                        <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold nm-alert-inset text-[#FF334B] border border-[#FF334B]/40 rounded-lg animate-pulse">
+                          <ShieldAlert className="w-3 h-3 text-[#FF334B]" />
+                          TAMPERED
                         </span>
-                      ))
-                    ) : (
-                      <span className="text-[11px] text-slate-500 italic">No acute red flags recorded</span>
-                    )}
+                      ) : (
+                        <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold nm-inset text-[#F8FAFC] border border-white/[0.04] rounded-lg">
+                          <ShieldCheck className="w-3 h-3 text-[#FF334B]" />
+                          AUTH OK
+                        </span>
+                      )}
+
+                      <span className={`px-2.5 py-0.5 text-[10px] font-bold rounded-lg border ${badgeStyles}`}>
+                        {badge} ({item.priority_score.toFixed(1)})
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Vitals Summary Strip */}
+                  <div className="grid grid-cols-4 gap-2 nm-inset p-3 rounded-xl border border-white/[0.02] text-xs mb-3">
+                    <div>
+                      <span className="text-[10px] text-[#94A3B8] uppercase flex items-center gap-1">
+                        <Heart className="w-3 h-3 text-[#FF334B]" /> HR
+                      </span>
+                      <span className="font-bold text-[#F8FAFC] text-xs mt-0.5 block">{p.vitals?.heart_rate || '--'} bpm</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-[#94A3B8] uppercase flex items-center gap-1">
+                        <Wind className="w-3 h-3 text-[#38BDF8]" /> SpO2
+                      </span>
+                      <span className={`font-bold text-xs mt-0.5 block ${p.vitals?.spo2 < 90 ? 'text-[#FF334B]' : 'text-[#F8FAFC]'}`}>
+                        {p.vitals?.spo2 || '--'}%
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-[#94A3B8] uppercase">BP</span>
+                      <span className="font-bold text-[#F8FAFC] text-xs mt-0.5 block">
+                        {p.vitals?.systolic_bp || '--'}/{p.vitals?.diastolic_bp || '--'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-[#94A3B8] uppercase flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-[#FF334B]" /> Help ETA
+                      </span>
+                      <span className="font-bold text-[#FF334B] text-xs mt-0.5 block">
+                        {p.time_to_help < 1 ? `${Math.round(p.time_to_help * 60)}m` : `${p.time_to_help}h`}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Red Flags & Diagnosis */}
+                  <div className="mb-4">
+                    <div className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider mb-1.5">
+                      DIAGNOSIS &amp; RED FLAGS:
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {p.red_flags && p.red_flags.length > 0 ? (
+                        p.red_flags.map((flag, i) => (
+                          <span key={i} className="px-2 py-0.5 text-[10px] font-medium nm-inset text-[#94A3B8] border border-white/[0.04] rounded-md">
+                            {flag.replace(/_/g, ' ')}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-[11px] text-[#64748B] italic">No active red flags recorded</span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-2 pt-3 border-t border-slate-100">
+                <div className="flex items-center gap-2.5 pt-3 border-t border-white/[0.04]">
                   <button
                     onClick={() => {
                       onSelectPatient(p.patient_id);
                       if (onOpenChart) onOpenChart(p.patient_id);
                     }}
-                    className="flex-1 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+                    className="flex-1 py-2 nm-btn text-[#F8FAFC] hover:text-[#FF334B] rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all"
                   >
-                    <FileText className="w-3.5 h-3.5" />
-                    <span>Open EMR Chart</span>
+                    <FileText className="w-3.5 h-3.5 text-[#FF334B]" />
+                    <span>OPEN EMR CHART</span>
                   </button>
 
                   <button
                     onClick={() => onSelectPatient(p.patient_id)}
-                    className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all flex items-center gap-1"
+                    className="px-4 py-2 nm-btn-accent text-white text-[11px] font-bold rounded-xl flex items-center gap-1 transition-all shadow-[0_0_12px_rgba(255,51,75,0.3)]"
                   >
-                    <span>Inspect</span>
+                    <span>INSPECT</span>
                     <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>

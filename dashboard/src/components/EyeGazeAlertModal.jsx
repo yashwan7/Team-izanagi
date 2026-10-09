@@ -1,7 +1,7 @@
 import React from 'react';
 import { 
   Eye, ShieldAlert, ShieldCheck, CheckCircle2, 
-  X, BellRing, Droplets, HeartPulse, User, Hospital, AlertTriangle 
+  X, BellRing, Droplets, HeartPulse, User 
 } from 'lucide-react';
 
 export default function EyeGazeAlertModal({ alert, onClose, onDispatch }) {
@@ -19,41 +19,36 @@ export default function EyeGazeAlertModal({ alert, onClose, onDispatch }) {
         return {
           title: 'EMERGENCY NURSE CALL (CODE ASSIST)',
           desc: 'Patient executed 2 rapid blinks via EOG biopotential electrodes requesting immediate bedside response.',
-          color: 'rose',
           icon: BellRing,
-          actionLabel: 'Dispatch Floor Nurse Immediately'
+          actionLabel: 'DISPATCH FLOOR NURSE IMMEDIATELY'
         };
       case 'PAIN':
         return {
           title: 'ACUTE PAIN DISTRESS SIGNAL',
           desc: 'Patient executed 3 blinks indicating breakthrough pain or clinical deterioration.',
-          color: 'amber',
           icon: HeartPulse,
-          actionLabel: 'Notify Attending & Administer Analgesia'
+          actionLabel: 'NOTIFY ATTENDING & ADMINISTER ANALGESIA'
         };
       case 'WATER':
         return {
           title: 'HYDRATION & CAREGIVER REQUEST',
           desc: 'Patient signaled GAZE LEFT + 1 blink requesting oral rehydration / nursing assistance.',
-          color: 'sky',
           icon: Droplets,
-          actionLabel: 'Deploy Nursing Assistant'
+          actionLabel: 'DEPLOY NURSING ASSISTANT'
         };
       case 'BATHROOM':
         return {
           title: 'MOBILITY & POSITIONING ASSISTANCE',
           desc: 'Patient signaled GAZE RIGHT + 1 blink requesting hygiene / lateral turning support.',
-          color: 'purple',
           icon: User,
-          actionLabel: 'Deploy Patient Care Technician'
+          actionLabel: 'DEPLOY PATIENT CARE TECHNICIAN'
         };
       default:
         return {
           title: `PATIENT SIGNAL: ${cmd}`,
           desc: 'EOG DSP biometric trigger detected.',
-          color: 'sky',
           icon: Eye,
-          actionLabel: 'Acknowledge Call'
+          actionLabel: 'ACKNOWLEDGE CALL'
         };
     }
   };
@@ -62,108 +57,108 @@ export default function EyeGazeAlertModal({ alert, onClose, onDispatch }) {
   const CmdIcon = config.icon;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-md animate-in fade-in duration-150">
-      <div className={`relative w-full max-w-lg rounded-3xl border shadow-2xl overflow-hidden transition-all bg-white ${
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md font-mono select-none">
+      <div className={`relative w-full max-w-lg nm-flat rounded-3xl border overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.8)] transition-all text-[#F8FAFC] ${
         isTampered 
-          ? 'border-rose-300 ring-4 ring-rose-500/20' 
-          : 'border-slate-100'
+          ? 'border-[#FF334B]/50 shadow-[0_0_40px_rgba(255,51,75,0.25)]' 
+          : 'border-white/[0.04]'
       }`}>
 
-        {/* Hospital Header Banner */}
-        <div className={`px-6 py-4 flex items-center justify-between border-b ${
-          isTampered ? 'bg-rose-50/80 border-rose-200' : 'bg-white border-slate-100'
+        {/* Header Banner */}
+        <div className={`px-5 py-4 flex items-center justify-between border-b ${
+          isTampered ? 'nm-alert-inset border-[#FF334B]/40' : 'nm-flat border-white/[0.04]'
         }`}>
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow-xs ${
-              isTampered ? 'bg-rose-600 text-white animate-bounce' : 'bg-blue-50 text-blue-600 border border-blue-100'
+            <div className={`w-10 h-10 nm-convex rounded-xl flex items-center justify-center ${
+              isTampered ? 'text-[#FF334B]' : 'text-[#FF334B]'
             }`}>
               <CmdIcon className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-[10px] font-mono tracking-wider uppercase text-slate-400 font-semibold">
-                HOSPITAL NURSE CALL SYSTEM &bull; EOG BIOPOTENTIAL
+              <span className="text-[9px] font-mono tracking-wider uppercase text-[#94A3B8] font-bold block">
+                NURSE CALL SYSTEM &bull; EOG DSP TELEMETRY
               </span>
-              <h3 className="text-sm md:text-base font-bold text-slate-800 m-0">
+              <h3 className="text-xs md:text-sm font-black text-[#F8FAFC] m-0 uppercase tracking-wide">
                 {config.title}
               </h3>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+            className="w-8 h-8 nm-btn rounded-xl flex items-center justify-center text-[#94A3B8] hover:text-[#FF334B] transition-all"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 space-y-4">
-
-          {/* Cryptographic Security Status */}
-          <div className={`p-4 rounded-2xl border flex items-start gap-3.5 ${
+        <div className="p-5 space-y-4">
+          
+          {/* Security Status Box */}
+          <div className={`p-4 rounded-2xl flex items-start gap-3 ${
             isTampered 
-              ? 'bg-rose-50 border-rose-200 text-rose-900' 
-              : 'bg-emerald-50 border-emerald-200 text-emerald-900'
+              ? 'nm-alert-inset border border-[#FF334B]/40 text-[#FF334B]' 
+              : 'nm-inset border border-[#00E5A3]/30 text-[#00E5A3]'
           }`}>
             {isTampered ? (
-              <ShieldAlert className="w-6 h-6 text-rose-600 shrink-0 mt-0.5 animate-pulse" />
+              <ShieldAlert className="w-5 h-5 text-[#FF334B] shrink-0 mt-0.5 animate-pulse" />
             ) : (
-              <ShieldCheck className="w-6 h-6 text-emerald-600 shrink-0 mt-0.5" />
+              <ShieldCheck className="w-5 h-5 text-[#00E5A3] shrink-0 mt-0.5" />
             )}
             <div>
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-xs font-bold uppercase tracking-wide">
-                  DEVICE SECURITY: {verification_status}
-                </span>
+              <div className="text-xs font-black uppercase tracking-wider">
+                {isTampered ? 'CRITICAL SECURITY BREACH: SIGNATURE TAMPERED' : 'HMAC INTEGRITY VERIFIED (AUTHENTIC)'}
               </div>
-              <p className="text-xs mt-1 leading-relaxed opacity-90 m-0">
+              <p className="text-[10px] text-[#94A3B8] mt-1 m-0 font-medium leading-relaxed">
                 {isTampered 
-                  ? 'SECURITY ALERT: HMAC-SHA256 signature verification failed! The incoming packet hash does not match expected cryptographic key. Quarantine command pending manual clinical authentication.' 
-                  : 'Hardware Authentication Verified. Biopotential sensor stream cryptographically signed and confirmed authentic.'}
+                  ? 'The SHA-256 HMAC signature received from this bio-capsule failed cryptographic verification. This alert could indicate packet spoofing or wire corruption.' 
+                  : 'Hardware cryptographic signature matched the pre-shared sensor key. Signal authenticity confirmed.'}
               </p>
             </div>
           </div>
 
-          {/* Patient Details Strip */}
-          <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 text-xs space-y-2.5">
-            <div className="flex justify-between items-center border-b border-slate-200/60 pb-2">
-              <span className="text-slate-500 font-medium">Patient / Unit:</span>
-              <span className="font-bold text-slate-800">{patient_id} &bull; {patient_name || 'Patient'}</span>
+          {/* Description */}
+          <div className="p-3.5 nm-inset rounded-2xl">
+            <p className="text-xs text-[#F8FAFC] m-0 leading-relaxed font-medium">
+              {config.desc}
+            </p>
+          </div>
+
+          {/* Signal Attributes */}
+          <div className="grid grid-cols-3 gap-2.5 text-xs">
+            <div className="nm-inset rounded-xl p-3">
+              <span className="text-[9px] text-[#94A3B8] block uppercase font-bold">Casualty</span>
+              <strong className="text-[#F8FAFC] text-xs font-bold mt-0.5 block">{patient_id}</strong>
+              <span className="text-[10px] text-[#94A3B8] block truncate mt-0.5">{patient_name}</span>
             </div>
-            <div className="flex justify-between items-center border-b border-slate-200/60 pb-2">
-              <span className="text-slate-500 font-medium">DSP Signal Vector:</span>
-              <span className="text-blue-600 font-mono font-bold">
-                {blinkCount} Blink(s) &bull; Direction: {direction}
-              </span>
+            <div className="nm-inset rounded-xl p-3">
+              <span className="text-[9px] text-[#94A3B8] block uppercase font-bold">Gaze Vector</span>
+              <strong className="text-[#FF334B] text-xs font-mono font-bold mt-0.5 block">{direction}</strong>
+              <span className="text-[10px] text-[#94A3B8] block mt-0.5">{blinkCount} blinks</span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-slate-500 font-medium">Definitive Evacuation Window:</span>
-              <span className="text-slate-800 font-bold font-mono">
-                {time_to_help < 1 ? `${Math.round(time_to_help * 60)} mins` : `${time_to_help} hrs`}
-              </span>
+            <div className="nm-inset rounded-xl p-3">
+              <span className="text-[9px] text-[#94A3B8] block uppercase font-bold">Evacuation ETA</span>
+              <strong className="text-[#F8FAFC] text-xs font-mono font-bold mt-0.5 block">
+                {time_to_help < 1 ? `${Math.round(time_to_help * 60)}m` : `${time_to_help}h`}
+              </strong>
+              <span className="text-[10px] text-[#94A3B8] block mt-0.5">Definitive Care</span>
             </div>
           </div>
 
-          <p className="text-xs text-slate-600 leading-relaxed bg-blue-50/50 p-3 rounded-xl border border-blue-100 m-0">
-            {config.desc}
-          </p>
-
-          {/* Action Dispatch Buttons */}
-          <div className="pt-2 flex items-center justify-end gap-3">
+          {/* Action Toolbar */}
+          <div className="pt-3 border-t border-white/[0.04] flex items-center justify-end gap-3">
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-full border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all"
+              className="px-4 py-2 nm-btn rounded-xl text-[#94A3B8] hover:text-[#F8FAFC] text-xs font-bold transition-all"
             >
-              Dismiss
+              DISMISS
             </button>
             <button
               onClick={() => {
                 if (onDispatch) onDispatch(alert);
                 onClose();
               }}
-              className={`px-5 py-2.5 rounded-full text-white text-xs font-bold flex items-center gap-2 shadow-sm transition-all ${
-                isTampered ? 'bg-rose-600 hover:bg-rose-700' : 'bg-blue-600 hover:bg-blue-700'
-              }`}
+              className="px-5 py-2 nm-btn-accent rounded-xl text-white text-xs font-bold transition-all flex items-center gap-2 shadow-[0_0_12px_#FF334B]"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>{config.actionLabel}</span>

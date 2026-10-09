@@ -1,23 +1,25 @@
 import React, { useState } from 'react';
 import { 
-  X, Activity, Heart, Wind, Clock, ShieldCheck, ShieldAlert, 
-  BrainCircuit, AlertTriangle, CheckSquare, Pill, Eye, Compass, Send, 
-  FileText, User, Thermometer, Stethoscope 
+  X, Heart, Wind, Clock, ShieldCheck, ShieldAlert, 
+  BrainCircuit, AlertTriangle, CheckSquare, Eye, Send, 
+  Stethoscope, Droplet
 } from 'lucide-react';
 
 export default function PatientDetailModal({ 
   patient, 
   onClose, 
   onSimulateGaze, 
-  onReevaluateTriage 
+  onReevaluateTriage,
+  onRequestBlood
 }) {
+  const [triggeringGaze, setTriggeringGaze] = useState(false);
+  const [tamperCheckbox, setTamperCheckbox] = useState(false);
+  const [gazeCmd, setGazeCmd] = useState('CALL_NURSE');
+
   if (!patient) return null;
 
   const p = patient.capsule;
   const evaluation = patient.evaluation;
-  const [triggeringGaze, setTriggeringGaze] = useState(false);
-  const [tamperCheckbox, setTamperCheckbox] = useState(false);
-  const [gazeCmd, setGazeCmd] = useState('CALL_NURSE');
 
   const isAcute = p.time_to_help <= 0.5;
   const isPFC = p.time_to_help >= 24.0;
@@ -39,28 +41,28 @@ export default function PatientDetailModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-md animate-in fade-in duration-150">
-      <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-3xl border border-slate-100 bg-white shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md font-mono select-none">
+      <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col nm-flat rounded-3xl border border-white/[0.04] text-[#F8FAFC] shadow-[0_20px_70px_rgba(0,0,0,0.85)] overflow-hidden">
         
         {/* Hospital Patient Chart Header */}
-        <div className="px-6 py-4 bg-white border-b border-slate-100 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-xs">
+        <div className="px-6 py-4 nm-flat border-b border-white/[0.04] flex items-center justify-between">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 nm-convex rounded-xl flex items-center justify-center text-[#FF334B]">
               <Stethoscope className="w-5 h-5" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-base md:text-lg font-bold text-slate-800 m-0 font-mono">{p.patient_id}</h2>
-                <span className="text-slate-600 text-sm font-semibold">&bull; {p.patient_name || 'Patient'}</span>
-                <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold font-mono border ${
-                  patient.triage_badge === 'RED' ? 'bg-rose-50 text-rose-700 border-rose-200' :
-                  patient.triage_badge === 'YELLOW' ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                  'bg-emerald-50 text-emerald-700 border-emerald-200'
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h2 className="text-sm md:text-base font-black text-[#F8FAFC] m-0 font-mono">{p.patient_id}</h2>
+                <span className="text-[#94A3B8] text-xs font-semibold">&bull; {p.patient_name || 'Patient'}</span>
+                <span className={`px-2 py-0.5 text-[9px] font-bold font-mono rounded-md ${
+                  patient.triage_badge === 'RED' ? 'nm-alert-inset text-[#FF334B] border border-[#FF334B]/40' :
+                  patient.triage_badge === 'YELLOW' ? 'nm-inset text-[#F59E0B] border border-[#F59E0B]/30' :
+                  'nm-badge text-[#94A3B8]'
                 }`}>
                   PRIORITY {patient.priority_score?.toFixed(1)}
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-0.5 m-0">
+              <p className="text-[10px] text-[#94A3B8] mt-1 m-0 font-medium">
                 Hospital EMR Record &bull; Sector GPS: {p.gps?.lat.toFixed(4)}, {p.gps?.lng.toFixed(4)} &bull; Alt: {p.gps?.altitude || 210}m
               </p>
             </div>
@@ -68,121 +70,131 @@ export default function PatientDetailModal({
 
           <div className="flex items-center gap-2.5">
             {isTampered ? (
-              <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold font-mono bg-rose-50 text-rose-700 border border-rose-300 animate-pulse">
-                <ShieldAlert className="w-3.5 h-3.5 text-rose-600" />
+              <span className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold font-mono nm-alert-inset rounded-xl text-[#FF334B] border border-[#FF334B]/40 animate-pulse">
+                <ShieldAlert className="w-3.5 h-3.5 text-[#FF334B]" />
                 TAMPERED
               </span>
             ) : (
-              <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium font-mono text-emerald-700 bg-emerald-50 border border-emerald-200">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold font-mono text-[#00E5A3] nm-inset rounded-xl border border-[#00E5A3]/30">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#00E5A3]" />
                 HMAC VERIFIED
               </span>
             )}
+            {onRequestBlood && (
+              <button
+                onClick={() => onRequestBlood(p.patient_id)}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold font-mono text-[#FF334B] nm-btn rounded-xl hover:text-white transition-all"
+                title="Initiate regional blood availability search for this casualty"
+              >
+                <Droplet className="w-3.5 h-3.5 fill-current" />
+                <span>FIND BLOOD UNIT</span>
+              </button>
+            )}
             <button
               onClick={onClose}
-              className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+              className="w-8 h-8 nm-btn rounded-xl flex items-center justify-center text-[#94A3B8] hover:text-[#FF334B] transition-all ml-1"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
 
         {/* Modal Scroll Content */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-6 space-y-5">
 
-          {/* ICU Telemetry Vitals Grid */}
+          {/* ICU Telemetry Vitals Sunken Wells Grid */}
           <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
-            <div className="bg-slate-50/70 p-3.5 rounded-2xl border border-slate-100 flex flex-col">
-              <span className="text-slate-400 text-xs flex items-center gap-1 font-semibold">
-                <Heart className="w-3 h-3 text-rose-500" /> Heart Rate
+            <div className="nm-inset rounded-xl p-3.5 flex flex-col">
+              <span className="text-[#94A3B8] text-[10px] flex items-center gap-1.5 font-bold uppercase">
+                <Heart className="w-3.5 h-3.5 text-[#FF334B]" /> HR
               </span>
-              <span className="text-xl font-bold font-mono text-slate-800 mt-1">
-                {p.vitals?.heart_rate || '--'} <span className="text-xs text-slate-400 font-normal">bpm</span>
+              <span className="text-xl font-black font-mono text-[#F8FAFC] mt-1.5">
+                {p.vitals?.heart_rate || '--'} <span className="text-[10px] text-[#64748B] font-normal">bpm</span>
               </span>
-              <span className="text-[10px] text-slate-400 mt-0.5">Norm: 60-100</span>
+              <span className="text-[9px] text-[#64748B] mt-0.5">Norm: 60-100</span>
             </div>
 
-            <div className="bg-slate-50/70 p-3.5 rounded-2xl border border-slate-100 flex flex-col">
-              <span className="text-slate-400 text-xs flex items-center gap-1 font-semibold">
-                <Wind className="w-3 h-3 text-sky-500" /> SpO2 O2
+            <div className="nm-inset rounded-xl p-3.5 flex flex-col">
+              <span className="text-[#94A3B8] text-[10px] flex items-center gap-1.5 font-bold uppercase">
+                <Wind className="w-3.5 h-3.5 text-[#00E5A3]" /> SpO2 O2
               </span>
-              <span className={`text-xl font-bold font-mono mt-1 ${p.vitals?.spo2 < 90 ? 'text-rose-600' : 'text-slate-800'}`}>
+              <span className={`text-xl font-black font-mono mt-1.5 ${p.vitals?.spo2 < 90 ? 'text-[#FF334B]' : 'text-[#F8FAFC]'}`}>
                 {p.vitals?.spo2 || '--'}%
               </span>
-              <span className="text-[10px] text-slate-400 mt-0.5">Norm: &gt;95%</span>
+              <span className="text-[9px] text-[#64748B] mt-0.5">Norm: &gt;95%</span>
             </div>
 
-            <div className="bg-slate-50/70 p-3.5 rounded-2xl border border-slate-100 flex flex-col">
-              <span className="text-slate-400 text-xs font-semibold">Blood Pressure</span>
-              <span className="text-xl font-bold font-mono text-slate-800 mt-1">
+            <div className="nm-inset rounded-xl p-3.5 flex flex-col">
+              <span className="text-[#94A3B8] text-[10px] font-bold uppercase">Blood Pressure</span>
+              <span className="text-xl font-black font-mono text-[#F8FAFC] mt-1.5">
                 {p.vitals?.systolic_bp || '--'}/{p.vitals?.diastolic_bp || '--'}
               </span>
-              <span className="text-[10px] text-slate-400 mt-0.5">mmHg</span>
+              <span className="text-[9px] text-[#64748B] mt-0.5">mmHg</span>
             </div>
 
-            <div className="bg-slate-50/70 p-3.5 rounded-2xl border border-slate-100 flex flex-col">
-              <span className="text-slate-400 text-xs font-semibold">Resp. Rate</span>
-              <span className="text-xl font-bold font-mono text-slate-800 mt-1">
-                {p.vitals?.respiratory_rate || '--'} <span className="text-xs text-slate-400 font-normal">/min</span>
+            <div className="nm-inset rounded-xl p-3.5 flex flex-col">
+              <span className="text-[#94A3B8] text-[10px] font-bold uppercase">Resp. Rate</span>
+              <span className="text-xl font-black font-mono text-[#F8FAFC] mt-1.5">
+                {p.vitals?.respiratory_rate || '--'} <span className="text-[10px] text-[#64748B] font-normal">/min</span>
               </span>
-              <span className="text-[10px] text-slate-400 mt-0.5">Norm: 12-20</span>
+              <span className="text-[9px] text-[#64748B] mt-0.5">Norm: 12-20</span>
             </div>
 
-            <div className="bg-slate-50/70 p-3.5 rounded-2xl border border-slate-100 flex flex-col">
-              <span className="text-slate-400 text-xs flex items-center gap-1 font-semibold">
-                <Clock className="w-3 h-3 text-amber-500" /> Evac ETA
+            <div className="nm-alert-inset rounded-xl p-3.5 flex flex-col border border-[#FF334B]/30">
+              <span className="text-[#FF334B] text-[10px] flex items-center gap-1.5 font-bold uppercase">
+                <Clock className="w-3.5 h-3.5 text-[#FF334B]" /> Evac ETA
               </span>
-              <span className="text-xl font-bold font-mono text-amber-600 mt-1">
+              <span className="text-xl font-black font-mono text-[#FF334B] mt-1.5">
                 {p.time_to_help < 1 ? `${Math.round(p.time_to_help * 60)}m` : `${p.time_to_help}h`}
               </span>
-              <span className="text-[10px] text-slate-400 mt-0.5">Definitive Care</span>
+              <span className="text-[9px] text-[#94A3B8] mt-0.5">Definitive Care</span>
             </div>
 
-            <div className="bg-slate-50/70 p-3.5 rounded-2xl border border-slate-100 flex flex-col">
-              <span className="text-slate-400 text-xs font-semibold">Trauma Fall</span>
-              <span className={`text-sm font-bold font-mono mt-2 ${p.vitals?.fall_detected ? 'text-rose-600' : 'text-emerald-600'}`}>
-                {p.vitals?.fall_detected ? 'FALL DETECTED' : 'NORMAL'}
+            <div className="nm-inset rounded-xl p-3.5 flex flex-col">
+              <span className="text-[#94A3B8] text-[10px] font-bold uppercase">Trauma Fall</span>
+              <span className={`text-xs font-bold font-mono mt-2.5 ${p.vitals?.fall_detected ? 'text-[#FF334B]' : 'text-[#00E5A3]'}`}>
+                {p.vitals?.fall_detected ? 'FALL DETECTED' : 'NOMINAL'}
               </span>
             </div>
           </div>
 
           {/* Clinical Decision Support (CDSS) - Nirantara Edge LLM */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2">
-                <BrainCircuit className="w-5 h-5 text-purple-600" />
-                <h3 className="text-xs md:text-sm font-bold text-slate-800 uppercase tracking-wider m-0">
-                  Clinical Decision Support (Nirantara Edge LLM Triage Service)
+          <div className="nm-flat rounded-2xl p-5 border border-white/[0.04] space-y-4">
+            <div className="flex items-center justify-between border-b border-white/[0.04] pb-3">
+              <div className="flex items-center gap-2.5">
+                <BrainCircuit className="w-4 h-4 text-[#FF334B]" />
+                <h3 className="text-xs font-bold text-[#F8FAFC] uppercase tracking-wider m-0">
+                  CLINICAL DECISION SUPPORT &bull; NIRANTARA EDGE LLM
                 </h3>
               </div>
-              <span className="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+              <span className="px-2.5 py-1 text-[9px] font-mono font-bold rounded-lg nm-alert-inset text-[#FF334B] border border-[#FF334B]/30">
                 PROTOCOL: {evaluation?.protocol_mode || (isAcute ? 'ACUTE_STABILIZATION' : isPFC ? 'PROLONGED_FIELD_CARE' : 'TACTICAL_STANDARD')}
               </span>
             </div>
 
             {/* Clinical Summary */}
-            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-              <div className="text-[11px] font-mono text-blue-700 uppercase tracking-wider mb-1 font-semibold">
-                Clinical Diagnosis & Triage Assessment:
+            <div className="p-4 nm-inset rounded-xl">
+              <div className="text-[10px] font-mono text-[#FF334B] uppercase tracking-wider mb-1 font-bold">
+                CLINICAL DIAGNOSIS &amp; TRIAGE ASSESSMENT:
               </div>
-              <p className="text-xs md:text-sm text-slate-700 leading-relaxed m-0">
+              <p className="text-xs text-[#F8FAFC] leading-relaxed m-0 font-medium">
                 {evaluation?.clinical_summary || 'Evaluating patient physiological status...'}
               </p>
             </div>
 
             {/* Clinical Action Steps */}
             <div>
-              <div className="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                <CheckSquare className="w-4 h-4 text-emerald-600" />
-                Prescribed Clinical Action Plan:
+              <div className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider mb-2.5 flex items-center gap-2">
+                <CheckSquare className="w-3.5 h-3.5 text-[#FF334B]" />
+                PRESCRIBED CLINICAL ACTION PLAN:
               </div>
               <div className="space-y-2">
                 {evaluation?.action_steps?.map((step, idx) => (
-                  <div key={idx} className="flex items-start gap-2.5 p-2.5 bg-slate-50 rounded-xl border border-slate-100 text-xs text-slate-700">
-                    <span className="w-5 h-5 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[10px] font-bold font-mono shrink-0 mt-0.5">
+                  <div key={idx} className="flex items-start gap-2.5 p-3 nm-inset rounded-xl text-xs text-[#F8FAFC]">
+                    <span className="w-5 h-5 nm-convex rounded-md text-[#FF334B] flex items-center justify-center text-[10px] font-bold font-mono shrink-0 mt-0.5">
                       {idx + 1}
                     </span>
-                    <span>{step}</span>
+                    <span className="font-medium">{step}</span>
                   </div>
                 ))}
               </div>
@@ -190,12 +202,12 @@ export default function PatientDetailModal({
 
             {/* Prolonged Field Care Specifics */}
             {(isPFC || (evaluation?.rationing_guidelines && evaluation.rationing_guidelines.length > 0)) && (
-              <div className="p-4 bg-purple-50/70 rounded-2xl border border-purple-200 space-y-2">
-                <div className="text-xs font-bold text-purple-900 uppercase tracking-wider flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-purple-600" />
-                  Prolonged Field Care (PFC) & Resource Rationing Guidelines (Help Delay: {p.time_to_help}h):
+              <div className="p-4 nm-alert-inset rounded-xl border border-[#FF334B]/30 space-y-2">
+                <div className="text-[10px] font-bold text-[#FF334B] uppercase tracking-wider flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4" />
+                  PROLONGED FIELD CARE &amp; RATIONING (DELAY: {p.time_to_help}h):
                 </div>
-                <ul className="text-xs text-purple-800 space-y-1 pl-4 list-disc">
+                <ul className="text-xs text-[#94A3B8] space-y-1.5 pl-4 list-disc font-medium">
                   {evaluation?.rationing_guidelines?.map((item, i) => (
                     <li key={i}>{item}</li>
                   ))}
@@ -205,12 +217,12 @@ export default function PatientDetailModal({
 
             {/* Red Flag Escalation Triggers */}
             {evaluation?.red_flag_triggers && evaluation.red_flag_triggers.length > 0 && (
-              <div className="p-4 bg-rose-50/70 rounded-2xl border border-rose-200 space-y-2">
-                <div className="text-xs font-bold text-rose-900 uppercase tracking-wider flex items-center gap-1.5">
-                  <AlertTriangle className="w-4 h-4 text-rose-600" />
-                  Red-Flag Clinical Escalation Triggers:
+              <div className="p-4 nm-alert-inset rounded-xl border border-[#FF334B]/40 space-y-2">
+                <div className="text-[10px] font-bold text-[#FF334B] uppercase tracking-wider flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4" />
+                  RED-FLAG CLINICAL ESCALATION TRIGGERS:
                 </div>
-                <ul className="text-xs text-rose-800 space-y-1 pl-4 list-disc">
+                <ul className="text-xs text-[#F8FAFC] space-y-1.5 pl-4 list-disc font-medium">
                   {evaluation.red_flag_triggers.map((item, i) => (
                     <li key={i}>{item}</li>
                   ))}
@@ -220,15 +232,15 @@ export default function PatientDetailModal({
           </div>
 
           {/* Interactive Medical Sensor Simulator Sandbox */}
-          <div className="p-4 bg-slate-50/80 rounded-2xl border border-slate-200 space-y-3">
+          <div className="p-4 nm-flat rounded-2xl border border-white/[0.04] space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Eye className="w-4 h-4 text-blue-600" />
-                <h4 className="text-xs font-bold text-slate-800 uppercase font-mono m-0">
-                  Biometric Sensor Simulator (EOG & RFID HMAC Stream)
+                <Eye className="w-4 h-4 text-[#FF334B]" />
+                <h4 className="text-xs font-bold text-[#F8FAFC] uppercase font-mono m-0">
+                  BIOMETRIC SENSOR SIMULATOR (EOG &amp; RFID HMAC STREAM)
                 </h4>
               </div>
-              <span className="text-[10px] text-slate-500">
+              <span className="text-[9px] text-[#94A3B8]">
                 Emit simulated biopotential trigger to this patient chart
               </span>
             </div>
@@ -237,22 +249,22 @@ export default function PatientDetailModal({
               <select
                 value={gazeCmd}
                 onChange={(e) => setGazeCmd(e.target.value)}
-                className="bg-white border border-slate-200 text-xs text-slate-700 rounded-xl px-3.5 py-2 focus:outline-none focus:border-blue-400"
+                className="nm-inset rounded-xl text-xs text-[#F8FAFC] px-3.5 py-2 border-none focus:outline-none"
               >
-                <option value="CALL_NURSE">CALL_NURSE (2 Blinks)</option>
-                <option value="PAIN">PAIN (3 Blinks)</option>
-                <option value="WATER">WATER (Look Left + 1 Blink)</option>
-                <option value="BATHROOM">BATHROOM (Look Right + 1 Blink)</option>
+                <option value="CALL_NURSE" className="bg-[#181B22]">CALL_NURSE (2 Blinks)</option>
+                <option value="PAIN" className="bg-[#181B22]">PAIN (3 Blinks)</option>
+                <option value="WATER" className="bg-[#181B22]">WATER (Look Left + 1 Blink)</option>
+                <option value="BATHROOM" className="bg-[#181B22]">BATHROOM (Look Right + 1 Blink)</option>
               </select>
 
-              <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer">
+              <label className="flex items-center gap-2 text-xs text-[#94A3B8] cursor-pointer">
                 <input
                   type="checkbox"
                   checked={tamperCheckbox}
                   onChange={(e) => setTamperCheckbox(e.target.checked)}
-                  className="rounded border-slate-300 text-rose-600 focus:ring-0"
+                  className="accent-[#FF334B] rounded"
                 />
-                <span className={tamperCheckbox ? 'text-rose-600 font-bold' : ''}>
+                <span className={tamperCheckbox ? 'text-[#FF334B] font-bold' : ''}>
                   Simulate Cryptographic Tampering (Bad HMAC)
                 </span>
               </label>
@@ -260,10 +272,10 @@ export default function PatientDetailModal({
               <button
                 onClick={handleTriggerGaze}
                 disabled={triggeringGaze}
-                className="px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all ml-auto"
+                className="px-4 py-2 nm-btn-accent rounded-xl text-white text-xs font-bold flex items-center gap-2 transition-all ml-auto shadow-[0_0_12px_#FF334B]"
               >
                 <Send className="w-3.5 h-3.5" />
-                <span>{triggeringGaze ? 'Emitting...' : 'Dispatch Signal'}</span>
+                <span>{triggeringGaze ? 'EMITTING...' : 'DISPATCH SIGNAL'}</span>
               </button>
             </div>
           </div>

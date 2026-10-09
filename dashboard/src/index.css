@@ -3,17 +3,35 @@
 
 @layer base {
   :root {
-    --bg-main: #f0f4f9;
-    --sidebar-grad-start: #162f58;
-    --sidebar-grad-end: #1f4b82;
-    --card-bg: #ffffff;
-    --text-primary: #1e293b;
-    --text-secondary: #64748b;
+    --nm-bg: #EFECE6;
+    --nm-surface: #F7F4ED;
+    --nm-surface-light: #FFFFFF;
+    --nm-surface-inset: #E5DFD4;
+    --nm-shadow-dark: #CDC4B3;
+    --nm-shadow-light: #FFFFFF;
+    
+    /* Sage / Forest / Mint Green Accents */
+    --nm-accent-forest: #2D6A4F;
+    --nm-accent-sage: #52B788;
+    --nm-accent-mint: #E8F5EE;
+    --nm-accent-mint-border: #A7D7C5;
+    
+    /* Text Hierarchy */
+    --nm-text-primary: #1A241C;
+    --nm-text-secondary: #536253;
+    --nm-text-muted: #758375;
+    
+    /* Alerts */
+    --nm-alert: #C84B31;
+    --nm-alert-bg: #FCEBEA;
+    --nm-alert-border: #E8B4AF;
+    
+    --nm-border: #DDD6C7;
   }
   
   body {
-    background-color: #eef2f7;
-    color: #1e293b;
+    background-color: var(--nm-bg);
+    color: var(--nm-text-primary);
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     margin: 0;
     padding: 0;
@@ -21,10 +39,169 @@
   }
 }
 
-/* Pulsing radar animations */
+/* ================= LIGHT BEIGE & SAGE GREEN NEUMORPHIC SURFACES ================= */
+
+/* Elevated Soft-Raised Porcelain/Linen Panel */
+.nm-flat {
+  background: #F7F4ED !important;
+  box-shadow: 6px 6px 14px #CDC4B3, -6px -6px 14px #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.8) !important;
+  border-radius: 16px;
+}
+
+/* Subtle Convex Surface */
+.nm-convex {
+  background: linear-gradient(145deg, #FAF7F0, #EFE9DE) !important;
+  box-shadow: 5px 5px 12px #D3CBB9, -5px -5px 12px #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  border-radius: 14px;
+}
+
+/* Subtle Concave Surface */
+.nm-concave {
+  background: linear-gradient(145deg, #EFE9DE, #FAF7F0) !important;
+  box-shadow: 5px 5px 12px #D3CBB9, -5px -5px 12px #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  border-radius: 14px;
+}
+
+/* Inset / Debossed Sunken Well (For Inputs, Stats Wells, Active Tabs) */
+.nm-inset {
+  background: #E5DFD4 !important;
+  box-shadow: inset 4px 4px 8px #C7BEAE, inset -4px -4px 8px #FFFFFF !important;
+  border: 1px solid #D6CEBD !important;
+  border-radius: 12px;
+}
+
+/* Tactile Interactive Button */
+.nm-btn {
+  background: #F7F4ED !important;
+  box-shadow: 4px 4px 10px #D0C7B6, -4px -4px 10px #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.8) !important;
+  color: #1A241C !important;
+  border-radius: 12px;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.nm-btn:hover {
+  background: #FAF7F0 !important;
+  box-shadow: 5px 5px 13px #C7BDAA, -5px -5px 13px #FFFFFF !important;
+  color: #2D6A4F !important;
+}
+
+.nm-btn:active, .nm-btn-pressed {
+  background: #E7E0D3 !important;
+  box-shadow: inset 3px 3px 6px #C8BFAD, inset -3px -3px 6px #FFFFFF !important;
+  transform: scale(0.985);
+}
+
+/* Primary Sage Green & Forest Gradient Accent Button */
+.nm-btn-accent {
+  background: linear-gradient(135deg, #448E6C, #2D6A4F) !important;
+  box-shadow: 4px 4px 12px rgba(45, 106, 79, 0.3), -3px -3px 8px #FFFFFF, 0 0 14px rgba(82, 183, 136, 0.25) !important;
+  border: 1px solid #52B788 !important;
+  color: #FFFFFF !important;
+  border-radius: 12px;
+  font-weight: 700;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.nm-btn-accent:hover {
+  background: linear-gradient(135deg, #4FA47D, #34785A) !important;
+  box-shadow: 5px 5px 14px rgba(45, 106, 79, 0.38), -3px -3px 10px #FFFFFF, 0 0 18px rgba(82, 183, 136, 0.4) !important;
+}
+
+.nm-btn-accent:active {
+  background: #255841 !important;
+  box-shadow: inset 3px 3px 7px rgba(15, 45, 30, 0.6) !important;
+  transform: scale(0.985);
+}
+
+/* Embossed Tactile Badge / Pill */
+.nm-badge {
+  background: #EAF4EE !important;
+  box-shadow: 2px 2px 6px #D4CBC0, -2px -2px 6px #FFFFFF !important;
+  border: 1px solid #B7DFCA !important;
+  color: #2D6A4F !important;
+  border-radius: 9999px;
+}
+
+/* Inset Critical Alert / Status Well */
+.nm-alert-inset {
+  background: #FCEBEA !important;
+  box-shadow: inset 3px 3px 7px #E5C3C0, inset -3px -3px 7px #FFFFFF !important;
+  border: 1px solid rgba(200, 75, 49, 0.35) !important;
+  color: #B9382C !important;
+  border-radius: 12px;
+}
+
+.nm-alert-inset * {
+  color: #B9382C !important;
+}
+
+/* Global Color Harmonization for Light Beige & Light Sage Green Theme */
+[class*="text-[#F8FAFC]"],
+[class*="text-[#F5F5F5]"] {
+  color: #1A241C !important;
+}
+
+[class*="text-[#94A3B8]"],
+[class*="text-[#A1A1AA]"] {
+  color: #536253 !important;
+}
+
+[class*="text-[#64748B]"],
+[class*="text-[#71717A]"] {
+  color: #758375 !important;
+}
+
+[class*="bg-[#131519]"],
+[class*="bg-[#141416]"],
+[class*="bg-[#0B0B0D]"],
+[class*="bg-[#1C1C20]"] {
+  background-color: var(--nm-bg) !important;
+}
+
+[class*="bg-[#14171D]"],
+[class*="bg-[#181B22]"] {
+  background-color: #EAE4D8 !important;
+}
+
+[class*="border-white/[0.04]"],
+[class*="border-white/[0.02]"],
+[class*="border-white/[0.03]"],
+[class*="border-[#35353B]"] {
+  border-color: #DDD6C7 !important;
+}
+
+[class*="border-white/[0.08]"] {
+  border-color: #CDC5B4 !important;
+}
+
+/* Primary attractive Sage Forest Green highlights */
+.text-\[\#FF334B\],
+.text-\[\#FF2D3D\] {
+  color: #2D6A4F !important;
+}
+
+.bg-\[\#FF334B\],
+.bg-\[\#FF2D3D\] {
+  background-color: #4E8752 !important;
+}
+
+.shadow-\[0_0_8px_\#FF334B\],
+.shadow-\[0_0_6px_\#FF334B\],
+.shadow-\[0_0_8px_\#00E5A3\],
+.shadow-\[0_0_6px_\#00E5A3\] {
+  box-shadow: 0 0 8px rgba(78, 135, 82, 0.5) !important;
+}
+
+/* Neumorphic Tactical Pulse */
 @keyframes soft-pulse {
   0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.06); opacity: 0.85; }
+  50% { transform: scale(1.03); opacity: 0.88; }
   100% { transform: scale(1); opacity: 1; }
 }
 
@@ -32,38 +209,38 @@
   animation: soft-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* Leaflet clean light medical map styling */
+/* Leaflet Neumorphic Map Styling in Light Beige */
 .leaflet-container {
-  background-color: #f1f5f9 !important;
+  background-color: #E8E2D7 !important;
   font-family: inherit !important;
-  border-radius: 1.5rem;
+  border-radius: 14px !important;
   z-index: 10;
 }
 
 .leaflet-popup-content-wrapper {
-  background: #ffffff !important;
-  color: #1e293b !important;
-  border: 1px solid #e2e8f0 !important;
-  border-radius: 1rem !important;
-  box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.1) !important;
+  background: #F7F4ED !important;
+  color: #1A241C !important;
+  border: 1px solid #DDD6C7 !important;
+  border-radius: 12px !important;
+  box-shadow: 6px 6px 18px #C5BCAB, -6px -6px 18px #FFFFFF !important;
 }
 
 .leaflet-popup-tip {
-  background: #ffffff !important;
+  background: #F7F4ED !important;
 }
 
-/* Custom scrollbars */
+/* Neumorphic Custom Scrollbars in Warm Beige & Sage */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #E5DFD4;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
+  background: #C4BBAA;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #4E8752;
 }

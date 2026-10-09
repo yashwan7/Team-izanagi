@@ -14,13 +14,17 @@ from .models import (
     BedUnit,
     CriticalResource,
     HospitalCapacityData,
-    CapacityUpdateRequest
+    CapacityUpdateRequest,
+    BloodBankActionRequest
 )
 from .prompt_engine import evaluate_clinical_triage, calculate_clinical_metrics
 from .engine import merge_engine
 from .network_engine import network_engine
 from .mock_generator import seed_initial_mock_data
 from .security import sign_capsule, verify_capsule
+from .blood_bank_engine import get_blood_bank_state, process_blood_bank_action
+from .mqtt_engine import mqtt_engine
+
 
 # Clubbed Subsystem Engines
 from core.failover.engine import FailoverEngine
@@ -235,19 +239,41 @@ hospital_capacity_state = HospitalCapacityData(
     ]
 )
 
+main_event_loop: Optional[asyncio.AbstractEventLoop] = None
+
 @app.on_event("startup")
 async def startup_event():
+    global main_event_loop
+    main_event_loop = asyncio.get_running_loop()
+
     seed_initial_mock_data()
     try:
         failover_engine.start()
     except Exception as e:
         print(f"Warning starting failover_engine: {e}")
+
+    try:
+        def on_mqtt_packet(packet_data):
+            if main_event_loop and main_event_loop.is_running():
+                asyncio.run_coroutine_threadsafe(
+                    broadcast_ws("MQTT_SENSOR_TICK", packet_data),
+                    main_event_loop
+                )
+        mqtt_engine.register_listener(on_mqtt_packet)
+        mqtt_engine.start()
+    except Exception as e:
+        print(f"Warning starting mqtt_engine: {e}")
+
     asyncio.create_task(telemetry_ticker())
 
 @app.on_event("shutdown")
 async def shutdown_event():
     try:
         failover_engine.stop()
+    except Exception:
+        pass
+    try:
+        mqtt_engine.stop()
     except Exception:
         pass
 
@@ -260,6 +286,9 @@ async def telemetry_ticker():
             # Broadcast dual-port failover telemetry
             fo_status = failover_engine.get_system_status()
             await broadcast_ws("FAILOVER_TICK", fo_status)
+
+            # Broadcast latest MQTT sensor telemetry tick
+            await broadcast_ws("MQTT_SENSOR_TICK", mqtt_engine.current_telemetry)
         except Exception:
             pass
         await asyncio.sleep(1.0)
@@ -693,6 +722,107 @@ async def update_hospital_capacity(req: CapacityUpdateRequest):
     await broadcast_ws("CAPACITY_UPDATE", hospital_capacity_state.model_dump())
     return hospital_capacity_state
 
+# --- Blood Bank & Transfusion Network Endpoints ---
+@app.get("/api/bloodbank")
+def get_blood_bank_endpoint():
+    return get_blood_bank_state()
+
+@app.post("/api/bloodbank/action")
+async def handle_blood_bank_action_endpoint(req: BloodBankActionRequest):
+    updated_state = process_blood_bank_action(req)
+    await broadcast_ws("BLOODBANK_UPDATE", updated_state.model_dump())
+    return updated_state
+
+# --- GPS Radar & Multi-Ambulance Dispatch Endpoints ---
+from .dispatch_engine import dispatch_coordinator
+
+class DispatchOfferResponseRequest(BaseModel):
+    emergency_id: str
+    ambulance_id: str
+    response: str
+
+class DispatchRadiusRequest(BaseModel):
+    radius_km: float
+
+class DispatchLocationRequest(BaseModel):
+    lat: float
+    lng: float
+    label: str
+    patient_id: Optional[str] = None
+
+@app.get("/api/dispatch/state")
+def get_dispatch_state_endpoint():
+    return dispatch_coordinator.get_state()
+
+@app.post("/api/dispatch/respond-offer")
+async def respond_to_offer_endpoint(req: DispatchOfferResponseRequest):
+    result = await dispatch_coordinator.respond_to_offer_atomic(
+        emergency_id=req.emergency_id,
+        ambulance_id=req.ambulance_id,
+        response_type=req.response
+    )
+    await broadcast_ws("DISPATCH_UPDATE", dispatch_coordinator.get_state())
+    return result
+
+@app.post("/api/dispatch/set-radius")
+async def set_dispatch_radius_endpoint(req: DispatchRadiusRequest):
+    state = dispatch_coordinator.set_operating_radius(req.radius_km)
+    await broadcast_ws("DISPATCH_UPDATE", state)
+    return state
+
+@app.post("/api/dispatch/set-location")
+async def set_incident_location_endpoint(req: DispatchLocationRequest):
+    state = dispatch_coordinator.set_incident_location(
+        lat=req.lat,
+        lng=req.lng,
+        label=req.label,
+        patient_id=req.patient_id
+    )
+    await broadcast_ws("DISPATCH_UPDATE", state)
+    return state
+
+@app.post("/api/dispatch/timeout-offers")
+async def timeout_offers_endpoint():
+    state = dispatch_coordinator.force_offer_timeout()
+    await broadcast_ws("DISPATCH_UPDATE", state)
+    return state
+
+@app.post("/api/dispatch/reset-demo")
+async def reset_dispatch_demo_endpoint():
+    state = dispatch_coordinator.reset_demo()
+    await broadcast_ws("DISPATCH_UPDATE", state)
+    return state
+
+# --- Sensor MQTT REST Endpoints ---
+
+class SensorPublishRequest(BaseModel):
+    pulse_val: Optional[int] = None
+    force_n: Optional[int] = None
+    hub_online: Optional[bool] = True
+    lat: Optional[str] = "12.871773"
+    lng: Optional[str] = "77.576856"
+
+@app.get("/api/sensors/latest")
+def get_latest_sensors_endpoint():
+    """Returns the latest normalized MQTT sensor telemetry."""
+    return mqtt_engine.current_telemetry
+
+@app.get("/api/sensors/status")
+def get_sensors_status_endpoint():
+    """Returns the current HiveMQ MQTT connection and packet statistics."""
+    return mqtt_engine.get_status()
+
+@app.post("/api/sensors/publish")
+async def publish_sensors_endpoint(req: SensorPublishRequest):
+    """Publishes a sensor telemetry packet to HiveMQ topic izanagi/sensors/data."""
+    payload = {k: v for k, v in req.model_dump().items() if v is not None}
+    published = mqtt_engine.publish_telemetry(payload)
+    await broadcast_ws("MQTT_SENSOR_TICK", mqtt_engine.current_telemetry)
+    return {
+        "status": "published" if published else "queued_locally",
+        "telemetry": mqtt_engine.current_telemetry
+    }
+
 # --- WebSocket Channel ---
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -704,7 +834,10 @@ async def websocket_endpoint(websocket: WebSocket):
             "payload": {
                 "network": network_engine.get_status().model_dump(),
                 "patients_count": len(merge_engine.get_all_patients()),
-                "capacity": hospital_capacity_state.model_dump()
+                "capacity": hospital_capacity_state.model_dump(),
+                "bloodbank": get_blood_bank_state().model_dump(),
+                "dispatch": dispatch_coordinator.get_state(),
+                "sensors": mqtt_engine.current_telemetry
             }
         }))
         while True:
@@ -717,3 +850,5 @@ async def websocket_endpoint(websocket: WebSocket):
     except Exception:
         if websocket in active_websockets:
             active_websockets.remove(websocket)
+
+

@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Eye, ShieldCheck, ShieldAlert, Activity, 
-  Lock, CheckCircle2, AlertTriangle, Sparkles, 
-  Zap, HeartPulse, RefreshCw, Layers
+  Lock, Sparkles, Zap, HeartPulse 
 } from 'lucide-react';
 
 const API_BASE = '/api';
@@ -61,7 +60,7 @@ export default function EOGSecurityView() {
     return () => clearInterval(interval);
   }, [scenario, isStreaming]);
 
-  // Render Oscilloscope on Canvas
+  // Render Oscilloscope on Canvas (Tactical Coral & Cyan)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || liveFrames.length === 0) return;
@@ -72,7 +71,7 @@ export default function EOGSecurityView() {
     ctx.clearRect(0, 0, width, height);
 
     // Background Grid
-    ctx.strokeStyle = '#1e293b';
+    ctx.strokeStyle = '#1C2028';
     ctx.lineWidth = 0.5;
     const step = 20;
     for (let x = 0; x < width; x += step) {
@@ -92,7 +91,7 @@ export default function EOGSecurityView() {
     const midY2 = height * 0.72;
 
     // Zero-lines
-    ctx.strokeStyle = '#334155';
+    ctx.strokeStyle = '#2A303C';
     ctx.setLineDash([4, 4]);
     ctx.beginPath();
     ctx.moveTo(0, midY1); ctx.lineTo(width, midY1);
@@ -100,9 +99,9 @@ export default function EOGSecurityView() {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Channel 1: Vertical (Blinks) Filtered
-    ctx.strokeStyle = '#10b981'; // Emerald
-    ctx.lineWidth = 2;
+    // Channel 1: Vertical (Blinks) Filtered -> Coral Accent (#FF334B)
+    ctx.strokeStyle = '#FF334B';
+    ctx.lineWidth = 2.5;
     ctx.beginPath();
     liveFrames.forEach((frame, idx) => {
       const x = (idx / (liveFrames.length - 1)) * width;
@@ -112,8 +111,8 @@ export default function EOGSecurityView() {
     });
     ctx.stroke();
 
-    // Channel 1: Vertical (Raw) overlay (faint cyan)
-    ctx.strokeStyle = 'rgba(6, 182, 212, 0.25)';
+    // Channel 1: Vertical (Raw) overlay (Faint Coral)
+    ctx.strokeStyle = 'rgba(255, 51, 75, 0.2)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     liveFrames.forEach((frame, idx) => {
@@ -124,9 +123,9 @@ export default function EOGSecurityView() {
     });
     ctx.stroke();
 
-    // Channel 2: Horizontal (Gaze Step) Filtered
-    ctx.strokeStyle = '#38bdf8'; // Sky Blue
-    ctx.lineWidth = 2;
+    // Channel 2: Horizontal (Gaze Step) Filtered -> Soft Cyan (#38BDF8)
+    ctx.strokeStyle = '#38BDF8';
+    ctx.lineWidth = 2.5;
     ctx.beginPath();
     liveFrames.forEach((frame, idx) => {
       const x = (idx / (liveFrames.length - 1)) * width;
@@ -139,7 +138,7 @@ export default function EOGSecurityView() {
   }, [liveFrames]);
 
   const handleSimulateTamper = async () => {
-    setActionFeedback('Simulating tampered HMAC capsule...');
+    setActionFeedback('SIMULATING TAMPERED HMAC: Ingesting unauthorized payload...');
     try {
       const res = await fetch(`${API_BASE}/simulate-gaze`, {
         method: 'POST',
@@ -153,7 +152,7 @@ export default function EOGSecurityView() {
         })
       });
       if (res.ok) {
-        setActionFeedback('⚠️ TAMPERED SIGNATURE DETECTED: Capsule Rejected by Crypto Engine');
+        setActionFeedback('TAMPERED SIGNATURE DETECTED: Capsule Rejected by Crypto Engine');
         fetchStatus();
         setTimeout(() => setActionFeedback(null), 4000);
       }
@@ -177,7 +176,7 @@ export default function EOGSecurityView() {
         })
       });
       if (res.ok) {
-        setActionFeedback('✅ VERIFIED: HMAC-SHA256 authenticated successfully');
+        setActionFeedback('VERIFIED: HMAC-SHA256 authenticated successfully');
         fetchStatus();
         setTimeout(() => setActionFeedback(null), 4000);
       }
@@ -187,273 +186,273 @@ export default function EOGSecurityView() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 font-mono select-none text-[#F8FAFC]">
       
       {/* Header Banner */}
-      <div className="bg-white/80 backdrop-blur-md rounded-3xl p-6 border border-slate-200/70 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="nm-flat rounded-2xl p-5 border border-white/[0.04] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2.5">
-            <span className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
-              <Eye className="w-4 h-4" />
+          <div className="flex items-center gap-3">
+            <span className="w-9 h-9 nm-convex rounded-xl border border-[#FF334B]/30 flex items-center justify-center text-[#FF334B]">
+              <Eye className="w-5 h-5" />
             </span>
-            <h2 className="text-xl font-bold text-slate-800 tracking-tight">EOG Biopotential DSP & Case Capsule Security</h2>
-            <span className="px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-700 flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <h2 className="text-sm md:text-base font-bold text-[#F8FAFC] uppercase tracking-wider m-0">
+              EOG BIOPOTENTIAL DSP &amp; CAPSULE SECURITY
+            </h2>
+            <span className="px-3 py-1 nm-alert-inset rounded-xl border border-[#FF334B]/30 text-[10px] font-bold text-[#FF334B] flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#FF334B] animate-pulse shadow-[0_0_6px_#FF334B]"></span>
               4th-Order Butterworth (0.1–10.0 Hz)
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-1 pl-10.5">
-            Hands-free dual-channel eye biopotentials • Pulse-width blink detection • HMAC-SHA256 integrity & ~87% delta compression
+          <p className="text-[11px] text-[#94A3B8] mt-1 font-sans">
+            Hands-free dual-channel biopotentials &bull; Pulse-width blink detection &bull; HMAC-SHA256 &amp; ~87% delta compression
           </p>
         </div>
 
         {/* Live Controls */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2.5 flex-wrap text-xs">
           <button
             onClick={() => setIsStreaming(!isStreaming)}
-            className={`px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all flex items-center gap-1.5 ${
-              isStreaming ? 'bg-slate-100 border-slate-200 text-slate-700' : 'bg-emerald-600 text-white border-emerald-700'
+            className={`px-3 py-2 rounded-xl font-bold transition-all flex items-center gap-1.5 ${
+              isStreaming 
+                ? 'nm-btn text-[#94A3B8] hover:text-[#F8FAFC]' 
+                : 'nm-btn-accent text-white shadow-[0_0_12px_rgba(255,51,75,0.3)]'
             }`}
           >
-            <Activity className="w-3.5 h-3.5" />
-            <span>{isStreaming ? 'Pause Stream' : 'Resume Stream'}</span>
+            <Activity className="w-4 h-4 text-[#FF334B]" />
+            <span>{isStreaming ? 'PAUSE STREAM' : 'RESUME STREAM'}</span>
           </button>
 
           <button
             onClick={handleSimulateVerified}
-            className="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-semibold transition-all flex items-center gap-1.5"
+            className="px-3 py-2 nm-btn text-[#F8FAFC] hover:text-[#10B981] rounded-xl font-bold transition-all flex items-center gap-1.5"
           >
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Test Verified Capsule</span>
+            <ShieldCheck className="w-4 h-4 text-[#10B981]" />
+            <span>TEST VERIFIED</span>
           </button>
 
           <button
             onClick={handleSimulateTamper}
-            className="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold transition-all flex items-center gap-1.5"
+            className="px-3 py-2 nm-btn text-[#FF334B] rounded-xl font-bold transition-all flex items-center gap-1.5"
           >
-            <ShieldAlert className="w-3.5 h-3.5" />
-            <span>Test Tamper Attack</span>
+            <ShieldAlert className="w-4 h-4 text-[#FF334B]" />
+            <span>TEST TAMPER</span>
           </button>
         </div>
       </div>
 
       {actionFeedback && (
-        <div className="p-3 bg-slate-900 border border-slate-700 rounded-2xl text-xs font-semibold text-cyan-300 flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-cyan-400" />
+        <div className="p-3 nm-alert-inset rounded-xl border border-[#FF334B]/40 text-xs font-bold text-[#FF334B] flex items-center gap-2.5">
+          <Sparkles className="w-4 h-4 text-[#FF334B]" />
           <span>{actionFeedback}</span>
         </div>
       )}
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         
         {/* Active Command */}
-        <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-sm">
-          <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-2">
-            <span>DECODED COMMAND</span>
-            <HeartPulse className="w-4 h-4 text-rose-500" />
+        <div className="nm-flat rounded-2xl p-4 border border-white/[0.04]">
+          <div className="flex items-center justify-between text-[11px] text-[#94A3B8] uppercase font-semibold mb-1.5">
+            <span>Decoded Command</span>
+            <HeartPulse className="w-4 h-4 text-[#FF334B]" />
           </div>
-          <div className="text-xl font-bold text-slate-800 tracking-tight flex items-center gap-2">
+          <div className="text-xl font-bold text-[#F8FAFC] tracking-tight flex items-center gap-2">
             <span>{activeCommand || 'CALL_NURSE'}</span>
-            <span className="text-xs px-2 py-0.5 rounded-md bg-rose-100 text-rose-700 font-mono">
+            <span className="text-[10px] px-2 py-0.5 nm-alert-inset text-[#FF334B] border border-[#FF334B]/30 rounded-md font-mono">
               2 Blinks
             </span>
           </div>
-          <div className="text-[11px] text-slate-500 mt-2">
-            Gaze Direction: <strong className="text-blue-600 font-mono">{currentGaze}</strong>
+          <div className="text-[11px] text-[#94A3B8] mt-2 font-sans">
+            Gaze Vector: <strong className="text-[#FF334B] font-mono">{currentGaze}</strong>
           </div>
         </div>
 
         {/* Bandwidth Saved */}
-        <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-sm">
-          <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-2">
-            <span>DELTA BANDWIDTH SAVED</span>
-            <Zap className="w-4 h-4 text-amber-500" />
+        <div className="nm-flat rounded-2xl p-4 border border-white/[0.04]">
+          <div className="flex items-center justify-between text-[11px] text-[#94A3B8] uppercase font-semibold mb-1.5">
+            <span>Delta Compression</span>
+            <Zap className="w-4 h-4 text-[#FF334B]" />
           </div>
-          <div className="text-2xl font-bold text-amber-700 tracking-tight flex items-baseline gap-1">
+          <div className="text-xl font-bold text-[#FF334B] tracking-tight flex items-baseline gap-1.5">
             <span>~87.0%</span>
-            <span className="text-xs font-normal text-slate-500">reduced</span>
+            <span className="text-[11px] text-[#10B981] font-semibold">REDUCED</span>
           </div>
-          <div className="text-[11px] text-emerald-600 font-semibold mt-2">
+          <div className="text-[11px] text-[#94A3B8] mt-2 font-sans">
             1,450B baseline &rarr; 185B delta
           </div>
         </div>
 
         {/* Crypto Verifications */}
-        <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-sm">
-          <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-2">
-            <span>HMAC VERIFIED CAPSULES</span>
-            <ShieldCheck className="w-4 h-4 text-emerald-500" />
+        <div className="nm-flat rounded-2xl p-4 border border-white/[0.04]">
+          <div className="flex items-center justify-between text-[11px] text-[#94A3B8] uppercase font-semibold mb-1.5">
+            <span>HMAC Verified</span>
+            <ShieldCheck className="w-4 h-4 text-[#10B981]" />
           </div>
-          <div className="text-2xl font-bold text-slate-800 tracking-tight">
+          <div className="text-xl font-bold text-[#F8FAFC] tracking-tight">
             <span>{securityStats?.verified_count || 142}</span>
-            <span className="text-xs text-emerald-600 font-semibold ml-2">100% Valid</span>
+            <span className="text-[11px] text-[#10B981] font-bold ml-2">100% VALID</span>
           </div>
-          <div className="text-[11px] text-slate-500 mt-2">
-            HMAC-SHA256 • 256-bit Key
+          <div className="text-[11px] text-[#94A3B8] mt-2 font-sans">
+            HMAC-SHA256 &bull; 256-bit Key
           </div>
         </div>
 
         {/* Tamper Detections */}
-        <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-sm">
-          <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-2">
-            <span>TAMPER ATTEMPTS BLOCKED</span>
-            <ShieldAlert className="w-4 h-4 text-rose-500" />
+        <div className="nm-flat rounded-2xl p-4 border border-[#FF334B]/30">
+          <div className="flex items-center justify-between text-[11px] text-[#FF334B] uppercase font-semibold mb-1.5">
+            <span>Tamper Blocked</span>
+            <ShieldAlert className="w-4 h-4 text-[#FF334B]" />
           </div>
-          <div className="text-2xl font-bold text-rose-600 tracking-tight">
+          <div className="text-xl font-bold text-[#FF334B] tracking-tight">
             <span>{securityStats?.tampered_count || 3}</span>
-            <span className="text-xs text-slate-400 font-normal ml-2">Quarantined</span>
+            <span className="text-[11px] text-[#94A3B8] font-normal ml-2">QUARANTINED</span>
           </div>
-          <div className="text-[11px] text-slate-500 mt-2">
-            Zero-Trust Capsule Sandbox
+          <div className="text-[11px] text-[#94A3B8] mt-2 font-sans">
+            Zero-Trust Sandbox
           </div>
         </div>
 
       </div>
 
       {/* Two Column Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
         {/* ================= LEFT COLUMN: OSCILLOSCOPE ================= */}
-        <div className="bg-slate-950 text-white rounded-3xl p-6 border border-slate-800 shadow-xl space-y-4">
-          <div className="flex items-center justify-between">
+        <div className="nm-flat rounded-2xl p-5 border border-white/[0.04] space-y-4">
+          <div className="flex items-center justify-between border-b border-white/[0.04] pb-3 flex-wrap gap-2">
             <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span className="text-xs font-mono font-bold tracking-wider text-emerald-400">100 HZ EOG DUAL-CHANNEL OSCILLOSCOPE</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-[#FF334B] animate-pulse shadow-[0_0_6px_#FF334B]"></span>
+              <span className="text-[11px] font-mono font-bold tracking-wider text-[#FF334B] uppercase">
+                100 HZ EOG DUAL-CHANNEL OSCILLOSCOPE
+              </span>
             </div>
             
             {/* Scenario Switcher */}
-            <div className="flex bg-slate-900 border border-slate-800 rounded-lg p-0.5 text-[11px] font-mono">
-              <button
-                onClick={() => setScenario('nurse')}
-                className={`px-2 py-1 rounded transition-all ${scenario === 'nurse' ? 'bg-emerald-600 text-white font-bold' : 'text-slate-400 hover:text-white'}`}
-              >
-                Nurse Call
-              </button>
-              <button
-                onClick={() => setScenario('pain')}
-                className={`px-2 py-1 rounded transition-all ${scenario === 'pain' ? 'bg-rose-600 text-white font-bold' : 'text-slate-400 hover:text-white'}`}
-              >
-                Pain (3x)
-              </button>
-              <button
-                onClick={() => setScenario('water')}
-                className={`px-2 py-1 rounded transition-all ${scenario === 'water' ? 'bg-sky-600 text-white font-bold' : 'text-slate-400 hover:text-white'}`}
-              >
-                Water (L)
-              </button>
-              <button
-                onClick={() => setScenario('bathroom')}
-                className={`px-2 py-1 rounded transition-all ${scenario === 'bathroom' ? 'bg-amber-600 text-white font-bold' : 'text-slate-400 hover:text-white'}`}
-              >
-                Bath (R)
-              </button>
+            <div className="flex nm-inset rounded-xl p-1 text-[10px] font-mono">
+              {[
+                { id: 'nurse', label: 'NURSE' },
+                { id: 'pain', label: 'PAIN (3x)' },
+                { id: 'water', label: 'WATER (L)' },
+                { id: 'bathroom', label: 'BATH (R)' }
+              ].map(s => (
+                <button
+                  key={s.id}
+                  onClick={() => setScenario(s.id)}
+                  className={`px-2.5 py-1 font-bold rounded-lg transition-all ${
+                    scenario === s.id 
+                      ? 'nm-btn-accent text-white shadow-[0_0_10px_rgba(255,51,75,0.4)]' 
+                      : 'text-[#94A3B8] hover:text-[#F8FAFC]'
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
             </div>
           </div>
 
           {/* Canvas Waveform */}
-          <div className="relative rounded-2xl overflow-hidden border border-slate-800 bg-[#070d19]">
+          <div className="relative nm-inset rounded-xl p-2 border border-white/[0.02] bg-[#111317]">
             <canvas 
               ref={canvasRef} 
               width={540} 
               height={260} 
-              className="w-full h-56 block"
+              className="w-full h-52 block rounded-lg"
             />
-            <div className="absolute top-2 left-3 flex items-center gap-4 text-[10px] font-mono">
-              <span className="flex items-center gap-1.5 text-emerald-400">
-                <span className="w-2 h-2 rounded-full bg-emerald-400"></span> Vertical (Blink DSP Filtered)
+            <div className="absolute top-4 left-4 flex items-center gap-3 text-[10px] font-mono nm-flat px-2.5 py-1 rounded-lg border border-white/[0.04]">
+              <span className="flex items-center gap-1.5 text-[#FF334B]">
+                <span className="w-2 h-2 rounded-full bg-[#FF334B] shadow-[0_0_5px_#FF334B]"></span> CH1: VERTICAL (BLINK DSP)
               </span>
-              <span className="flex items-center gap-1.5 text-sky-400">
-                <span className="w-2 h-2 rounded-full bg-sky-400"></span> Horizontal (Saccadic Gaze Steps)
+              <span className="flex items-center gap-1.5 text-[#38BDF8]">
+                <span className="w-2 h-2 rounded-full bg-[#38BDF8] shadow-[0_0_5px_#38BDF8]"></span> CH2: HORIZONTAL (GAZE STEP)
               </span>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 text-[11px] font-mono text-slate-400 pt-1">
-            <div className="p-2.5 bg-slate-900/60 rounded-xl border border-slate-800/80">
-              <div className="text-slate-500">PULSE REJECTION</div>
-              <div className="text-slate-200 mt-0.5">100ms &le; Duration &le; 400ms</div>
+          <div className="grid grid-cols-2 gap-3 text-[11px] font-mono text-[#94A3B8] pt-1">
+            <div className="p-3 nm-inset rounded-xl border border-white/[0.02]">
+              <div className="text-[#64748B] uppercase text-[10px]">PULSE REJECTION</div>
+              <div className="text-[#F8FAFC] mt-1 font-bold">100ms &le; Duration &le; 400ms</div>
             </div>
-            <div className="p-2.5 bg-slate-900/60 rounded-xl border border-slate-800/80">
-              <div className="text-slate-500">IIR FILTER PASSBAND</div>
-              <div className="text-emerald-400 mt-0.5">0.1 Hz – 10.0 Hz (4th-Order)</div>
+            <div className="p-3 nm-inset rounded-xl border border-white/[0.02]">
+              <div className="text-[#64748B] uppercase text-[10px]">IIR FILTER PASSBAND</div>
+              <div className="text-[#FF334B] mt-1 font-bold">0.1 Hz – 10.0 Hz (4th-Order)</div>
             </div>
           </div>
 
         </div>
 
         {/* ================= RIGHT COLUMN: SECURITY & DELTA COMPRESSION ================= */}
-        <div className="space-y-6">
+        <div className="space-y-4">
 
           {/* Delta Compression Visualizer */}
-          <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-slate-800 tracking-tight flex items-center gap-2">
-                <Zap className="w-4 h-4 text-amber-500" />
-                <span>Case Capsule Delta Compression Engine</span>
+          <div className="nm-flat rounded-2xl p-5 border border-white/[0.04] space-y-4">
+            <div className="flex items-center justify-between border-b border-white/[0.04] pb-3">
+              <h3 className="text-xs font-bold text-[#F8FAFC] uppercase tracking-wider flex items-center gap-2 m-0">
+                <Zap className="w-4 h-4 text-[#FF334B]" />
+                <span>CASE CAPSULE DELTA COMPRESSION</span>
               </h3>
-              <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 text-[10px] font-bold">
-                87.0% Savings
+              <span className="px-2.5 py-0.5 nm-alert-inset text-[#10B981] border border-[#10B981]/30 text-[10px] font-bold rounded-lg">
+                87.0% SAVINGS
               </span>
             </div>
 
-            <p className="text-xs text-slate-500 leading-relaxed">
-              In combat zones and disaster meshes, bandwidth is strictly throttled. The delta encoder transmits ONLY modified physiological differentials relative to evolving patient baseline envelopes.
+            <p className="text-[11px] text-[#94A3B8] leading-relaxed font-sans">
+              In austere disaster meshes, bandwidth is strictly throttled. The delta encoder transmits ONLY modified differentials relative to evolving patient baseline envelopes.
             </p>
 
             {/* Comparison Bar */}
             <div className="space-y-3 text-xs">
               <div>
-                <div className="flex justify-between text-slate-600 mb-1">
+                <div className="flex justify-between text-[#94A3B8] text-[11px] mb-1.5">
                   <span>Full Telemetry JSON Payload</span>
-                  <span className="font-mono font-semibold">1,450 Bytes (100%)</span>
+                  <span className="font-mono font-bold text-[#F8FAFC]">1,450 Bytes (100%)</span>
                 </div>
-                <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
-                  <div className="w-full h-full bg-slate-400 rounded-full"></div>
+                <div className="w-full h-2.5 nm-inset rounded-full overflow-hidden p-0.5">
+                  <div className="w-full h-full bg-[#64748B] rounded-full"></div>
                 </div>
               </div>
 
               <div>
-                <div className="flex justify-between text-slate-600 mb-1">
+                <div className="flex justify-between text-[#94A3B8] text-[11px] mb-1.5">
                   <span>Delta Compressed Payload</span>
-                  <span className="font-mono font-semibold text-emerald-600">185 Bytes (12.8%)</span>
+                  <span className="font-mono font-bold text-[#FF334B]">185 Bytes (12.8%)</span>
                 </div>
-                <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
-                  <div className="w-[12.8%] h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"></div>
+                <div className="w-full h-2.5 nm-inset rounded-full overflow-hidden p-0.5">
+                  <div className="w-[12.8%] h-full bg-[#FF334B] rounded-full shadow-[0_0_8px_#FF334B]"></div>
                 </div>
               </div>
             </div>
 
-            <div className="p-3 bg-emerald-50/60 rounded-2xl border border-emerald-200 text-xs text-emerald-800 flex items-center justify-between">
-              <span>Tactical Mesh Link Bandwidth Conserved:</span>
-              <strong className="font-mono text-emerald-700 text-sm">~1.26 KB / packet</strong>
+            <div className="p-3 nm-inset rounded-xl border border-white/[0.02] text-[11px] text-[#94A3B8] flex items-center justify-between">
+              <span>Tactical Mesh Bandwidth Saved:</span>
+              <strong className="font-mono text-[#10B981] text-xs">~1.26 KB / packet</strong>
             </div>
           </div>
 
           {/* HMAC-SHA256 Cryptographic Verification */}
-          <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-slate-800 tracking-tight flex items-center gap-2">
-                <Lock className="w-4 h-4 text-blue-600" />
-                <span>HMAC-SHA256 Cryptographic Envelope</span>
+          <div className="nm-flat rounded-2xl p-5 border border-white/[0.04] space-y-4">
+            <div className="flex items-center justify-between border-b border-white/[0.04] pb-3">
+              <h3 className="text-xs font-bold text-[#F8FAFC] uppercase tracking-wider flex items-center gap-2 m-0">
+                <Lock className="w-4 h-4 text-[#FF334B]" />
+                <span>HMAC-SHA256 CRYPTO ENVELOPE</span>
               </h3>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
-                Zero-Trust Signed
+              <span className="text-[10px] font-mono px-2 py-0.5 nm-inset text-[#10B981] rounded-md border border-[#10B981]/30">
+                ZERO-TRUST
               </span>
             </div>
 
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200/60">
-                <span className="text-slate-500">Signing Algorithm:</span>
-                <span className="font-mono font-semibold text-slate-800">HMAC-SHA256 RFC 2104</span>
+            <div className="space-y-2.5 text-xs">
+              <div className="flex justify-between p-3 nm-inset rounded-xl border border-white/[0.02] text-[11px]">
+                <span className="text-[#94A3B8]">Signing Algorithm:</span>
+                <span className="font-mono font-bold text-[#F8FAFC]">HMAC-SHA256 RFC 2104</span>
               </div>
-              <div className="flex justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200/60">
-                <span className="text-slate-500">Canonicalization:</span>
-                <span className="font-mono font-semibold text-slate-800">Deterministic Sorted JSON</span>
+              <div className="flex justify-between p-3 nm-inset rounded-xl border border-white/[0.02] text-[11px]">
+                <span className="text-[#94A3B8]">Canonicalization:</span>
+                <span className="font-mono font-bold text-[#F8FAFC]">Deterministic Sorted JSON</span>
               </div>
-              <div className="flex justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200/60">
-                <span className="text-slate-500">Tamper Defense:</span>
-                <span className="font-mono font-semibold text-emerald-700">MitM Rejection + Replay Quarantine</span>
+              <div className="flex justify-between p-3 nm-inset rounded-xl border border-white/[0.02] text-[11px]">
+                <span className="text-[#94A3B8]">Tamper Defense:</span>
+                <span className="font-mono font-bold text-[#FF334B]">MitM Rejection + Replay Quarantine</span>
               </div>
             </div>
           </div>
