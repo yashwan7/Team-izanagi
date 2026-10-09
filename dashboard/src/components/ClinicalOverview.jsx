@@ -9,16 +9,23 @@ export default function ClinicalOverview({
   patients = [], 
   selectedPatientId, 
   onSelectPatient,
-  networkStatus 
+  networkStatus,
+  sensorData
 }) {
   const activePatientItem = patients.find(p => p.capsule.patient_id === selectedPatientId) || patients[0];
   const p = activePatientItem?.capsule || {
-    patient_id: 'PT-101',
+    patient_id: sensorData?.rfid && sensorData.rfid !== 'NONE' ? sensorData.rfid : 'PT-101',
     patient_name: 'John Smith',
-    vitals: { heart_rate: 72, spo2: 98, systolic_bp: 120, diastolic_bp: 80, respiratory_rate: 16 }
+    vitals: { 
+      heart_rate: sensorData?.pulse_bpm > 0 ? sensorData.pulse_bpm : 72, 
+      spo2: 98, 
+      systolic_bp: 120, 
+      diastolic_bp: 80, 
+      respiratory_rate: 16 
+    }
   };
 
-  const hr = p.vitals?.heart_rate || 72;
+  const hr = (sensorData?.pulse_bpm > 0) ? sensorData.pulse_bpm : (p.vitals?.heart_rate || 72);
   const isTachycardic = hr > 100;
 
   return (
